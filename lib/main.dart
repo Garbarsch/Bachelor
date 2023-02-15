@@ -1,3 +1,5 @@
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
@@ -56,34 +58,162 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState(){
     _mapData = _getMapData();
     _shapeSource = MapShapeSource.asset('assets/municipalitiesDK.json',
-    shapeDataField: 'State_name');
-
+    shapeDataField: 'label_dk',
+    dataCount: _mapData.length,
+    primaryValueMapper: (int index) => _mapData[index].kommune);
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       body: Padding(
-          padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
+          padding: EdgeInsets.fromLTRB(0,0, 0,0),
+          child: Column(
+          children: [ Container(height:35, width: MediaQuery.of(context).size.width ,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  border: Border.all(width: 45.0, color: Colors.black),
+
+                ),
+                child: Text('  Danish Municipalities',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25, height:1.5)),
+
+              )),Container(height: 100), Container(height: 300,
           child: SfMaps(
             layers: [
               MapShapeLayer(source: _shapeSource,
-                showDataLabels: true,
+                showDataLabels: false,
+                dataLabelSettings: MapDataLabelSettings(
+          textStyle: TextStyle(
+          color: Colors.transparent)),
+                color: Colors.white,
+                shapeTooltipBuilder: (BuildContext context, int index){
+                return Padding(padding: EdgeInsets.all(7),
+                child: Text(_mapData[index].kommune,
+                style: TextStyle(color: Colors.white),
+                )
+                );
+                },
+                tooltipSettings:
+                  MapTooltipSettings(color: Colors.blue),
 
               )
             ],
           )),
-    );
+
+          ],)));
   }
 }
 
+
 List<MapModel> _getMapData(){
   return <MapModel>[
-    MapModel('KOMMUNENAVN','KOMMUNEID')
+    MapModel('Sønderborg'),
+    MapModel('København'),
+    MapModel('Århus'),
+    MapModel('Aalborg'),
+    MapModel('Odense'),
+    MapModel('Vejle'),
+    MapModel('Esbjerg'),
+    MapModel('Frederiksberg'),
+    MapModel('Randers'),
+    MapModel('Viborg'),
+    MapModel('Silkeborg'),
+    MapModel('Kolding'),
+    MapModel('Horsens'),
+    MapModel('Herning'),
+    MapModel('Roskilde'),
+    MapModel('Næstved'),
+    MapModel('Slagelse'),
+    MapModel('Gentofte'),
+    MapModel('Holbæk'),
+    MapModel('Gladsaxe'),
+    MapModel('Hjørring'),
+    MapModel('Skanderborg'),
+    MapModel('Helsingør'),
+    MapModel('Køge'),
+    MapModel('Guldborgsund'),
+    MapModel('Frederikshavn'),
+    MapModel('Holstebro'),
+    MapModel('Svendborg'),
+    MapModel('Aabenraa'),
+    MapModel('Rudersdal'),
+    MapModel('Lyngby-Taastrup'),
+    MapModel('Faaborg-Midtfyn'),
+    MapModel('Hillerød'),
+    MapModel('Fredericia'),
+    MapModel('Greve'),
+    MapModel('Varde'),
+    MapModel('Ballerup'),
+    MapModel('Kalundborg'),
+    MapModel('Favrskov'),
+    MapModel('Hedensted'),
+    MapModel('Frederikssund'),
+    MapModel('Skive'),
+    MapModel('Vordingborg'),
+    MapModel('Egedal'),
+    MapModel('Syddjurs'),
+    MapModel('Thisted'),
+    MapModel('Vejen'),
+    MapModel('Tårnby'),
+    MapModel('Mariagerfjord'),
+    MapModel('Ikast-Brande'),
+    MapModel('Rødovre'),
+    MapModel('Furesø'),
+    MapModel('Fredensborg'),
+    MapModel('Gribskov'),
+    MapModel('Assens'),
+    MapModel('Lolland'),
+    MapModel('Bornholm'),
+    MapModel('Middelfart'),
+    MapModel('Jammerbugt'),
+    MapModel('Tønder'),
+    MapModel('Norddjurs'),
+    MapModel('Faxe'),
+    MapModel('Vesthimmerland'),
+    MapModel('Brønderslev-Dronninglund'),
+    MapModel('Brøndby'),
+    MapModel('Ringsted'),
+    MapModel('Odsherred'),
+    MapModel('Nyborg'),
+    MapModel('Halsnæs'),
+    MapModel('Rebild'),
+    MapModel('Sorø'),
+    MapModel('Nordfyns'),
+    MapModel('Herlev'),
+    MapModel('Lejre'),
+    MapModel('Albertslund'),
+    MapModel('Billund'),
+    MapModel('Allerød'),
+    MapModel('Hørsholm'),
+    MapModel('Kerteminde'),
+    MapModel('Solrød'),
+    MapModel('Odder'),
+    MapModel('Ishøj'),
+    MapModel('Stevns'),
+    MapModel('Glostrup'),
+    MapModel('Struer'),
+    MapModel('Morsø'),
+    MapModel('Lemvig'),
+    MapModel('Vallensbæk'),
+    MapModel('Dragør'),
+    MapModel('Langeland'),
+    MapModel('Ærø'),
+    MapModel('Samsø'),
+    MapModel('Fanø'),
+    MapModel('Læsø'),
+    MapModel('Ringkøbing-Skjern'),
+    MapModel('Haderslev'),
+    MapModel('Høje-Taastrup'),
+
+
   ];
 }
 class MapModel{
-  MapModel(this.kommune,this.kommuneID);
+  MapModel(this.kommune);
   late String kommune;
-  late String kommuneID;
 }
+
