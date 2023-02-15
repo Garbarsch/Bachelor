@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
@@ -25,6 +27,51 @@ class MyHomePage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        body: Center(
+          child: BlocBuilder<HomePageBloc, HomePageState>(
+            builder: (context,state){
+              if(state is HomePageInitial){ //HOMEPAGE
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(0,0, 0,0),
+                  child:
+                  SfMaps(
+                layers: [
+                MapShapeLayer(source: shapeSource,
+                  showDataLabels: false,
+                  dataLabelSettings: MapDataLabelSettings(
+                      textStyle: TextStyle(
+                          color: Colors.transparent)),
+                  color: Colors.white,
+                  shapeTooltipBuilder: (BuildContext context, int index){
+                    return Padding(padding: EdgeInsets.all(7),
+                        child: Text(mapData[index].name,
+                          style: TextStyle(color: Colors.white),
+                        )
+                    );
+                  },
+                  tooltipSettings:
+                  MapTooltipSettings(color: Colors.blue),
+
+                )
+              ],
+              )
+                );
+              }
+              if(state is homeLoadedGraph){ //LOADEDGRAPH
+                  return const CircularProgressIndicator(color: Colors.orange,);
+
+              } //ELSE
+                return const CircularProgressIndicator(color: Colors.orange,);
+            }
+
+
+
+          ),
+
+        )
+
+
+      /*
         body: Padding(
             padding: EdgeInsets.fromLTRB(0,0, 0,0),
             child: Column(
@@ -61,6 +108,7 @@ class MyHomePage extends StatelessWidget{
                     ],
                   )),
 
-              ],)));
+              ],)),*/
+    );
   }
 }
