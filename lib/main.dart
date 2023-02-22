@@ -7,17 +7,15 @@ import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
+import 'data/repository.dart';
 import 'ui/home_screen.dart';
 
 void main() {
-
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
-
 
   // This widget is the root of your application.
   @override
