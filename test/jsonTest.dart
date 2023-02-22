@@ -1,4 +1,3 @@
-/*
 // This is a basic Flutter widget test.
 //
 // To perform an interaction with a widget in your test, use the WidgetTester
@@ -9,9 +8,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:github_client/data/xmlRepository.dart';
-import 'package:xml/xml.dart';
-
+import 'package:github_client/data/jsonRepository.dart';
 
 import 'package:github_client/main.dart';
 
@@ -19,15 +16,28 @@ void main() async{
 
   WidgetsFlutterBinding.ensureInitialized(); //small fix for some async shit
 
-  final repo = xmlRepository();
-  XmlDocument doc = await repo.loadDoc();
-  var cafes = repo.getAllCafes(doc);
+  final repo = jsonRepository();
+  var scc = await repo.loadJsonData();
+  /*if(scc == "success"){
+    repo.printAllNodes();
+  }*/
 
-  print(cafes.first);
+  print("testing Cafe: " );
+  testLatLonFromCafe(repo);
+
 
   final x = 2;
   final y = 2;
 
   expect(x, equals(y));
 }
-*/
+
+void testLatLonFromCafe(jsonRepository repo){
+  var values = repo.getCafesCoords();
+  if(values.isNotEmpty){
+    print("Café test: Success");
+  }else{
+    print("Café test: Fail");
+  }
+
+}
