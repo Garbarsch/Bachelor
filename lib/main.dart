@@ -1,7 +1,11 @@
 //import 'dart:html';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_maps/maps.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/plugin_api.dart';
+import 'package:multiselect/multiselect.dart';
+import 'package:searchfield/searchfield.dart';
 
 void main() {
   runApp(const MyApp());
@@ -52,15 +56,17 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  late MapShapeSource _shapeSource;
+  List<String> choices = ['Subway','Train','Cafe','Education','Bars'];
+  List<String> selecteChoices = [];
+  MapController _mapController = MapController();
   late List<MapModel> _mapData;
   @override
   void initState(){
     _mapData = _getMapData();
-    _shapeSource = MapShapeSource.asset('assets/municipalitiesDK.json',
-    shapeDataField: 'label_dk',
-    dataCount: _mapData.length,
-    primaryValueMapper: (int index) => _mapData[index].kommune);
+    //_shapeSource = MapShapeSource.asset('assets/municipalitiesDK.json',
+   // shapeDataField: 'label_dk',
+    //dataCount: _mapData.length,
+    //primaryValueMapper: (int index) => _mapData[index].kommune);
     super.initState();
   }
   @override
@@ -70,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Padding(
           padding: EdgeInsets.fromLTRB(0,0, 0,0),
-          child: Column(
+          child: Stack(
           children: [ Container(height:35, width: MediaQuery.of(context).size.width ,
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -78,33 +84,63 @@ class _MyHomePageState extends State<MyHomePage> {
                   border: Border.all(width: 45.0, color: Colors.black),
 
                 ),
-                child: Text('  Danish Municipalities',
+                child: const Text('  Danish Municipalities',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25, height:1.5)),
 
-              )),Container(height: 100), Container(height: 300,
-          child: SfMaps(
+              )),Container(height: MediaQuery.of(context).size.width ), Positioned(top: 55, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
+          child: FlutterMap(
+            mapController: _mapController,
+          options: MapOptions(
+          center: LatLng(56, 10),
+         swPanBoundary:LatLng(54, 8) ,
+         nePanBoundary: LatLng(60, 13),
+        zoom: 6,
+             // maxBounds: LatLngBounds(LatLng(56, 10),LatLng(76, 15)),
+      ),
+      nonRotatedChildren: [
+        AttributionWidget.defaultWidget(
+          source: '',
+          onSourceTapped: null,
+        ),
+      ],
             layers: [
-              MapShapeLayer(source: _shapeSource,
-                showDataLabels: false,
-                dataLabelSettings: MapDataLabelSettings(
-          textStyle: TextStyle(
-          color: Colors.transparent)),
-                color: Colors.white,
-                shapeTooltipBuilder: (BuildContext context, int index){
-                return Padding(padding: EdgeInsets.all(7),
-                child: Text(_mapData[index].kommune,
-                style: TextStyle(color: Colors.white),
-                )
-                );
+              TileLayerOptions(
+                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              userAgentPackageName: 'dev.fleaflet.flutter_map.example'
+              ),
+      ], )),),
+            Container(height: MediaQuery.of(context).size.width ), Positioned(top: 45, bottom: 10, left: MediaQuery.of(context).size.width -300, right: 150 ,child: Container(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
+              child: SearchField(
+                  suggestions: _mapData.map((e) =>
+                      SearchFieldListItem(e.kommune)).toList(),
+                  suggestionState: Suggestion.expand,
+                  textInputAction: TextInputAction.next,
+                  hint: 'Search on Municipality ',
+                  hasOverlay: false,
+                  searchStyle: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black.withOpacity(0.8),
+                  )),
+
+                  ),),Container(height: MediaQuery.of(context).size.width ), Positioned(top: 400, bottom: 10, left: MediaQuery.of(context).size.width -300, right: 150 ,child: Container(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
+              child: DropDownMultiSelect(
+                options: choices,
+                selectedValues: selecteChoices,
+                onChanged: (value) {
+                  setState(() {
+                    selecteChoices = value;
+                  });
                 },
-                tooltipSettings:
-                  MapTooltipSettings(color: Colors.blue),
+                whenEmpty: 'Choose filter',
+              ),
 
-              )
-            ],
-          )),
+            ),)
 
-          ],)));
+
+
+
+
+          ])));
   }
 }
 
