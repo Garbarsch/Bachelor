@@ -53,7 +53,10 @@ Future<void> testLoadJSON() async{
   var scc = await repo.loadJsonData();
   if(scc == "success"){
     print("load JSON test: Success \n");
-    repo.relations.forEach((rel) { print(rel.name);});
+    //repo.relations.forEach((rel) { print(rel.name);});
+    print("Testing muni coords for Billund Kommune: ");
+    var coordList = repo.getMuniBoundary("Billund Kommune");
+    print(coordList);
   }else{
     print("load JSON test: Fail \n");
     //print(repo.ways);

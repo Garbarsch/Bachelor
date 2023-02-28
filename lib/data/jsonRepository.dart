@@ -171,6 +171,10 @@ class jsonRepository{
     return tupList;
   }
 
+  List<LatLng> getMuniBoundary(String muni){
+    return relations.where((element) => element.name == muni).first.boundaryCoords;
+  }
+
   //getMunicipalityBoundaries
 
 

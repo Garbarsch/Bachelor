@@ -138,7 +138,7 @@ class MyHomePage extends StatelessWidget {
                     child: DropDownMultiSelect(
                       options: choices,
                       selectedValues: selecteChoices,
-                      onChanged: (value) {
+                      onChanged: (List<String> value) {
                         print(value.toString());
                         context.read<HomePageBloc>().add(
                             addMarkers(coords: repo.getCoords(value)));
