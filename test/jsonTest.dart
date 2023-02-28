@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_client/data/jsonRepository.dart';
 
-import 'package:github_client/main.dart';
 import 'package:github_client/models/node.dart';
 import 'package:tuple/tuple.dart';
 
@@ -19,18 +18,20 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized(); //small fix for some async shit
 
   final repo = jsonRepository();
-  List<Node> nodes = [];
+  Map<int, Node> nodes = {};
   //seed data
   var node1 = Node(id: 1, lon: 1, lat: 1, isAmenity: true, tags: {'amenity':'cafe'});
-  nodes.add(node1);
+  nodes[node1.id] = node1;
   var node2 = Node(id: 2, lon: 2, lat: 2, isAmenity: true, tags: {'amenity':'restaurant'});
-  nodes.add(node2);
+  nodes[node2.id] = node2;
   var node3 = Node(id: 3, lon: 3, lat: 3, isAmenity: true, tags: {'amenity':'college'});
-  nodes.add(node3);
+  nodes[node3.id] = node3;
   var node4 = Node(id: 4, lon: 4, lat: 4, isAmenity: true, tags: {'amenity':'university'});
-  nodes.add(node4);
+  nodes[node4.id] = node4;
+  var node5 = Node(id: 5, lon: 5, lat: 5, isAmenity: true, tags: {'railway':'station'});
+  nodes[node5.id] = node5;
 
-  repo.nodes = nodes;
+  repo.amenityNodes = nodes;
 
 
 
@@ -42,6 +43,9 @@ void main() async{
 
 
   testLatLonFromHigherEducation(repo);
+
+
+  testTrainStationCoords(repo);
 }
 
 Future<void> testLoadJSON() async{
@@ -49,8 +53,10 @@ Future<void> testLoadJSON() async{
   var scc = await repo.loadJsonData();
   if(scc == "success"){
     print("load JSON test: Success \n");
+    repo.relations.forEach((rel) { print(rel.name);});
   }else{
     print("load JSON test: Fail \n");
+    //print(repo.ways);
   }
 }
 
@@ -65,7 +71,6 @@ void testLatLonFromCafe(jsonRepository repo){
   }
 }
 
-
 void testLatLonFromHigherEducation(jsonRepository repo){
   var values = repo.getHigherEducationCoords();
 
@@ -76,3 +81,15 @@ void testLatLonFromHigherEducation(jsonRepository repo){
     print(values);
   }
 }
+
+void testTrainStationCoords(jsonRepository repo){
+  var values = repo.getTrainStationCoords();
+
+  if(values.length == 1 && values.contains(Tuple2(5, 5))){
+    print("Train Station test: Success \n");
+  }else{
+    print("Train Station test: Fail \n");
+    print(values);
+  }
+}
+
