@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/node.dart';
@@ -37,79 +38,108 @@ class jsonRepository{
     }
   }
 
+  List <LatLng> getCoords(List<String> type){
+    List<List<LatLng>> coords = [];
+    if (type.contains("Cafe")){
+      coords.add(getRestaurantCoords());
+    }
+    if (type.contains("Restaurants")){
+      coords.add(getRestaurantCoords());
+    }
+    if (type.contains("Bus Stop")){
+      coords.add(getBusCoords());
+    }
+    if (type == "Higher Education"){
+      return getHigherEducationCoords();
+    }
+    if (type == "Cinemas"){
+      return getCinemaCoords();
+    }
+    if (type == "Dentists"){
+      return getDentistCoords();
+    }
+    if (type == "Clinics"){
+      return getClinicsCoords();
+    }
+
+
+    return coords.expand((e)=>e).toList();
+
+  }
+
   //så kan vi også lave en getCafesByMuni...
   //get all cafes
-  List<Tuple2<num,num>> getCafesCoords(){
-    List<Tuple2<num,num>> tupList = [];
+  List<LatLng> getCafesCoords(){
+    List<LatLng> tupList = [];
     nodes.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "cafe"){
-        tupList.add(Tuple2(node.lat, node.lon));
+        tupList.add(LatLng(node.lat as double, node.lon as double) );
       }
     });
     return tupList;
   }
 
   //get all restaurants
-  List<Tuple2<num,num>> getRestaurantCoords(){
-    List<Tuple2<num,num>> tupList = [];
+  List<LatLng> getRestaurantCoords(){
+    List<LatLng> tupList = [];
     nodes.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "restaurant"){
-        tupList.add(Tuple2(node.lat, node.lon));
+        tupList.add(LatLng(node.lat as double, node.lon as double));
       }
     });
     return tupList;
   }
 
   //get all bus stations
-  List<Tuple2<num,num>> getBusCoords(){
-    List<Tuple2<num,num>> tupList = [];
+  List<LatLng> getBusCoords(){
+    List<LatLng> tupList = [];
     nodes.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "bus_station"){
-        tupList.add(Tuple2(node.lat, node.lon));
+        tupList.add(LatLng(node.lat as double, node.lon as double));
       }
     });
     return tupList;
   }
 
   //coordinates of nodes tagged "college" or "university"
-  List<Tuple2<num,num>> getHigherEducationCoords(){
-    List<Tuple2<num,num>> tupList = [];
+  List<LatLng> getHigherEducationCoords(){
+    List<LatLng> tupList = [];
     nodes.forEach((node) {
       if(node.isAmenity && (node.tags?["amenity"] == "college" || node.tags?["amenity"] == "university")){
-        tupList.add(Tuple2(node.lat, node.lon));
+        tupList.add(LatLng(node.lat as double , node.lon as double));
       }
     });
     return tupList;
   }
 
   //coordinates of nodes tagged "cinema"
-  List<Tuple2<num,num>> getCinemaCoords(){
-    List<Tuple2<num,num>> tupList = [];
+  List<LatLng> getCinemaCoords(){
+    List<LatLng> tupList = [];
     nodes.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "cinema"){
-        tupList.add(Tuple2(node.lat, node.lon));
+        tupList.add(LatLng (node.lat as double, node.lon as double));
       }
     });
     return tupList;
   }
 
   //coordinates of nodes tagged "cinema"
-  List<Tuple2<num,num>> getDentistCoords(){
-    List<Tuple2<num,num>> tupList = [];
+  List<LatLng> getDentistCoords(){
+    List<LatLng> tupList = [];
     nodes.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "dentist"){
-        tupList.add(Tuple2(node.lat, node.lon));
+        tupList.add(LatLng(node.lat as double, node.lon as double));
       }
     });
     return tupList;
   }
 
   //coordinates of nodes tagged "cinema"
-  List<Tuple2<num,num>> getClinicsCoords(){
-    List<Tuple2<num,num>> tupList = [];
+  List<LatLng> getClinicsCoords(){
+    List<LatLng> tupList = [];
     nodes.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "clinic"){
-        tupList.add(Tuple2(node.lat, node.lon));
+        tupList.add(LatLng(node.lat as double, node.lon as double ));
       }
     });
     return tupList;

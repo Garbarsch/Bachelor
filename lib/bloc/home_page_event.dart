@@ -8,10 +8,20 @@ abstract class HomePageEvent {
   List<Object> get props => [];
 
 }
+class loadpage extends HomePageEvent{
+
+}
 
 class SearchEvent extends HomePageEvent{}
 
+class addMarkers extends HomePageEvent {
+  final List<LatLng> coords;
+  const addMarkers({required this.coords});
 
+  @override
+  List<Object> get props => [coords];
+
+}
 
 class LoadDetailedGraphsEvent extends HomePageEvent{} //next page
 

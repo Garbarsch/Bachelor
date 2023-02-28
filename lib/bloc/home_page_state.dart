@@ -9,13 +9,27 @@ abstract class HomePageState extends Equatable{
 }
 
 
-class HomePageInitial extends HomePageState {}
+class HomePageInitial extends HomePageState {
 
-class homeLoadedGraph extends HomePageState{
+  const HomePageInitial();
+  @override
+  List<Object> get props => [];
+}
+class homeLoadedMarkers extends HomePageState{
+
+  final List<LatLng> coords;
+
+  const homeLoadedMarkers({required this.coords});
+
+  @override
+  List<Object> get props => [coords];
+}
+
+class homeLoaded extends HomePageState{
 
   final List<Municipality> municipalities;
 
-  const homeLoadedGraph({required this.municipalities});
+  const homeLoaded({required this.municipalities});
 
   //har en final graph ting her.
   @override
