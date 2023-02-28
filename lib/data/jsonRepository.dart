@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/node.dart';
+import '../models/relation.dart';
 
 // ignore: camel_case_types
 class jsonRepository{
@@ -48,6 +49,7 @@ class jsonRepository{
     }
   }
 
+  //fix types in node model!!
   List <LatLng> getCoords(List<String> type){
     List<List<LatLng>> coords = [];
     if (type.contains("Cafe")){
@@ -71,6 +73,9 @@ class jsonRepository{
     if (type == "Clinics"){
       return getClinicsCoords();
     }
+    if (type == "Train Station"){
+      return getTrainStationCoords();
+    }
 
 
     return coords.expand((e)=>e).toList();
@@ -81,7 +86,7 @@ class jsonRepository{
   //get all cafes
   List<LatLng> getCafesCoords(){
     List<LatLng> tupList = [];
-    nodes.forEach((node) {
+    amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "cafe"){
         tupList.add(LatLng(node.lat as double, node.lon as double) );
       }
@@ -92,7 +97,7 @@ class jsonRepository{
   //get all restaurants
   List<LatLng> getRestaurantCoords(){
     List<LatLng> tupList = [];
-    nodes.forEach((node) {
+    amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "restaurant"){
         tupList.add(LatLng(node.lat as double, node.lon as double));
       }
@@ -103,7 +108,7 @@ class jsonRepository{
   //get all bus stations
   List<LatLng> getBusCoords(){
     List<LatLng> tupList = [];
-    nodes.forEach((node) {
+    amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "bus_station"){
         tupList.add(LatLng(node.lat as double, node.lon as double));
       }
@@ -114,7 +119,7 @@ class jsonRepository{
   //coordinates of nodes tagged "college" or "university"
   List<LatLng> getHigherEducationCoords(){
     List<LatLng> tupList = [];
-    nodes.forEach((node) {
+    amenityNodes.values.forEach((node) {
       if(node.isAmenity && (node.tags?["amenity"] == "college" || node.tags?["amenity"] == "university")){
         tupList.add(LatLng(node.lat as double , node.lon as double));
       }
@@ -125,7 +130,7 @@ class jsonRepository{
   //coordinates of nodes tagged "cinema"
   List<LatLng> getCinemaCoords(){
     List<LatLng> tupList = [];
-    nodes.forEach((node) {
+    amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "cinema"){
         tupList.add(LatLng (node.lat as double, node.lon as double));
       }
@@ -136,7 +141,7 @@ class jsonRepository{
   //coordinates of nodes tagged "cinema"
   List<LatLng> getDentistCoords(){
     List<LatLng> tupList = [];
-    nodes.forEach((node) {
+    amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "dentist"){
         tupList.add(LatLng(node.lat as double, node.lon as double));
       }
@@ -147,7 +152,7 @@ class jsonRepository{
   //coordinates of nodes tagged "cinema"
   List<LatLng> getClinicsCoords(){
     List<LatLng> tupList = [];
-    nodes.forEach((node) {
+    amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "clinic"){
         tupList.add(LatLng(node.lat as double, node.lon as double ));
       }
@@ -156,11 +161,11 @@ class jsonRepository{
   }
 
   //coordinates train stations
-  List<Tuple2<num,num>> getTrainStationCoords(){
-    List<Tuple2<num,num>> tupList = [];
+  List<LatLng> getTrainStationCoords(){
+    List<LatLng> tupList = [];
     for (var node in amenityNodes.values) {
       if(node.isAmenity && node.tags?["railway"] == "station"){
-        tupList.add(Tuple2(node.lat, node.lon));
+        tupList.add(LatLng(node.lat as double, node.lon as double));
       }
     }
     return tupList;
