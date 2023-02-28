@@ -7,15 +7,22 @@ import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
+import 'data/jsonRepository.dart';
 import 'data/repository.dart';
 import 'ui/home_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  var repo = jsonRepository();
+  var successMessage = await repo.loadJsonData();
+
+  runApp( MyApp(repo));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  late jsonRepository repo;
+
+  MyApp(this.repo, {Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -26,13 +33,13 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => HomePageBloc(),
+            create: (context) => HomePageBloc()..add(loadpage()),
           )
         ],
         child:  MaterialApp(
           debugShowCheckedModeBanner: false,
           title: "Danish Municipalities",
-          home: MyHomePage(),
+          home: MyHomePage(repo: repo),
         ),
     );
   }

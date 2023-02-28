@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
+import 'package:tuple/tuple.dart';
 
 import '../models/municipality_model.dart';
 
@@ -12,8 +14,24 @@ part 'home_page_state.dart';
 class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
   HomePageBloc() : super(HomePageInitial()) {
     //find muni on map
-    on<SearchEvent>(
-            (event, emit) async {}
+    on<loadpage>(
+            (event, emit) async {
+              await Future<void>.delayed(const Duration(seconds: 1));
+              emit(const homeLoadedMarkers(coords: []));
+            }
+    );
+    on<addMarkers>(
+            (event, emit) async {
+          if(state is homeLoadedMarkers){
+            final state = this.state as homeLoadedMarkers;
+            emit(
+                homeLoadedMarkers(
+                  coords: List.from(state.coords)..addAll(event.coords),
+
+                )
+            );
+          }
+        }
     );
 
     //next page
@@ -26,7 +44,7 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
             (event, emit) async {
               await Future<void>.delayed(const Duration(seconds: 1));
               emit(
-                  homeLoadedGraph(municipalities: List.from(event.municipalities)
+                  homeLoaded(municipalities: List.from(event.municipalities),
                   )
               );
             }
@@ -37,23 +55,24 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
             (event, emit) async {}
     );
 
-    on<AddTextBoxEvent>(
-            (event, emit) async {
-                await Future<void>.delayed(const Duration(seconds: 1));
-                emit(
-                    homeLoadedGraph(municipalities: List.from(state.props),)
-                );
-            }
-    );
 
-    on<RemoveTextBoxEvent>(
-            (event, emit) async {
-                await Future<void>.delayed(const Duration(seconds: 1));
-                emit(
-                    homeLoadedGraph(municipalities: List.from(state.props),)
-                );
-            }
-    );
+    //on<AddTextBoxEvent>(
+      //      (event, emit) async {
+       //         await Future<void>.delayed(const Duration(seconds: 1));
+        //        emit(
+          //          homeLoadedGraph(municipalities: List.from(state.props),)
+           //     );
+           // }
+   // );
+
+//    on<RemoveTextBoxEvent>(
+  //          (event, emit) async {
+    //            await Future<void>.delayed(const Duration(seconds: 1));
+      //          emit(
+        //            homeLoadedGraph(municipalities: List.from(state.props),)
+          //      );
+         //   }
+   // );
 
   }
 }
