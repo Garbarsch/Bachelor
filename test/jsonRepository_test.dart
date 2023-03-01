@@ -1,7 +1,9 @@
 
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_client/data/jsonRepository.dart';
 import 'package:github_client/models/node.dart';
+import 'package:github_client/models/relation.dart';
 import 'package:latlong2/latlong.dart';
 
 void main() async{
@@ -241,9 +243,37 @@ void main() async{
   });
   group("Municipality access geometrics", () {
 
+    final repo = jsonRepository();
+    List<MunicipalityRelation> relations = [];
+
+    var muniRel1 = MunicipalityRelation(id: "1", name: "KBH", boundaryCoords: [LatLng(1, 1), LatLng(2, 2), LatLng(6, 6)], isMulti: false);
+    relations.add(muniRel1);
+    Polygon poly1 = Polygon(points: muniRel1.boundaryCoords);
+    var muniRel2 = MunicipalityRelation(id: "2", name: "FB", boundaryCoords:[], multiBoundaryCoords: [[LatLng(2, 2), LatLng(3, 3)],[LatLng(4, 4), LatLng(18, 18)]], isMulti: true);
+    relations.add(muniRel2);
+    Polygon poly2 = Polygon(points: muniRel2.multiBoundaryCoords!.first);
+    Polygon poly3 = Polygon(points: muniRel2.multiBoundaryCoords!.last);
 
 
+    repo.relations = relations;
 
+    test("Latitude and Longitude specific municipality", () {
+
+      List<LatLng> aux = repo.getMuniBoundary("KBH");
+      expect(aux.isNotEmpty, true);
+      expect(aux, muniRel1.boundaryCoords);
+      expect(muniRel1.multiBoundaryCoords == null, true);
+
+    });
+    test("Get both municipality polygons of both Polygon and Multi Polygon boundaries", () {
+      List<Polygon> aux = repo.getMuniPolygons(["KBH", "FB"]);
+
+      expect(aux.length, 3);
+      print(aux.first.points);
+      expect(aux.first.points,poly1.points);
+      expect(aux[1].points,poly2.points);
+      expect(aux.last.points,poly3.points);
+    });
 
   });
 
