@@ -12,10 +12,6 @@ class Repository {
 
   //remember to await this method call
   Future<void> loadCSV(String csvPath) async{
-
-
-    //var att = ["OptOmrNr","Optagelsesområder","optagne","standby","total","1. prioritet","kvote 1 kvotient","standby"];
-
     var list = await parseCSV(csvPath);
     if(list != null){
       myData = list;
@@ -74,14 +70,21 @@ class Repository {
       // Remove all null rows, if any
       listData.removeWhere((element) => element==null);
 
-      //remove all null attributes of each row - HERE WE HAVE TO DO SOMETHING WITH THE EMPTY VALUES??? BUT WHAT
-      //listData.forEach((element) {element.removeWhere((att) => att == null);});
+      //remove unused attributess
+      listData.removeWhere((element) => !element[2].contains("i alt"));
 
       //remove duplicate rows
       listData.toSet().toList();
 
+
+      listData.forEach((element) {
+        element.removeRange(0, 2);
+        element.removeAt(2);
+        element.removeRange(3, 6);
+      });
+
       //check that the csv file has the correct attributes
-      if(attributes!=null){
+      /*if(attributes!=null){
         if(listData[0].toString().hashCode != attributes.toString().hashCode){
           throw Exception("the specified file does not contain the expected attributes");
         }
@@ -89,7 +92,7 @@ class Repository {
         print(listData.length);
         listData.removeWhere((element) => element.length != attributes.length);
         print(listData.length);
-      }
+      }*/
 
       return listData;
 
