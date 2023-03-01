@@ -77,11 +77,15 @@ class jsonRepository{
     if (type == "Train Station"){
       return getTrainStationCoords();
     }
-
+    if (type == "Library"){
+      return getLibraryCoords();
+    }
 
     return coords.expand((e)=>e).toList();
 
   }
+
+  //We could have probably made an ENUM of the amenities available, and just a single getAmenityCoords(Enum...){}
 
   //så kan vi også lave en getCafesByMuni...
   //get all cafes
@@ -110,8 +114,12 @@ class jsonRepository{
   List<LatLng> getBusCoords(){
     List<LatLng> tupList = [];
     amenityNodes.values.forEach((node) {
-      if(node.isAmenity && node.tags?["amenity"] == "bus_station"){
-        tupList.add(LatLng(node.lat, node.lon));
+      if(node.isAmenity){
+        if((node.tags!["amenity"] == "bus_station")){
+          tupList.add(LatLng(node.lat, node.lon));
+        }else if(node.tags!.containsKey("public_transport") && node.tags!["public_transport"] == "station"){
+          tupList.add(LatLng(node.lat, node.lon));
+        }
       }
     });
     return tupList;
@@ -139,7 +147,7 @@ class jsonRepository{
     return tupList;
   }
 
-  //coordinates of nodes tagged "cinema"
+  //coordinates of nodes tagged "dentist"
   List<LatLng> getDentistCoords(){
     List<LatLng> tupList = [];
     amenityNodes.values.forEach((node) {
@@ -171,6 +179,135 @@ class jsonRepository{
     }
     return tupList;
   }
+
+  //coordinates of nodes tagged "library"
+  List<LatLng> getLibraryCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "library"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getBarPubNightClubCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && (node.tags?["amenity"] == "bar" ||node.tags?["amenity"] == "pub" || node.tags?["amenity"] == "nightclub")){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getTrainingCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "training"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getHospitalCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "hospital"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getArtsCentreCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "arts_centre"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getCommunityCentreCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "community_centre"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getEventsVenueCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "events_venue"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getExhibitionCentreCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "exhibition_centre"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getConferenceCentreCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "conference_centre"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getMusicVenueCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "music_venue"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getSocialCentreCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "social_centre"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getTheatreCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "theatre"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getFireStationCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "fire_station"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+  List<LatLng> getPoliceCoords(){
+    List<LatLng> tupList = [];
+    amenityNodes.values.forEach((node) {
+      if(node.isAmenity && node.tags?["amenity"] == "police"){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    });
+    return tupList;
+  }
+
 
   //collects the municipality boundary of a single given municipality
   List<LatLng> getMuniBoundary(String muni){

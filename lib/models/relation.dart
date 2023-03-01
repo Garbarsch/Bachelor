@@ -21,10 +21,9 @@ class MunicipalityRelation{
       //print(data["geometry"]["coordinates"]);
       data["geometry"]["coordinates"].forEach((polygon){
         aux.add(
-            List<LatLng>.from(polygon[0].map((dynamic coordinateList) => LatLng(1/coordinateList[1], 1/coordinateList[0])))
+            List<LatLng>.from(polygon[0].map((dynamic coordinateList) => LatLng(coordinateList[1]/1, coordinateList[0]/1)))
         );
       });
-
 
       return MunicipalityRelation(
           id: data["id"],
