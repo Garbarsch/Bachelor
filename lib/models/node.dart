@@ -4,7 +4,7 @@ import 'package:latlong2/latlong.dart';
 
 class Node{
   final int id;
-  final num lon,lat;
+  final double lon,lat;
   final bool isAmenity;
   Map<String,dynamic>? tags;
 
@@ -14,16 +14,16 @@ class Node{
       if (data.containsKey("tags")) {
         return Node(
             id: data["id"],
-            lon: data["lon"],
-            lat: data["lat"],
+            lon: data["lon"].toDouble(),
+            lat: data["lat"].toDouble(),
             tags: data["tags"],
             isAmenity: true
         );
       }
       return Node(
           id: data["id"],
-          lon: data["lon"],
-          lat: data["lat"],
+          lon: data["lon"].toDouble(),
+          lat: data["lat"].toDouble(),
           isAmenity: false
       );
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
 
@@ -86,11 +87,11 @@ class jsonRepository{
   //get all cafes
   List<LatLng> getCafesCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in amenityNodes.values) {
       if(node.isAmenity && node.tags?["amenity"] == "cafe"){
-        tupList.add(LatLng(node.lat as double, node.lon as double) );
+        tupList.add(LatLng(node.lat, node.lon) );
       }
-    });
+    }
     return tupList;
   }
 
@@ -99,7 +100,7 @@ class jsonRepository{
     List<LatLng> tupList = [];
     amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "restaurant"){
-        tupList.add(LatLng(node.lat as double, node.lon as double));
+        tupList.add(LatLng(node.lat, node.lon));
       }
     });
     return tupList;
@@ -110,7 +111,7 @@ class jsonRepository{
     List<LatLng> tupList = [];
     amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "bus_station"){
-        tupList.add(LatLng(node.lat as double, node.lon as double));
+        tupList.add(LatLng(node.lat, node.lon));
       }
     });
     return tupList;
@@ -121,7 +122,7 @@ class jsonRepository{
     List<LatLng> tupList = [];
     amenityNodes.values.forEach((node) {
       if(node.isAmenity && (node.tags?["amenity"] == "college" || node.tags?["amenity"] == "university")){
-        tupList.add(LatLng(node.lat as double , node.lon as double));
+        tupList.add(LatLng(node.lat , node.lon));
       }
     });
     return tupList;
@@ -132,7 +133,7 @@ class jsonRepository{
     List<LatLng> tupList = [];
     amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "cinema"){
-        tupList.add(LatLng (node.lat as double, node.lon as double));
+        tupList.add(LatLng (node.lat, node.lon));
       }
     });
     return tupList;
@@ -143,7 +144,7 @@ class jsonRepository{
     List<LatLng> tupList = [];
     amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "dentist"){
-        tupList.add(LatLng(node.lat as double, node.lon as double));
+        tupList.add(LatLng(node.lat, node.lon));
       }
     });
     return tupList;
@@ -154,7 +155,7 @@ class jsonRepository{
     List<LatLng> tupList = [];
     amenityNodes.values.forEach((node) {
       if(node.isAmenity && node.tags?["amenity"] == "clinic"){
-        tupList.add(LatLng(node.lat as double, node.lon as double ));
+        tupList.add(LatLng(node.lat, node.lon ));
       }
     });
     return tupList;
@@ -165,17 +166,40 @@ class jsonRepository{
     List<LatLng> tupList = [];
     for (var node in amenityNodes.values) {
       if(node.isAmenity && node.tags?["railway"] == "station"){
-        tupList.add(LatLng(node.lat as double, node.lon as double));
+        tupList.add(LatLng(node.lat, node.lon));
       }
     }
     return tupList;
   }
 
+  //collects the municipality boundary of a single given municipality
   List<LatLng> getMuniBoundary(String muni){
     return relations.where((element) => element.name == muni).first.boundaryCoords;
   }
 
-  //getMunicipalityBoundaries
+  //returns a list of polygons corresponding to the boundaries of the chosen municipalities
+  List<Polygon> getMuniPolygons(List<String> municipalities){
+
+    List<Polygon> polyList = [];
+    var muni = relations.where((element) => municipalities.contains(element.name));
+    for (var boundary in muni) {
+      if(boundary.isMulti){
+
+        for (var coordList in boundary.multiBoundaryCoords!) {
+          polyList.add(Polygon(points: coordList));
+        }
+
+      }
+      else{
+
+        polyList.add(Polygon(points: boundary.boundaryCoords));
+
+      }
+    }
+
+    return polyList;
+
+  }
 
 
 }
