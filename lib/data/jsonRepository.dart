@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:tuple/tuple.dart';
 
 import '../models/node.dart';
 import '../models/relation.dart';
@@ -18,7 +17,6 @@ class jsonRepository{
   late List<dynamic> geoData;
   late List<MunicipalityRelation> relations;
 
-  //add some exceptions pls
   Future<String> loadJsonData() async {
 
     var jsonText = await rootBundle.loadString('assets/rawDenmark.json');
@@ -79,6 +77,45 @@ class jsonRepository{
     }
     if (type == "Library"){
       return getLibraryCoords();
+    }
+    if (type == "BarPubNightClub"){
+      return getBarPubNightClubCoords();
+    }
+    if (type == "Training"){
+      return getTrainingCoords();
+    }
+    if (type == "Hospital"){
+      return getHospitalCoords();
+    }
+    if (type == "Arts Centre"){
+      return getArtsCentreCoords();
+    }
+    if (type == "Community Centre"){
+      return getCommunityCentreCoords();
+    }
+    if (type == "Events Venue"){
+      return getEventsVenueCoords();
+    }
+    if (type == "Exhibiton Centre"){
+      return getExhibitionCentreCoords();
+    }
+    if (type == "Conference Centre"){
+      return getConferenceCentreCoords();
+    }
+    if (type == "Music Venue"){
+      return getMusicVenueCoords();
+    }
+    if (type == "Social Centre"){
+      return getSocialCentreCoords();
+    }
+    if (type == "Theatre"){
+      return getTheatreCoords();
+    }
+    if (type == "Fire Station"){
+      return getFireStationCoords();
+    }
+    if (type == "Police"){
+      return getPoliceCoords();
     }
 
     return coords.expand((e)=>e).toList();
