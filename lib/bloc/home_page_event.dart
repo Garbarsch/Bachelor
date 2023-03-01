@@ -22,6 +22,16 @@ class addMarkers extends HomePageEvent {
   List<Object> get props => [coords];
 
 }
+class showMunicipalities extends HomePageEvent {
+  final List<LatLng> coordsMunicipalities;
+  final List<Polygon> coordsMultiMuni;
+  const showMunicipalities({required this.coordsMunicipalities, required this.coordsMultiMuni});
+
+
+  @override
+  List<Object> get props => [coordsMunicipalities];
+
+}
 
 class LoadDetailedGraphsEvent extends HomePageEvent{} //next page
 

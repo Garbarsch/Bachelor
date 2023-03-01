@@ -43,7 +43,7 @@ dependencies:
   searchfield: ^0.7.5
   latlong2: ^0.8.1
   tuple: ^2.0.1
-  flutter_map_marker_cluster: any
+  flutter_map_supercluster: any
 
 dev_dependencies:
   flutter_test:

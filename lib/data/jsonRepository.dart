@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/services.dart';
@@ -53,8 +54,8 @@ class jsonRepository{
   //fix types in node model!!
   List <LatLng> getCoords(List<String> type){
     List<List<LatLng>> coords = [];
-    if (type.contains("Cafe")){
-      coords.add(getRestaurantCoords());
+    if (type.contains("Cafes")){
+      coords.add(getCafesCoords());
     }
     if (type.contains("Restaurants")){
       coords.add(getRestaurantCoords());
@@ -63,16 +64,16 @@ class jsonRepository{
       coords.add(getBusCoords());
     }
     if (type == "Higher Education"){
-      return getHigherEducationCoords();
+      coords.add(getHigherEducationCoords());
     }
     if (type == "Cinemas"){
-      return getCinemaCoords();
+      coords.add(getCinemaCoords());
     }
     if (type == "Dentists"){
-      return getDentistCoords();
+      coords.add(getDentistCoords());
     }
     if (type == "Clinics"){
-      return getClinicsCoords();
+      coords.add(getClinicsCoords());
     }
     if (type == "Train Station"){
       return getTrainStationCoords();
@@ -323,13 +324,13 @@ class jsonRepository{
       if(boundary.isMulti){
 
         for (var coordList in boundary.multiBoundaryCoords!) {
-          polyList.add(Polygon(points: coordList));
+          polyList.add(Polygon(points: coordList, color: Colors.blue, isFilled: true));
         }
 
       }
       else{
 
-        polyList.add(Polygon(points: boundary.boundaryCoords));
+        polyList.add(Polygon(points: boundary.boundaryCoords, isFilled: true));
 
       }
     }
