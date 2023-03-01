@@ -60,62 +60,62 @@ class jsonRepository{
     if (type.contains("Bus Stop")){
       coords.add(getBusCoords());
     }
-    if (type == "Higher Education"){
-      return getHigherEducationCoords();
+    if (type.contains("Higher Education")){
+      coords.add(getHigherEducationCoords());
     }
-    if (type == "Cinemas"){
-      return getCinemaCoords();
+    if (type.contains("Cinemas")){
+      coords.add(getCinemaCoords());
     }
-    if (type == "Dentists"){
-      return getDentistCoords();
+    if (type.contains("Dentists")){
+      coords.add(getDentistCoords());
     }
-    if (type == "Clinics"){
-      return getClinicsCoords();
+    if (type.contains("Clinics")){
+      coords.add(getClinicsCoords());
     }
-    if (type == "Train Station"){
-      return getTrainStationCoords();
+    if (type.contains("Train Station")){
+      coords.add(getTrainStationCoords());
     }
-    if (type == "Library"){
-      return getLibraryCoords();
+    if (type.contains("Library")){
+      coords.add(getLibraryCoords());
     }
-    if (type == "BarPubNightClub"){
-      return getBarPubNightClubCoords();
+    if (type.contains("BarPubNightClub")){
+      coords.add(getBarPubNightClubCoords());
     }
-    if (type == "Training"){
-      return getTrainingCoords();
+    if (type.contains("Training")){
+      coords.add(getTrainingCoords());
     }
-    if (type == "Hospital"){
-      return getHospitalCoords();
+    if (type.contains("Hospital")){
+      coords.add(getHospitalCoords());
     }
-    if (type == "Arts Centre"){
-      return getArtsCentreCoords();
+    if (type.contains("Arts Centre")){
+      coords.add(getArtsCentreCoords());
     }
-    if (type == "Community Centre"){
-      return getCommunityCentreCoords();
+    if (type.contains("Community Centre")){
+      coords.add(getCommunityCentreCoords());
     }
-    if (type == "Events Venue"){
-      return getEventsVenueCoords();
+    if (type.contains("Events Venue")){
+      coords.add(getEventsVenueCoords());
     }
-    if (type == "Exhibiton Centre"){
-      return getExhibitionCentreCoords();
+    if (type.contains("Exhibiton Centre")){
+      coords.add(getExhibitionCentreCoords());
     }
-    if (type == "Conference Centre"){
-      return getConferenceCentreCoords();
+    if (type.contains("Conference Centre")){
+      coords.add(getConferenceCentreCoords());
     }
-    if (type == "Music Venue"){
-      return getMusicVenueCoords();
+    if (type.contains("Music Venue")){
+      coords.add(getMusicVenueCoords());
     }
-    if (type == "Social Centre"){
-      return getSocialCentreCoords();
+    if (type.contains("Social Centre")){
+      coords.add(getSocialCentreCoords());
     }
-    if (type == "Theatre"){
-      return getTheatreCoords();
+    if (type.contains("Theatre")){
+      coords.add(getTheatreCoords());
     }
-    if (type == "Fire Station"){
-      return getFireStationCoords();
+    if (type.contains("Fire Station")){
+      coords.add(getFireStationCoords());
     }
-    if (type == "Police"){
-      return getPoliceCoords();
+    if (type.contains("Police")){
+      coords.add(getPoliceCoords());
     }
 
     return coords.expand((e)=>e).toList();
