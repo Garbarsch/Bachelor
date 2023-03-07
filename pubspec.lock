@@ -57,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.0"
+  crypto:
+    dependency: transitive
+    description:
+      name: crypto
+      sha256: aa274aa7774f8964e4f4f38cc994db7b6158dd36e9187aaceaddc994b35c6c67
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   csv:
     dependency: "direct main"
     description:
@@ -123,14 +131,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
-  flutter_map_marker_cluster:
-    dependency: "direct main"
-    description:
-      name: flutter_map_marker_cluster
-      sha256: "793e68ccdb323f0e5059eecf3f8777892a9365186ab57c07ebe82e10ad7737ef"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   flutter_map_marker_popup:
     dependency: transitive
     description:
@@ -139,11 +139,27 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_map_supercluster:
+    dependency: "direct main"
+    description:
+      name: flutter_map_supercluster
+      sha256: "6e49c4fef192b7f36f4e580f2cf62a4e96e4179b367c8f53a34d5e8ad434a38d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
+  freezed_annotation:
+    dependency: transitive
+    description:
+      name: freezed_annotation
+      sha256: aeac15850ef1b38ee368d4c53ba9a847e900bb2c53a4db3f6881cbb3cb684338
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   http:
     dependency: transitive
     description:
@@ -176,6 +192,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.5"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: c33da08e136c3df0190bd5bbe51ae1df4a7d96e7954d1d7249fea2968a72d317
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.8.0"
+  kdbush:
+    dependency: transitive
+    description:
+      name: kdbush
+      sha256: "252302766ef8aa7297f9d9bbd6e009451346574af5aa0d28a24447ce020a1a69"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   latlong2:
     dependency: "direct main"
     description:
@@ -236,10 +268,10 @@ packages:
     dependency: "direct main"
     description:
       name: multiselect
-      sha256: "89307c172c874dbd184825f8509bee38c4c68eae676c480ac5b7943ee2e8436d"
+      sha256: ef0881ab40ea680cee4aaca2e13f17fc1b53a28cf66a8b440667f02558ce1474
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.9"
+    version: "0.0.7"
   navigation_builder:
     dependency: transitive
     description:
@@ -304,6 +336,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.5"
+  rbush:
+    dependency: transitive
+    description:
+      name: rbush
+      sha256: f86e54440608969be381a60eefaaa2e76010d90f4c3189e164d4e0ed2caf7172
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   searchfield:
     dependency: "direct main"
     description:
@@ -357,22 +397,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  supercluster:
+    dependency: transitive
+    description:
+      name: supercluster
+      sha256: "77d37099cfc6325e871b3023a2f61bbbc67395c32e1f6983b4f0e55772af4a24"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   syncfusion_flutter_core:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: "4319454a92fe5aea1e90ff68c17703a39517ab05dd3074c34c9553e5f7cbf414"
+      sha256: "5f7dae40707df507325ee045d1a172aea9f449ac4244d7c52391dd97208eeef8"
       url: "https://pub.dev"
     source: hosted
-    version: "20.4.52"
+    version: "20.4.51"
   syncfusion_flutter_maps:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_maps
-      sha256: "6c15fb26746d4d10da8e1ceb04f8152974d2dc2991f345ebd35d79da7196dbf2"
+      sha256: "7e10a14d05e4711e38d8f1b3679e7f13684a5b5f596a66ca7c6bebe9735c510e"
       url: "https://pub.dev"
     source: hosted
-    version: "20.4.52"
+    version: "20.4.51"
   term_glyph:
     dependency: transitive
     description:
@@ -413,6 +461,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.7"
   vector_math:
     dependency: transitive
     description:
@@ -438,5 +494,5 @@ packages:
     source: hosted
     version: "6.2.2"
 sdks:
-  dart: ">=2.18.2 <4.0.0"
+  dart: ">=2.18.2 <3.0.0"
   flutter: ">=3.3.0"

@@ -3,10 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:github_client/bloc/graph_page_bloc.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/data/jsonRepository.dart';
 import 'package:github_client/models/municipality_model.dart';
+import 'package:github_client/ui/graph_screen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:multiselect/multiselect.dart';
 import 'package:searchfield/searchfield.dart';
@@ -17,16 +18,20 @@ import 'package:tuple/tuple.dart';
 
 
 class MyHomePage extends StatelessWidget {
-  List<String> choices = ['Restaurants','Bus Stop',"Cafe",'Education','Bars'];
+  List<String> choices = ['Restaurants','Bus Stop','Cinemas', 'Dentists','Clinics','Muni'];
   List<String> selecteChoices = [];
   List<Marker> markers = [];
+  List<Polygon> polyMuni = [];
   jsonRepository repo;
 
+  static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo) => MaterialPageRoute(
+    builder: (_) => MyHomePage(blocContext: context, repo: repo),
+  );
 
   int temp = 0;
     MyHomePage({
     super.key,
-    required this.repo,
+    required this.repo, required BuildContext blocContext,
     //required this.shapeSource, required this.mapData,
   });
 
@@ -54,59 +59,76 @@ class MyHomePage extends StatelessWidget {
             child: Stack(
                 children: [ BlocBuilder<HomePageBloc, HomePageState>(
                   builder: (context,state) {
-                    print(state);
-                    if (state is HomePageInitial) { //HOMEPAGE
-                      return const CircularProgressIndicator(color: Colors.blue);
-                    }
-                    if (state is homeLoadedMarkers) {
-                      for (int index = 0;
-                      index < state.coords.length; {
-                        print("hallo"),
-                        markers.add(
-                            Marker(
-                              point: state.coords[index],
-                              width: 80,
-                              height: 80,
-                              builder: (context) => Icon(Icons.circle,color: Colors.red,size: 4,),
-                            )),index++
-                      })//LOADEDGRAPH
-                      print("HALLO2");
-                      return Positioned(top: 55, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
-                        child: FlutterMap(
-                    mapController: _mapController,
-                            options: MapOptions(
-                    center: LatLng(56, 10),
-                    swPanBoundary:LatLng(54, 8) ,
-                    nePanBoundary: LatLng(60, 13),
-                    zoom: 6,
+    print(state);
+    if (state is HomePageInitial) { //HOMEPAGE
+    return const CircularProgressIndicator(color: Colors.blue);
+    }
+    if (state is homeLoaded) {
+      for (int index = 0;
+      index < state.coords.length; {
+        print("hallo"),
+        markers.add(
+            Marker(
+              point: state.coords[index],
+              width: 80,
+              height: 80,
+              builder: (context) =>
+                  Icon(Icons.circle, color: Colors.red,
+                    size: 4,),
+            )), index++
+      });
+      // if(state is homeLoadedMunicipalities){
 
-                    // maxBounds: LatLngBounds(LatLng(56, 10),LatLng(76, 15)),
-                    ),
-                    nonRotatedChildren: [
-                    AttributionWidget.defaultWidget(
-                    source: '',
-                    onSourceTapped: null,
-                    ),
-                    ],
-                    children: [
-                    TileLayer(
-                    urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example'
-                    ),
+      print("Carl");
+      print(state.coordsMuni);
+      polyMuni.add(
+          Polygon(points: state.coordsMuni, color: Colors.blue,)
+      );
 
-                    MarkerLayer(
+      print("halloklam");
+      print(polyMuni.first.points);
+      //LOADEDGRAPH
 
-                    markers:  markers
+      print("HALLO2");
+    }
 
-
-                    ),
-                    ], )),);
-
-                    } else {
+                     else {
                       print("HALLObøsse");
 //ELSE
                       return const Text('Something went wrong');
                     }
+    return Positioned(top: 55, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
+        child: FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            center: LatLng(56, 10),
+            swPanBoundary:LatLng(54, 8) ,
+            nePanBoundary: LatLng(60, 13),
+            zoom: 6,
+
+            // maxBounds: LatLngBounds(LatLng(56, 10),LatLng(76, 15)),
+          ),
+          nonRotatedChildren: [
+            AttributionWidget.defaultWidget(
+              source: '',
+              onSourceTapped: null,
+            ),
+          ],
+          children: [
+            TileLayer(
+                urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example'
+            ),
+            PolygonLayer(
+                polygons: state.coordsMultiMuni
+            ),
+            MarkerLayer(
+
+                markers:  markers
+
+
+            ),
+          ],)),);
                   },
                 ),
 
@@ -123,11 +145,16 @@ class MyHomePage extends StatelessWidget {
                     )),
                   Container(height: MediaQuery.of(context).size.width ), Positioned(top: 45, bottom: 10, left: MediaQuery.of(context).size.width -300, right: 150 ,child: Container(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
                     child: SearchField(
-                        suggestions: mapData.map((e) =>
-                            SearchFieldListItem(e.name)).toList(),
+                        suggestions: repo.relations.map((e) =>
+                            SearchFieldListItem(e.name!)).toList(),
                         suggestionState: Suggestion.expand,
                         textInputAction: TextInputAction.next,
                         hint: 'Search on Municipality ',
+                        onSubmit: (value) {
+                          print(value);
+                          context.read<HomePageBloc>().add(
+                              showMunicipalities(coordsMunicipalities: repo.getMuniBoundary(value),coordsMultiMuni: repo.getMuniPolygons([value])));
+                        },
                         hasOverlay: false,
                         searchStyle: TextStyle(
                           fontSize: 14,
@@ -139,11 +166,26 @@ class MyHomePage extends StatelessWidget {
                       options: choices,
                       selectedValues: selecteChoices,
                       onChanged: (List<String> value) {
-                        print(value.toString());
                         context.read<HomePageBloc>().add(
                             addMarkers(coords: repo.getCoords(value)));
                       },
-                      whenEmpty: 'Choose filter',
+
+
+                        whenEmpty:
+                        'Choose filter',
+
+
+                    ),
+
+                  ),), Positioned(top: 400, bottom: 150, left: MediaQuery.of(context).size.width -300, right: 100, child: SizedBox( width: 50,height:
+                  100,
+                    child: ElevatedButton(
+
+                      child: Text('Compare', style: TextStyle(fontSize: 20.0),),
+                      onPressed: () {Navigator.of(context).push(MyGraphPage.route(context, repo))
+                      ;
+                        print(context.read<GraphPageBloc>().state);},
+
                     ),
 
                   ),)
@@ -152,7 +194,7 @@ class MyHomePage extends StatelessWidget {
 
 
 
-                ])));
+                ],)));
   }
 }
 

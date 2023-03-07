@@ -15,21 +15,33 @@ class HomePageInitial extends HomePageState {
   @override
   List<Object> get props => [];
 }
-class homeLoadedMarkers extends HomePageState{
+class homeLoaded extends HomePageState{
 
   final List<LatLng> coords;
+  final List<LatLng> coordsMuni;
+  final List<Polygon> coordsMultiMuni;
 
-  const homeLoadedMarkers({required this.coords});
+  const homeLoaded({required this.coords, required this.coordsMuni, required this.coordsMultiMuni});
 
   @override
-  List<Object> get props => [coords];
+  List<Object> get props => [coords,coordsMuni,coordsMultiMuni];
+
+}
+class homeLoadedMunicipalities extends HomePageState{
+
+  final List<LatLng> coordsMunicipalities;
+
+  const homeLoadedMunicipalities({required this.coordsMunicipalities});
+
+  @override
+  List<Object> get props => [coordsMunicipalities];
 }
 
-class homeLoaded extends HomePageState{
+class homeLoadede extends HomePageState{
 
   final List<Municipality> municipalities;
 
-  const homeLoaded({required this.municipalities});
+  const homeLoadede({required this.municipalities});
 
   //har en final graph ting her.
   @override

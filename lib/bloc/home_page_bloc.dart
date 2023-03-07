@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:tuple/tuple.dart';
@@ -17,16 +18,31 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
     on<loadpage>(
             (event, emit) async {
               await Future<void>.delayed(const Duration(seconds: 1));
-              emit(const homeLoadedMarkers(coords: []));
+              emit(const homeLoaded(coords: [], coordsMuni: [], coordsMultiMuni: []));
+             // emit(const homeLoadedMunicipalities(coordsMunicipalities: []));
             }
     );
     on<addMarkers>(
             (event, emit) async {
-          if(state is homeLoadedMarkers){
-            final state = this.state as homeLoadedMarkers;
+          if(state is homeLoaded){
+            final state = this.state as homeLoaded;
             emit(
-                homeLoadedMarkers(
-                  coords: List.from(state.coords)..addAll(event.coords),
+                homeLoaded(
+                  coords: List.from(state.coords)..addAll(event.coords
+                  ), coordsMuni: [], coordsMultiMuni: []
+
+                )
+            );
+          }
+        }
+    );
+    on<showMunicipalities>(
+            (event, emit) async {
+          if(state is homeLoaded){
+            final state = this.state as homeLoaded;
+            emit(
+                homeLoaded(
+                  coordsMuni: List.from(state.coordsMuni)..addAll(event.coordsMunicipalities), coords:[] ,coordsMultiMuni: List.from(state.coordsMultiMuni)..addAll(event.coordsMultiMuni)
 
                 )
             );
@@ -43,10 +59,10 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
     on<CompareEvent>(
             (event, emit) async {
               await Future<void>.delayed(const Duration(seconds: 1));
-              emit(
-                  homeLoaded(municipalities: List.from(event.municipalities),
-                  )
-              );
+            //  emit(
+                 // homeLoaded(municipalities: List.from(event.municipalities),
+             //     )
+             // );
             }
     );
 

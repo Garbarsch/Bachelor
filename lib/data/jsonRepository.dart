@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:tuple/tuple.dart';
 
 import '../models/node.dart';
 import '../models/relation.dart';
@@ -17,6 +18,7 @@ class jsonRepository{
   late List<dynamic> geoData;
   late List<MunicipalityRelation> relations;
 
+  //add some exceptions pls
   Future<String> loadJsonData() async {
 
     var jsonText = await rootBundle.loadString('assets/rawDenmark.json');
@@ -371,13 +373,13 @@ class jsonRepository{
       if(boundary.isMulti){
 
         for (var coordList in boundary.multiBoundaryCoords!) {
-          polyList.add(Polygon(points: coordList));
+          polyList.add(Polygon(points: coordList, color: Colors.blue, isFilled: true));
         }
 
       }
       else{
 
-        polyList.add(Polygon(points: boundary.boundaryCoords));
+        polyList.add(Polygon(points: boundary.boundaryCoords, isFilled: true));
 
       }
     }

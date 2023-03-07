@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:github_client/bloc/graph_page_bloc.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
@@ -32,14 +33,18 @@ class MyApp extends StatelessWidget {
     ));
     return MultiBlocProvider(
         providers: [
-          BlocProvider(
-            create: (context) => HomePageBloc()..add(loadpage()),
-          )
+          BlocProvider<HomePageBloc>(
+            create: (context) => HomePageBloc()..add(loadpage())
+          ),
+          BlocProvider<GraphPageBloc>(
+          create: (context) => GraphPageBloc()..add(loadGraphPage())
+    )
+
         ],
         child:  MaterialApp(
           debugShowCheckedModeBanner: false,
           title: "Danish Municipalities",
-          home: MyHomePage(repo: repo),
+          home: MyHomePage(repo: repo,blocContext: context),
         ),
     );
   }
