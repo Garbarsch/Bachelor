@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,9 +10,12 @@ import 'package:github_client/ui/home_screen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:multiselect/multiselect.dart';
 import 'package:searchfield/searchfield.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:tuple/tuple.dart';
+import 'package:awesome_select/awesome_select.dart';
 
 import '../bloc/graph_page_bloc.dart';
 
@@ -21,6 +23,9 @@ import '../bloc/graph_page_bloc.dart';
 
 class MyGraphPage extends StatelessWidget {
   jsonRepository repo;
+  List<String> selecteChoices = [];
+  List<Munidata> data = [];
+  var a;
   MyGraphPage({
   super.key,
   required this.repo, required BuildContext blocContext,
@@ -48,17 +53,28 @@ class MyGraphPage extends StatelessWidget {
                       return const CircularProgressIndicator(color: Colors.blue);
                     }
                     if (state is graphLoaded) {
-
+                      print("GraphLoaded og data");
+                     data = state.muni;
                     }
 
                     else {
-                      print("HALLObøsse");
-//ELSE
-                      return const Text('Something went wrong');
+                      return Text("hallo");
+
+
+
                     }
-                    print("her?");
-                    return Text("go");
-                  },
+                    if(data.isNotEmpty){
+                      print(data.last.value);
+                    return Positioned(top: 75, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -700, width: MediaQuery.of(context).size.width/4,
+                    child: SfCartesianChart( primaryXAxis: CategoryAxis(),
+                        series:<ChartSeries<Munidata, String>>
+
+                    [ ColumnSeries<Munidata,String>(dataSource: data,xValueMapper: (Munidata data,_) => data.name ,yValueMapper: (Munidata data,_) => data.value)
+                    ])));
+                  } else{
+                      return const Text("Choose municipality");
+                    }
+    }
                 ),
 
                   Container(height:35, width: MediaQuery.of(context).size.width ,
@@ -76,14 +92,30 @@ class MyGraphPage extends StatelessWidget {
     child:  ElevatedButton(
 
           child: Text('Go back', style: TextStyle(fontSize: 15.0),),
-            onPressed: () {Navigator.of(context).push(MyGraphPage.route(context, repo))
+            onPressed: () {Navigator.of(context).push(MyHomePage.route(context, repo))
             ;
             print(context.read<GraphPageBloc>().state);},
 
-            )))
+            ))), Container(height: MediaQuery.of(context).size.width ), Positioned(top: 50, bottom: 520, left: 20, right: MediaQuery.of(context).size.width -263 ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width,
+                      child:  DropDownMultiSelect(
+                        options: (repo.relations.map((e) => e.name!).toList()),
+                        selectedValues: selecteChoices,
+                        onChanged: (List<String> value) {
+                          selecteChoices = value;
+                          print(selecteChoices);
+                          context.read<GraphPageBloc>().add(
+                              updateGraph(data: repo.getCafeForMuni(value.last)));
+                        },
 
+
+                        whenEmpty:
+                        'Choose filter',
+
+
+                      ), )),
 
                 ])));
   }
+
 }
 

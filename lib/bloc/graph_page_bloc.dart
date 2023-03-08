@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:github_client/data/jsonRepository.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:tuple/tuple.dart';
@@ -19,6 +20,20 @@ class GraphPageBloc extends Bloc<GraphPageEvent, GraphPageState> {
           await Future<void>.delayed(const Duration(seconds: 1));
           emit(const graphLoaded(muni: []));
           // emit(const homeLoadedMunicipalities(coordsMunicipalities: []));
+        }
+    );
+    on<updateGraph>(
+            (event, emit) async {
+          if(state is graphLoaded){
+            final state = this.state as graphLoaded;
+            emit(
+                graphLoaded(
+                    muni: List.from(state.muni)..addAll(event.data
+                    )
+
+                )
+            );
+          }
         }
     );
 

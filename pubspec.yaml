@@ -45,7 +45,9 @@ dependencies:
   latlong2: ^0.8.1
   tuple: ^2.0.1
   flutter_map_supercluster: any
-
+  syncfusion_flutter_charts: ^20.4.52
+  awesome_select: ^6.0.0
+  maps_toolkit: ^2.0.1
 
 dev_dependencies:
   flutter_test:
