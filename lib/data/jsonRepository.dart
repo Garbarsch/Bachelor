@@ -413,8 +413,19 @@ class jsonRepository{
 
 
   //collects the municipality boundary of a single given municipality
-  List<LatLng> getMuniBoundary(String muni){
-    return relations.where((element) => element.name == muni).first.boundaryCoords;
+  List<List<LatLng>>? getMuniBoundary(String muni){
+
+    for (var element in relations) {
+      if (element.name == muni){
+        if(element.isMulti){
+          return element.multiBoundaryCoords;
+        }else{
+          return [element.boundaryCoords];
+        }
+      }
+    }
+
+    //return relations.where((element) => element.name == muni).first.boundaryCoords;
   }
 
   //returns a list of polygons corresponding to the boundaries of the chosen municipalities
