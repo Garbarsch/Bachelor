@@ -75,6 +75,7 @@ flutter:
     - assets/MuniGeojson.geojson
     - assets/hovedtal-2022uddCSV.csv
     - assets/SchoolAddresses.csv
+    - assets/MuniPopulation20231k.csv
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

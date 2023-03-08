@@ -6,12 +6,13 @@ import 'package:latlong2/latlong.dart';
 
 class MunicipalityRelation{
   final String id;
-  final String? name;
+  final String name;
+  late int? population;
   List<LatLng> boundaryCoords; //node ids
   List<List<LatLng>>? multiBoundaryCoords;
   final bool isMulti;
 
-  MunicipalityRelation({required this.id, required this.name, required this.boundaryCoords, this.multiBoundaryCoords, required this.isMulti});
+  MunicipalityRelation({required this.id, required this.name, required this.boundaryCoords, this.multiBoundaryCoords, required this.isMulti, this.population});
 
   factory MunicipalityRelation.fromJson(Map<String,dynamic> data){
     if(data["geometry"]["type"] == "MultiPolygon"){
