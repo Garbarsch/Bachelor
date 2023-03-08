@@ -40,7 +40,6 @@ class csvRepository {
   https://codesearchonline.com/read-and-write-csv-file-in-flutter-web-mobile/
    */
   Future<Map<String, List<School>>?> parseSchoolMap(String csvPath) async {
-    //TODO: create one repository class, and then have two parse classes; one parse json and one parse csv files.
     try {
       //create string from csv file
       String csvAsString = await rootBundle.loadString(csvPath);
@@ -70,8 +69,6 @@ class csvRepository {
       listData.removeLast();
 
 
-
-
       //clone list of all data
       List<dynamic> schools = List.from(listData);
 
@@ -81,7 +78,7 @@ class csvRepository {
       //get top-layer school information (name, accepted appliers, appliers total)
       //NOTE: we have to call this here, as the list is not properly cloned? - its just still the same objects
       //OKAY: i see why it works now - so we might have the same objects, but the objects we are removing above, are not removed in the "schools" list.
-      schools = getSchoolList(schools);
+      schools = _getSchoolList(schools);
 
       //create map to be returned
       Map<String, List<School>> schoolMap = {};
@@ -115,7 +112,7 @@ class csvRepository {
         } else if (!element[2].contains("i alt")) {
           //print("Education: ${element[2]}\n Accepted appliers: ${element[3]}\n Appliers: ${element[5]}\n");
 
-          School newSchool = School(name: element[2].toString(), acceptedAppliers: element[3], appliers: element[5], postDistrict: getPostDistrict(element[2]));
+          School newSchool = School(name: element[2].toString(), acceptedAppliers: element[3], appliers: element[5], postDistrict: _getPostDistrict(element[2]));
           schoolMap[schoolName]?.add(newSchool);
         }
       }
@@ -128,7 +125,7 @@ class csvRepository {
     }
   }
 
-  String getPostDistrict(String schoolModelName){
+  String _getPostDistrict(String schoolModelName){
     String subDistrictString = schoolModelName.substring(0,schoolModelName.lastIndexOf(","));//String without "studiestart"
     String subSubDistrictString = subDistrictString.substring(subDistrictString.lastIndexOf(",")+2);
 
@@ -137,7 +134,7 @@ class csvRepository {
   }
 
   //helper method to remove all data but the target top-layer schools and their information
-  List<dynamic> getSchoolList(List<dynamic> dynamicData) {
+  List<dynamic> _getSchoolList(List<dynamic> dynamicData) {
     //remove unused entries
     dynamicData.removeWhere((element) => !element[2].contains("i alt"));
 
@@ -227,5 +224,60 @@ class csvRepository {
     });
 
   }
+
+
+
+  //--------------------REPO ACCESS METHODS--------------------
+
+  //return a list of schools (educations) beneath one top-layer school
+  List<School> getAllEducationsFromSchool(String school){
+    if(schoolInfoMap.keys.contains(school)){
+      List<School> schoolList = List.from(schoolInfoMap[school]!);
+      if(schoolList!.isNotEmpty){
+        schoolList.removeAt(0);
+        return schoolList;
+      }
+    }
+    return [];
+  }
+
+  //returns a top-layer school (eg. Københavns Universitet)
+  School? getTopLayerSchool (String school){
+    if(schoolInfoMap.keys.contains(school)){
+      return  schoolInfoMap[school]![0];
+    }
+      return null;
+  }
+
+  //returns all top-layer school (eg. Københavns Universitet)
+  List<School> getAllTopLayerSchools (){
+    List<School> returnList = [];
+    schoolInfoMap.values.forEach((list) {
+      returnList.add(list.first);
+    });
+    return returnList;
+  }
+
+  //return a list of all schools from all top-layer schools (without the top-layer entries)
+  List<School> getAllEducations(){
+    List<School> returnList = [];
+    schoolInfoMap.values.forEach((list) {
+      List<School> schoolList = List.from(list);//we must do List.from as not to mess with the original list
+      schoolList.removeAt(0);
+      returnList.addAll(schoolList);
+    });
+    return returnList;
+  }
+
+  //get the total amount of appliers from the dataset
+  double getTotalAppliers(){
+      return totalAppliers;
+  }
+
+  //get the total amount of accepted appliers from the dataset
+  double getTotalAcceptedAppliers(){
+    return totalAcceptedAppliers;
+  }
+
 
 }
