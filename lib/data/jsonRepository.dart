@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/services.dart';
@@ -126,7 +127,6 @@ class jsonRepository{
 
   //We could have probably made an ENUM of the amenities available, and just a single getAmenityCoords(Enum...){}
 
-  //så kan vi også lave en getCafesByMuni...
   //get all cafes
   List<LatLng> getCafesCoords(){
     List<LatLng> tupList = [];

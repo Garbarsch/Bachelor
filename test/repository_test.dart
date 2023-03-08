@@ -8,11 +8,6 @@ void main() async{
 
 
   var repo = new Repository();
-  await repo.loadCSV("assets/hovedtal-2022uddCSV.csv");
-
-  //print(repo.myData.first);
-  //print(repo.myData[1]);
-  //print(repo.myData[2]);
-  repo.myData.forEach((element) {print(element);});
-
+  await repo.loadCSVFiles("assets/hovedtal-2022uddCSV.csv", "assets/SchoolAddresses.csv");
+  repo.printAllSchoolInfo();
 }
