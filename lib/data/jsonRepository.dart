@@ -198,9 +198,124 @@ class jsonRepository{
             if (isPointInPolygon(coords[coord], bounds[j])){
               temp++;
           }
-    } data.add(Munidata(muni, temp));}
+    } }data.add(Munidata(muni.substring(0, muni.indexOf(' ')), temp));
     return data;
   }
+
+  Munidata getNighlifeForMuni(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getBarPubNightClubCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+
+  }
+  Munidata getBusStationsForMuni(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getBusCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+
+  }
+  Munidata getTrainStationsForMuni(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getTrainStationCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+
+  }
+  Munidata getCinemaForMuni(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getCinemaCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+
+  }
+  Munidata getArtCentreForMuni(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getArtsCentreCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+
+  }
+  Munidata getCommunityCentreForMuni(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getCommunityCentreCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+
+  }
+  Munidata getMusicVenueForMuni(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getMusicVenueCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+
+  }
+
+
 
   //get all restaurants
   List<LatLng> getRestaurantCoords(){
@@ -413,17 +528,8 @@ class jsonRepository{
 
 
   //collects the municipality boundary of a single given municipality
-  List<List<LatLng>>? getMuniBoundary(String muni){
-
-    for (var element in relations) {
-      if (element.name == muni){
-        if(element.isMulti){
-          return element.multiBoundaryCoords;
-        }else{
-          return [element.boundaryCoords];
-        }
-      }
-    }
+  List<LatLng> getMuniBoundary(String muni){
+    return relations.where((element) => element.name == muni).first.boundaryCoords;
 
     //return relations.where((element) => element.name == muni).first.boundaryCoords;
   }

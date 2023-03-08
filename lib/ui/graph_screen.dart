@@ -24,6 +24,8 @@ import '../bloc/graph_page_bloc.dart';
 class MyGraphPage extends StatelessWidget {
   jsonRepository repo;
   List<String> selecteChoices = [];
+  List<String> radioOptions = ["Entertainment", "Transportation"];
+  String choice = "Entertainment";
   List<Munidata> data = [];
   var a;
   MyGraphPage({
@@ -69,7 +71,7 @@ class MyGraphPage extends StatelessWidget {
                     child: SfCartesianChart( primaryXAxis: CategoryAxis(),
                         series:<ChartSeries<Munidata, String>>
 
-                    [ ColumnSeries<Munidata,String>(dataSource: data,xValueMapper: (Munidata data,_) => data.name ,yValueMapper: (Munidata data,_) => data.value)
+                    [ ColumnSeries<Munidata,String>(dataSource: data,xValueMapper: (Munidata data,_) => data.name.toString(),yValueMapper: (Munidata data,_) => data.value)
                     ])));
                   } else{
                       return const Text("Choose municipality");
@@ -113,8 +115,29 @@ class MyGraphPage extends StatelessWidget {
 
 
                       ), )),
+    Container(height: MediaQuery.of(context).size.width ), Positioned(top: 100, bottom: 420, left: MediaQuery.of(context).size.width -263, right:20  ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width,
+    child: Column(
+      children: [Radio<String>(
+    value: radioOptions.first,
+    groupValue: choice,
+    onChanged: (String? value) {
+    },
+    ),
+    Radio<String>(
 
-                ])));
+    value: radioOptions[1],
+    groupValue: choice,
+
+    onChanged: (String? value) {
+      print(value);
+      choice = value!;
+
+    },
+    ),
+
+
+
+                ])))])));
   }
 
 }

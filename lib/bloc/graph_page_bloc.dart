@@ -28,8 +28,7 @@ class GraphPageBloc extends Bloc<GraphPageEvent, GraphPageState> {
             final state = this.state as graphLoaded;
             emit(
                 graphLoaded(
-                    muni: List.from(state.muni)..addAll(event.data
-                    )
+                    muni: List.from(state.muni)..addAll(event.data)
 
                 )
             );
