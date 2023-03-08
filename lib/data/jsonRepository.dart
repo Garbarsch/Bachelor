@@ -11,6 +11,10 @@ import 'package:maps_toolkit/maps_toolkit.dart' as toolkit;
 import '../models/node.dart';
 import '../models/relation.dart';
 
+import 'package:github_client/models/query/query_model.dart';
+
+part 'package:github_client/data/queries.dart';
+
 // ignore: camel_case_types
 class jsonRepository{
 

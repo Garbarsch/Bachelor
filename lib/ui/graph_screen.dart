@@ -1,3 +1,4 @@
+import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/data/jsonRepository.dart';
 import 'package:github_client/models/municipality_model.dart';
+import 'package:github_client/models/query/query_model.dart';
 import 'package:github_client/ui/home_screen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:multiselect/multiselect.dart';
@@ -27,18 +29,19 @@ class MyGraphPage extends StatelessWidget {
   List<String> radioOptions = ["Entertainment", "Transportation"];
   String choice = "Entertainment";
   List<Munidata> data = [];
+  List<query_model> querymodel = [];
   var a;
   MyGraphPage({
   super.key,
   required this.repo, required BuildContext blocContext,
   //required this.shapeSource, required this.mapData,
   });
+
   
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo) => MaterialPageRoute(
     builder: (_) => MyGraphPage(blocContext: context, repo: repo),
   );
-
-
+  late queries query = queries(repo: repo);
   @override
   Widget build(BuildContext context) {
 
@@ -57,6 +60,7 @@ class MyGraphPage extends StatelessWidget {
                     if (state is graphLoaded) {
                       print("GraphLoaded og data");
                      data = state.muni;
+                     querymodel = state.querymodel;
                     }
 
                     else {
@@ -65,9 +69,16 @@ class MyGraphPage extends StatelessWidget {
 
 
                     }
-                    if(data.isNotEmpty){
-                      print(data.last.value);
-                    return Positioned(top: 75, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -700, width: MediaQuery.of(context).size.width/4,
+                    if(data.isEmpty){
+                      if(state.querymodel.isNotEmpty){
+                        return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                            child: SfCartesianChart( primaryXAxis: CategoryAxis(),
+                                series:<ChartSeries<query_model, String>>
+
+                                [ ColumnSeries<query_model,String>(dataSource: querymodel,xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y)
+                                ])));
+                      }
+                    return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                     child: SfCartesianChart( primaryXAxis: CategoryAxis(),
                         series:<ChartSeries<Munidata, String>>
 
@@ -105,8 +116,19 @@ class MyGraphPage extends StatelessWidget {
                         onChanged: (List<String> value) {
                           selecteChoices = value;
                           print(selecteChoices);
-                          context.read<GraphPageBloc>().add(
-                              updateGraph(data: repo.getCafeForMuni(value.last)));
+                          print(choice);
+                          if(choice == "Transportation"){
+                            context.read<GraphPageBloc>().add(
+                                updateGraph(
+                                    data: [], querymodel: query.transportationQuery(
+                                    value.last)));
+                          }
+                          if(choice =="Entertainment") {
+                            context.read<GraphPageBloc>().add(
+                                updateGraph(
+                                    data: [], querymodel: query.entertainmentQuery(
+                                    value.last)));
+                          }
                         },
 
 
@@ -115,29 +137,53 @@ class MyGraphPage extends StatelessWidget {
 
 
                       ), )),
-    Container(height: MediaQuery.of(context).size.width ), Positioned(top: 100, bottom: 420, left: MediaQuery.of(context).size.width -263, right:20  ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width,
-    child: Column(
-      children: [Radio<String>(
-    value: radioOptions.first,
-    groupValue: choice,
-    onChanged: (String? value) {
-    },
-    ),
-    Radio<String>(
+    Container(height: MediaQuery.of(context).size.width ), Positioned(top: 100, bottom: 350, left: MediaQuery.of(context).size.width -200,right: 10  ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: (MediaQuery.of(context).size.width/4)-30,
+    child: CustomRadioButton( buttonTextStyle: const ButtonTextStyle(
+          selectedColor: Colors.black,
+          unSelectedColor: Colors.black,
+          textStyle: TextStyle(
+            fontSize: 12,
+          ),
+        ),
+          unSelectedColor: Theme.of(context).canvasColor,
+          buttonLables: radioOptions,
+          buttonValues: radioOptions,
+         defaultSelected: "Entertainment",
+          radioButtonValue: (values) {
+            if(selecteChoices.isNotEmpty) {
+              if (values.toString() == "Entertainment") {
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel: query.entertainmentQuery(
+                        selecteChoices.last)));
+              }
+              if (values.toString() == "Transportation") {
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel: query.transportationQuery(
+                        selecteChoices.last)));
+              }
+            }
 
-    value: radioOptions[1],
-    groupValue: choice,
+            choice = values.toString();
+            print(choice);
 
-    onChanged: (String? value) {
-      print(value);
-      choice = value!;
+          },
+          spacing: 0,
 
-    },
-    ),
+      horizontal:true,
+          enableButtonWrap: false,
+          width: 120,
+
+        height:30,
+          absoluteZeroSpacing: false,
+          selectedColor: Theme.of(context).accentColor,
+          padding: 5,
+        )),
 
 
 
-                ])))])));
+                )])));
   }
 
 }

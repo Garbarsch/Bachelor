@@ -4,34 +4,47 @@
 //education
 //
 
-import 'package:github_client/models/query/Entertainment_model.dart';
-import 'package:github_client/models/query/transportation_model.dart';
+part of 'package:github_client/data/jsonRepository.dart';
+class queries {
+  jsonRepository repo;
 
-import 'jsonRepository.dart';
+  List<query_model> entertainmentQuery(String muni) {
+    List<query_model> model = [];
 
-class queries{
-  late jsonRepository repo;
-
-  Entertainment_model entertainmentQuery(String muni){
     var nightlife = repo.getNighlifeForMuni(muni);
+    model.add(query_model("Nightlife", nightlife.value));
 
     var cinema = repo.getCinemaForMuni(muni);
+    model.add(query_model("Cinema", cinema.value));
+
 
     var art_centre = repo.getArtCentreForMuni(muni);
+    model.add(query_model("Art Centre", art_centre.value));
+
 
     var community_centre = repo.getCommunityCentreForMuni(muni);
+    model.add(query_model("Community Centre", community_centre.value));
+
 
     var music_venue = repo.getMusicVenueForMuni(muni);
+    model.add(query_model("Music Venues", music_venue.value));
 
-   return Entertainment_model(nightlife.value,cinema.value,art_centre.value,community_centre.value,music_venue.value);
 
+    return model;
   }
-  transportation_model transportationQuery(String muni){
+
+  List<query_model> transportationQuery(String muni) {
+    List<query_model> model = [];
     var bus_stations = repo.getBusStationsForMuni(muni);
+    model.add(query_model("Bus stations", bus_stations.value));
+
     var train_stations = repo.getTrainStationsForMuni(muni);
-    return transportation_model(bus_stations.value, train_stations.value);
+    model.add(query_model("Train stations", train_stations.value));
+
+    return model;
   }
 
+  queries({required this.repo});
 
 
 }
