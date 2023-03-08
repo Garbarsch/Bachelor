@@ -1,11 +1,10 @@
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 import 'package:github_client/models/school_model.dart';
-import 'package:intl/intl.dart';
 import 'dart:async';
 
 
-class Repository {
+class csvRepository {
 
 
   late final Map<String, List<School>> schoolInfoMap;
@@ -188,7 +187,7 @@ class Repository {
               school.campusLon = lon;
             }
           }
-      }
+        }
       }
 
     }
