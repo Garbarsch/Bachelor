@@ -19,7 +19,7 @@ class GraphPageInitial extends GraphPageState {
 
 class graphLoaded extends GraphPageState{
 
-  final List<String> muni;
+  final List<Munidata> muni;
 
   const graphLoaded({required this.muni});
 

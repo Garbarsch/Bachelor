@@ -11,3 +11,11 @@ abstract class GraphPageEvent {
 class loadGraphPage extends GraphPageEvent{
 
 }
+class updateGraph extends GraphPageEvent {
+  final List<Munidata> data;
+  const updateGraph({required this.data});
+
+  @override
+  List<Object> get props => [data];
+
+}

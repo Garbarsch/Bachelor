@@ -13,6 +13,7 @@ import 'package:multiselect/multiselect.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:maps_toolkit/maps_toolkit.dart' as toolkit;
 import 'package:tuple/tuple.dart';
 
 
