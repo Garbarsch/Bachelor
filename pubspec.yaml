@@ -48,6 +48,7 @@ dependencies:
   syncfusion_flutter_charts: ^20.4.52
   awesome_select: ^6.0.0
   maps_toolkit: ^2.0.1
+  custom_radio_grouped_button: ^2.1.2+2
 
 dev_dependencies:
   flutter_test:
