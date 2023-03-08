@@ -128,7 +128,6 @@ class jsonRepository{
 
   //We could have probably made an ENUM of the amenities available, and just a single getAmenityCoords(Enum...){}
 
-  //så kan vi også lave en getCafesByMuni...
   //get all cafes
   List<LatLng> getCafesCoords(){
     List<LatLng> tupList = [];
