@@ -204,6 +204,21 @@ class jsonRepository{
     } }data.add(Munidata(muni.substring(0, muni.indexOf(' ')), temp));
     return data;
   }
+  Munidata getCafeForMunii(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getCafesCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+  }
 
   Munidata getNighlifeForMuni(String muni){
 
@@ -212,6 +227,22 @@ class jsonRepository{
     List<String> a = [muni];
     var bounds = getMunilist(a);
     List<LatLng> coords = getBarPubNightClubCoords();
+    for (int coord = 0; coord < coords.length; coord++){
+      for(int j =0; bounds.length> j; j++) {
+        if (isPointInPolygon(coords[coord], bounds[j])){
+          temp++;
+        }
+      } }
+    return (Munidata(muni, temp));
+
+  }
+  Munidata getRestuarantsForMuni(String muni){
+
+    List<Munidata> data = [];
+    int temp = 0;
+    List<String> a = [muni];
+    var bounds = getMunilist(a);
+    List<LatLng> coords = getRestaurantCoords();
     for (int coord = 0; coord < coords.length; coord++){
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){

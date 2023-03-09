@@ -33,6 +33,17 @@ class queries {
     return model;
   }
 
+  List<query_model> foodQuery(String muni){
+    List<query_model> model = [];
+    var cafe = repo.getCafeForMunii(muni);
+    model.add(query_model("Cafe", cafe.value));
+    var resturants = repo.getRestuarantsForMuni(muni);
+    model.add(query_model("Restaurants", resturants.value));
+    return model;
+
+
+
+  }
   List<query_model> transportationQuery(String muni) {
     List<query_model> model = [];
     var bus_stations = repo.getBusStationsForMuni(muni);

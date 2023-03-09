@@ -26,7 +26,7 @@ import '../bloc/graph_page_bloc.dart';
 class MyGraphPage extends StatelessWidget {
   jsonRepository repo;
   List<String> selecteChoices = [];
-  List<String> radioOptions = ["Entertainment", "Transportation"];
+  List<String> radioOptions = ["Entertainment", "Transportation", "Restaurants"];
   String choice = "Entertainment";
   List<Munidata> data = [];
   List<query_model> querymodel = [];
@@ -72,10 +72,14 @@ class MyGraphPage extends StatelessWidget {
                     if(data.isEmpty){
                       if(state.querymodel.isNotEmpty){
                         return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
-                            child: SfCartesianChart( primaryXAxis: CategoryAxis(),
+                            child: SfCartesianChart(
+                                primaryXAxis: CategoryAxis(),
+                                title: ChartTitle(
+                                    text: selecteChoices.last),
                                 series:<ChartSeries<query_model, String>>
 
-                                [ ColumnSeries<query_model,String>(dataSource: querymodel,xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y)
+
+                                [ ColumnSeries<query_model,String>(dataSource: querymodel, xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y, )
                                 ])));
                       }
                     return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
@@ -129,6 +133,12 @@ class MyGraphPage extends StatelessWidget {
                                     data: [], querymodel: query.entertainmentQuery(
                                     value.last)));
                           }
+                          if(choice =="Restaurants") {
+                            context.read<GraphPageBloc>().add(
+                                updateGraph(
+                                    data: [], querymodel: query.foodQuery(
+                                    value.last)));
+                          }
                         },
 
 
@@ -161,6 +171,12 @@ class MyGraphPage extends StatelessWidget {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
                         data: [], querymodel: query.transportationQuery(
+                        selecteChoices.last)));
+              }
+              if (values.toString() == "Restaurants") {
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel: query.foodQuery(
                         selecteChoices.last)));
               }
             }
