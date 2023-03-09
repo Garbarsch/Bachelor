@@ -190,6 +190,21 @@ class csvRepository {
     }
   }
 
+  Future<Map<String,int>> getAllMuniPopulations() async{
+
+    String csvAsString = await rootBundle.loadString("assets/MuniPopulation20231k.csv");
+    var listData = CsvToListConverter(fieldDelimiter: ';').convert(csvAsString);
+
+    Map<String,int> returnMap = {};
+    for(var muni in listData){
+      String muniName = muni[0];
+      int population = muni[1];
+      returnMap[muniName] = population;
+    }
+
+    return returnMap;
+  }
+
   void printAllSchoolInfo(){
 
     schoolInfoMap.keys.forEach((element) {
@@ -231,6 +246,7 @@ class csvRepository {
 
   //return a list of schools (educations) beneath one top-layer school
   List<School> getAllEducationsFromSchool(String school){
+
     if(schoolInfoMap.keys.contains(school)){
       List<School> schoolList = List.from(schoolInfoMap[school]!);
       if(schoolList!.isNotEmpty){

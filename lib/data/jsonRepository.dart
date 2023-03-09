@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:github_client/data/csvRepository.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
@@ -54,6 +55,26 @@ class jsonRepository{
     }else{
       print("nodes list empty");
     }
+  }
+
+  //Remember to call this when if csvRepo has been initialized.
+  Future<void> addPopulationToMunicipality(csvRepository csvRepo) async{
+    if(relations.isEmpty){
+      throw new Exception("JSON file not loaded yet");
+    }
+    try{
+      Map<String,int> muniPops = await csvRepo.getAllMuniPopulations();
+      muniPops.forEach((key, value) {
+        for(var muni in relations){
+          if(muni.name.contains(key)){
+            muni.population ??= value;
+          }
+        }
+      });
+    }catch(e){
+      print(e);
+    }
+
   }
 
   //fix types in node model!!

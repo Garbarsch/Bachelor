@@ -1,6 +1,7 @@
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_client/data/csvRepository.dart';
 import 'package:github_client/data/jsonRepository.dart';
 import 'package:github_client/models/node.dart';
 import 'package:github_client/models/relation.dart';
@@ -26,7 +27,13 @@ void main() async{
       expect(repo.relations.isNotEmpty, true);
       expect(repo.relations.first.name != null, true );
     });
-    //There will be another test here with the dataset we integrate.
+    test("Test: add population to each Municipality from csv file", () async
+    {
+      csvRepository csvRepo = csvRepository();
+      await repo.addPopulationToMunicipality(csvRepo);
+      expect(repo.relations.first.population, isNotNull);
+      
+    });    
   });
   group("amenity access methods", () {
 
