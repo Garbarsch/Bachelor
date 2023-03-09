@@ -6,7 +6,10 @@
 
 part of 'package:github_client/data/jsonRepository.dart';
 class queries {
-  jsonRepository repo;
+  final jsonRepository repo;
+  final csvRepository csvRepo;
+
+  queries({required this.repo, required this.csvRepo});
 
   List<query_model> entertainmentQuery(String muni) {
     List<query_model> model = [];
@@ -39,11 +42,10 @@ class queries {
     model.add(query_model("Cafe", cafe.value));
     var resturants = repo.getRestuarantsForMuni(muni);
     model.add(query_model("Restaurants", resturants.value));
+
     return model;
-
-
-
   }
+
   List<query_model> transportationQuery(String muni) {
     List<query_model> model = [];
     var bus_stations = repo.getBusStationsForMuni(muni);
@@ -55,7 +57,26 @@ class queries {
     return model;
   }
 
-  queries({required this.repo});
+  List<query_model> educationOfferPercentageQuery(String muni1){
+    print("EDUCATION OFFER PERCENTAGE QUERY");
+
+    String muni2 = "Gladsaxe Kommune";
+    List<List<LatLng>> muni1Bound = repo.getSingleMuniBoundary(muni1);
+    List<List<LatLng>> muni2Bound = repo.getSingleMuniBoundary(muni2);
+    int totalEducationOptions = csvRepo.getAllEducationOptions().length;
+
+
+    var percentageMuni1 = csvRepo.getAmountEducationsInMuni(muni1, muni1Bound);
+    var percentageMuni2 = csvRepo.getAmountEducationsInMuni(muni2, muni2Bound);
+
+    print(totalEducationOptions);
+    print(percentageMuni1);
+    print(percentageMuni2);
+    print("\n");
+
+    return [];
+  }
+
 
 
 }

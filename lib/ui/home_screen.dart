@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/bloc/graph_page_bloc.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
+import 'package:github_client/data/csvRepository.dart';
 import 'package:github_client/data/jsonRepository.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:github_client/ui/graph_screen.dart';
@@ -24,15 +25,16 @@ class MyHomePage extends StatelessWidget {
   List<Marker> markers = [];
   List<Polygon> polyMuni = [];
   jsonRepository repo;
+  csvRepository csvRepo;
 
-  static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo) => MaterialPageRoute(
-    builder: (_) => MyHomePage(blocContext: context, repo: repo),
+  static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
+    builder: (_) => MyHomePage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
 
   int temp = 0;
     MyHomePage({
     super.key,
-    required this.repo, required BuildContext blocContext,
+    required this.repo, required this.csvRepo, required BuildContext blocContext,
     //required this.shapeSource, required this.mapData,
   });
 
@@ -183,7 +185,7 @@ class MyHomePage extends StatelessWidget {
                     child: ElevatedButton(
 
                       child: Text('Compare', style: TextStyle(fontSize: 20.0),),
-                      onPressed: () {Navigator.of(context).push(MyGraphPage.route(context, repo))
+                      onPressed: () {Navigator.of(context).push(MyGraphPage.route(context, repo, csvRepo))
                       ;
                         print(context.read<GraphPageBloc>().state);},
 

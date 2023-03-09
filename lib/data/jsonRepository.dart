@@ -14,6 +14,8 @@ import '../models/relation.dart';
 
 import 'package:github_client/models/query/query_model.dart';
 
+import '../models/school_model.dart';
+
 part 'package:github_client/data/queries.dart';
 
 // ignore: camel_case_types
@@ -32,6 +34,7 @@ class jsonRepository{
     data = json.decode(jsonText);
 
     //for all nodes (that contains "tags" - is an amenity node), serialize node object and put in list.
+    //TODO: try to either use a larger json file, or at least we should add all nodes even though they are not amenity
     var nodes = data.where((element) => element["type"] == "node" && element.containsKey("tags")).map((e) => Node.fromJson(e)).toList();
 
     amenityNodes = { for (var n in nodes) n.id : n };
@@ -257,6 +260,7 @@ class jsonRepository{
     return (Munidata(muni, temp));
 
   }
+
   Munidata getRestuarantsForMuni(String muni){
 
     List<Munidata> data = [];
@@ -634,6 +638,25 @@ class jsonRepository{
     return list;
 
   }
+
+  List<List<LatLng>> getSingleMuniBoundary(String muni){
+    var munic = relations.where((element) => element.name == muni).first;
+    List<List<LatLng>> list = [];
+
+    if(munic.isMulti){
+      for (var coordList in munic.multiBoundaryCoords!) {
+        list.add(coordList);
+      }
+    }
+    else{
+      list.add(munic.boundaryCoords);
+    }
+
+
+    return list;
+
+  }
+
 
 
 

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
+import 'package:github_client/data/csvRepository.dart';
 import 'package:github_client/data/jsonRepository.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:github_client/models/query/query_model.dart';
@@ -25,23 +26,24 @@ import '../bloc/graph_page_bloc.dart';
 
 class MyGraphPage extends StatelessWidget {
   jsonRepository repo;
+  csvRepository csvRepo;
   List<String> selecteChoices = [];
-  List<String> radioOptions = ["Entertainment", "Transportation", "Restaurants"];
+  List<String> radioOptions = ["Entertainment", "Transportation", "Restaurants"]; //education
   String choice = "Entertainment";
   List<Munidata> data = [];
   List<query_model> querymodel = [];
   var a;
   MyGraphPage({
   super.key,
-  required this.repo, required BuildContext blocContext,
+  required this.repo, required this.csvRepo, required BuildContext blocContext,
   //required this.shapeSource, required this.mapData,
   });
 
   
-  static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo) => MaterialPageRoute(
-    builder: (_) => MyGraphPage(blocContext: context, repo: repo),
+  static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
+    builder: (_) => MyGraphPage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
-  late queries query = queries(repo: repo);
+  late queries query = queries(repo: repo, csvRepo: csvRepo );
   @override
   Widget build(BuildContext context) {
 
@@ -109,7 +111,7 @@ class MyGraphPage extends StatelessWidget {
     child:  ElevatedButton(
 
           child: Text('Go back', style: TextStyle(fontSize: 15.0),),
-            onPressed: () {Navigator.of(context).push(MyHomePage.route(context, repo))
+            onPressed: () {Navigator.of(context).push(MyHomePage.route(context, repo, csvRepo))
             ;
             print(context.read<GraphPageBloc>().state);},
 
@@ -170,7 +172,7 @@ class MyGraphPage extends StatelessWidget {
               if (values.toString() == "Transportation") {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
-                        data: [], querymodel: query.transportationQuery(
+                        data: [], querymodel: query.educationOfferPercentageQuery( //transportationQuery //testing
                         selecteChoices.last)));
               }
               if (values.toString() == "Restaurants") {

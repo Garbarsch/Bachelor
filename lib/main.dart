@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_client/bloc/graph_page_bloc.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
+import 'package:github_client/data/csvRepository.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
@@ -14,15 +15,18 @@ import 'ui/home_screen.dart';
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   var repo = jsonRepository();
+  var csvRepo = csvRepository();
   var successMessage = await repo.loadJsonData();
-
-  runApp( MyApp(repo));
+  await csvRepo.loadCSVFiles("assets/hovedtal-2022uddCSV.csv", "assets/SchoolAddresses.csv");
+  repo.addPopulationToMunicipality(csvRepo);
+  runApp( MyApp(repo, csvRepo));
 }
 
 class MyApp extends StatelessWidget {
   late jsonRepository repo;
+  late csvRepository csvRepo;
 
-  MyApp(this.repo, {Key? key}) : super(key: key);
+  MyApp(this.repo, this.csvRepo, {Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -43,7 +47,7 @@ class MyApp extends StatelessWidget {
         child:  MaterialApp(
           debugShowCheckedModeBanner: false,
           title: "Danish Municipalities",
-          home: MyHomePage(repo: repo,blocContext: context),
+          home: MyHomePage(repo: repo, csvRepo: csvRepo, blocContext: context),
         ),
     );
   }

@@ -1,7 +1,10 @@
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
+import 'package:github_client/data/jsonRepository.dart';
 import 'package:github_client/models/school_model.dart';
 import 'dart:async';
+
+import 'package:latlong2/latlong.dart';
 
 
 class csvRepository {
@@ -112,7 +115,7 @@ class csvRepository {
         } else if (!element[2].contains("i alt")) {
           //print("Education: ${element[2]}\n Accepted appliers: ${element[3]}\n Appliers: ${element[5]}\n");
 
-          School newSchool = School(name: element[2].toString(), acceptedAppliers: element[3], appliers: element[5], postDistrict: _getPostDistrict(element[2]));
+          School newSchool = School(name: element[2].toString(), acceptedAppliers: element[3], appliers: element[5], postDistrict: _getPostDistrict(element[2]), education: getEducationOptionFromSchoolName(element[2].toString()));
           schoolMap[schoolName]?.add(newSchool);
         }
       }
@@ -164,8 +167,8 @@ class csvRepository {
 
       if(element[26] != "" && element[27] != ""){
 
-        lat = double.parse(element[27].replaceAll(',','.'));
-        lon = double.parse(element[26].replaceAll(',','.'));
+        lon = double.parse(element[27].replaceAll(',','.'));
+        lat = double.parse(element[26].replaceAll(',','.'));
 
       }else{
         lat = 0.0;
@@ -210,10 +213,11 @@ class csvRepository {
     schoolInfoMap.keys.forEach((element) {
       print("Top-layer school: ${element}\n");
       schoolInfoMap[element]!.forEach((school) {
-        print("School name: ${school.name}\n");
-        print("School accepted appliers: ${school.acceptedAppliers}\n");
-        print("School total appliers: ${school.appliers}\n");
+        //print("School name: ${school.name}\n");
+        //print("School accepted appliers: ${school.acceptedAppliers}\n");
+        //print("School total appliers: ${school.appliers}\n");
         if(school.campusName == null){
+          print(school.name);
           print("no campus!!!!!!!!\n");
           print("\n");
           //Det Kongelige Akademi
@@ -293,6 +297,66 @@ class csvRepository {
   //get the total amount of accepted appliers from the dataset
   double getTotalAcceptedAppliers(){
     return totalAcceptedAppliers;
+  }
+
+  //TODO: test
+  String getEducationOptionFromSchoolName(String name){
+
+    String education = name.substring(0,name.indexOf(","));
+    if(education.contains("Professionsbachelor") || education.contains("Diplomingeniør")){
+      var splitName = name.split(",");
+      education = splitName[1];
+    }else if(education.contains("civilingeniør")){
+      education = education.substring(0,education.lastIndexOf(")"));
+    }else if(education.contains("Bachelor of Engineering in")){
+      education = education.replaceFirst("Bachelor of Engineering in","");
+    }
+    return education.trim();
+  }
+
+  //TODO: test this
+  Set<String> getAllEducationOptions(){
+    Set<String> educationOptions = {};
+
+    schoolInfoMap.values.forEach((schoolList) {
+      schoolList.forEach((school) {
+        if (schoolList.first != school) {
+          String name = school.name;
+          String education = name.substring(0,name.indexOf(","));
+          if(education.contains("Professionsbachelor") || education.contains("Diplomingeniør")){
+            var splitName = name.split(",");
+            education = splitName[1];
+          }else if(education.contains("civilingeniør")){
+            education = education.substring(0,education.lastIndexOf(")"));
+          }else if(education.contains("Bachelor of Engineering in")){
+            education = education.replaceFirst("Bachelor of Engineering in","");
+          }
+          educationOptions.add(education.trim());
+        }
+
+      });
+    });
+
+    return educationOptions;
+  }
+
+  //TODO: test this
+  int getAmountEducationsInMuni(String muni, List<List<LatLng>> bounds){
+      Set<String> temp = {};
+      schoolInfoMap.values.forEach((schoolList) {
+        schoolList.forEach((school) {
+          if(schoolList.first != school){
+            if(school.campusLat != null && school.campusLon != null){
+              bounds.forEach((bound) {
+                if(jsonRepository.isPointInPolygon(LatLng(school.campusLat!, school.campusLon!), bound)){
+                  temp.add(school.education!);
+                }
+              });
+            }
+          }
+          });
+      });
+    return temp.length;
   }
 
 
