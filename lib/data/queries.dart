@@ -102,24 +102,20 @@ class queries {
     return model;
   }
 
-  List<query_model> educationOfferPercentageQuery(String muni1){
-    print("EDUCATION OFFER PERCENTAGE QUERY");
+  List<List<query_model>> educationOfferPercentageQuery(String muni1, String muni2){
 
-    String muni2 = "Gladsaxe Kommune";
     List<List<LatLng>> muni1Bound = repo.getSingleMuniBoundary(muni1);
     List<List<LatLng>> muni2Bound = repo.getSingleMuniBoundary(muni2);
     int totalEducationOptions = csvRepo.getAllEducationOptions().length;
 
 
-    var percentageMuni1 = csvRepo.getAmountEducationsInMuni(muni1, muni1Bound);
-    var percentageMuni2 = csvRepo.getAmountEducationsInMuni(muni2, muni2Bound);
+    double percentageMuni1 = double.parse((csvRepo.getAmountEducationsInMuni(muni1, muni1Bound)/totalEducationOptions * 100).toStringAsFixed(2));
+    double percentageMuni2 = double.parse((csvRepo.getAmountEducationsInMuni(muni2, muni2Bound)/totalEducationOptions* 100).toStringAsFixed(2));
 
-    print(totalEducationOptions);
-    print(percentageMuni1);
-    print(percentageMuni2);
-    print("\n");
-
-    return [];
+    var muni1QueryModel = query_model(muni1, 0, percentageMuni1);
+    var muni2QueryModel = query_model(muni2, 0, percentageMuni2);
+      
+    return [[muni1QueryModel, muni2QueryModel]];
   }
 
 

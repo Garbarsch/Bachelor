@@ -18,12 +18,12 @@ class GraphPageInitial extends GraphPageState {
 }
 
 class graphLoaded extends GraphPageState{
-
   final List<Munidata> muni;
   final List<List<query_model>> querymodel;
-  const graphLoaded({required this.muni, required this.querymodel});
+  final String type;
+  const graphLoaded({required this.muni, required this.querymodel, required this.type});
 
   @override
-  List<Object> get props => [muni,querymodel];
+  List<Object> get props => [muni,querymodel, type];
 
 }

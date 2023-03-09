@@ -28,7 +28,7 @@ class MyGraphPage extends StatelessWidget {
   jsonRepository repo;
   csvRepository csvRepo;
   List<String> selecteChoices = [];
-  List<String> radioOptions = ["Entertainment", "Transportation", "Restaurants"]; //education
+  List<String> radioOptions = ["Entertainment", "Transportation", "Restaurants", "Education"]; //
   String choice = "Entertainment";
   List<Munidata> data = [];
   List<List<query_model>> querymodel = [];
@@ -73,6 +73,35 @@ class MyGraphPage extends StatelessWidget {
                     }
                     if(data.isEmpty){
                       if(state.querymodel.isNotEmpty){
+                        if(state.type == "Education"){
+                          return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                              child: Stack(
+                                children: [
+                                  Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                                  child: SfCircularChart(
+                                    title: ChartTitle(text: "Percentage of all danish educations available in each municipality"),
+                                    legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
+                                    series: <CircularSeries>[
+                                      RadialBarSeries<query_model,String>(
+                                        dataSource: querymodel.first,
+                                        xValueMapper: (query_model data, _) => data.x,
+                                        yValueMapper: (query_model data,_) => data.percentage,
+                                        dataLabelSettings: DataLabelSettings(isVisible: true),
+                                        dataLabelMapper: (query_model data, _) => data.percentage.toString() + " %",
+                                        radius: '35%',
+                                        maximumValue: 100,
+                                      )
+                                    ],
+                                  )
+                                  )
+
+                                  ),
+                                ],
+
+
+                              )));
+                        }
+
                         print(state.querymodel);
                         return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                             child: SfCartesianChart(
@@ -137,7 +166,8 @@ class MyGraphPage extends StatelessWidget {
                                   updateGraph(
                                       data: [], querymodel:
                                     query.transportationQuery(value.first,
-                                        value.last)
+                                        value.last), type: "Transportation"
+
                                   ));
                             }
                             if (choice == "Entertainment") {
@@ -145,14 +175,24 @@ class MyGraphPage extends StatelessWidget {
                                   updateGraph(
                                       data: [], querymodel:
                                     query.entertainmentQuery( value.first,
-                                        value.last)
+                                        value.last),
+                                        type: "Entertainment"
                                   ));
                             }
                             if (choice == "Restaurants") {
                               context.read<GraphPageBloc>().add(
                                   updateGraph(
                                       data: [], querymodel: query.foodQuery(
-                                      value.first,value.last)
+                                      value.first, value.last),
+                                      type: "Restaurants"
+                                  ));
+                            }
+                            if (choice == "Education") {
+                              context.read<GraphPageBloc>().add(
+                                  updateGraph(
+                                      data: [], querymodel:
+                                      query.educationOfferPercentageQuery(value.first,
+                                      value.last), type: "Education"
                                   ));
                             }
                           }
@@ -182,19 +222,25 @@ class MyGraphPage extends StatelessWidget {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
                         data: [], querymodel: query.entertainmentQuery( selecteChoices.first,
-                        selecteChoices.last)));
+                        selecteChoices.last),type: "Entertainment"));
               }
               if (values.toString() == "Transportation") {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
                         data: [], querymodel: query.transportationQuery(selecteChoices.first,
-                        selecteChoices.last)));
+                        selecteChoices.last),type: "Transportation"));
               }
               if (values.toString() == "Restaurants") {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
                         data: [], querymodel: query.foodQuery(selecteChoices.first,
-                        selecteChoices.last)));
+                        selecteChoices.last),type: "Restaurants"));
+              }
+              if (values.toString() == "Education") {
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel: query.educationOfferPercentageQuery(selecteChoices.first,
+                        selecteChoices.last),type: "Education"));
               }
             }
 

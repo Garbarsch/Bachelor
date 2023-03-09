@@ -20,9 +20,10 @@ class updateGrahpQuery extends GraphPageEvent{
 class updateGraph extends GraphPageEvent {
   final List<Munidata> data;
   final List<List<query_model>> querymodel;
-  const updateGraph({required this.data, required this.querymodel});
+  final String type;
+  const updateGraph({required this.data, required this.querymodel, required this.type});
 
   @override
-  List<Object> get props => [data,querymodel];
+  List<Object> get props => [data,querymodel,type];
 
 }

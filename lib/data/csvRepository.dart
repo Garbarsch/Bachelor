@@ -208,6 +208,7 @@ class csvRepository {
     return returnMap;
   }
 
+  //For testing
   void printAllSchoolInfo(){
 
     schoolInfoMap.keys.forEach((element) {
@@ -220,17 +221,6 @@ class csvRepository {
           print(school.name);
           print("no campus!!!!!!!!\n");
           print("\n");
-          //Det Kongelige Akademi
-          //Arkitektskolen Aarhus
-          //Designskolen Kolding
-          //Copenhagen Business Academy
-          //Københavns Erhvervsakademi (KEA)
-          //Zealand Sjællands Erhvervsakademi
-          //IBA Erhvervsakademi Kolding
-          //Erhvervsakademi SydVest
-          //Erhvervsakademi MidtVest
-          //Erhvervsakademi Aarhus
-          //Erhvervsakademi Dania
           //
         }else{
           //print("Campus: ${school.campusName}\n");
@@ -336,7 +326,6 @@ class csvRepository {
 
       });
     });
-
     return educationOptions;
   }
 

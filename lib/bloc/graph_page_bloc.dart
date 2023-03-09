@@ -19,7 +19,7 @@ class GraphPageBloc extends Bloc<GraphPageEvent, GraphPageState> {
     on<loadGraphPage>(
             (event, emit) async {
           await Future<void>.delayed(const Duration(seconds: 1));
-          emit(const graphLoaded(muni: [], querymodel: []));
+          emit(const graphLoaded(muni: [], querymodel: [], type: ""));
           // emit(const homeLoadedMunicipalities(coordsMunicipalities: []));
         }
     );
@@ -30,8 +30,8 @@ class GraphPageBloc extends Bloc<GraphPageEvent, GraphPageState> {
             emit(
                 graphLoaded(
                     muni: List.from(state.muni)..addAll(event.data),
-                        querymodel: (event.querymodel)
-
+                        querymodel: (event.querymodel),
+                        type: event.type
                 )
             );
           }

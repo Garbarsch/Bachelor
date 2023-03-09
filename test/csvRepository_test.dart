@@ -14,6 +14,7 @@ void main() async{
       expect(repo.schoolInfoMap, isNotNull);
       expect(repo.totalAcceptedAppliers.runtimeType, isNotNull);
       expect(repo.totalAppliers.runtimeType, isNotNull);
+
     });
     test("Test: get municipality populations", () async {
       var map = await repo.getAllMuniPopulations();
