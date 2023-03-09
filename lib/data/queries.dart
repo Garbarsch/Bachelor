@@ -11,10 +11,28 @@ class queries {
 
   queries({required this.repo, required this.csvRepo});
 
+  List<query_model> bulletQuery(String muni) {
+  List<query_model> mun =[];
+
+  var popu = csvRepo.getAllMuniPopulations();
+  var munici = repo.relations.where((element) => element.name == muni).first;
+  mun.add((query_model("Population: ", munici.population!)));
+  mun.add(query_model("Cafes: ",repo.getCafeForMunii(muni).value));
+  mun.add(query_model("Restuarants: ", repo.getRestuarantsForMuni(muni).value));
+  mun.add(query_model("Train stations: ", repo.getTrainStationsForMuni(muni).value));
+
+  return mun;
+
+
+  }
+
   List<List<query_model>> entertainmentQuery(String muni1, String muni2) {
     List<List<query_model>> model = [];
     List<query_model> mun1 =[];
     List<query_model> mun2 = [];
+    List<query_model> bulletmuni1 = bulletQuery(muni1);
+    List<query_model> bulletmuni2 = bulletQuery(muni2);
+
 
     var nightlife = repo.getNighlifeForMuni(muni1);
     mun1.add(query_model("Nightlife", nightlife.value));
@@ -50,6 +68,8 @@ class queries {
     mun2.add(query_model("Music Venues", music_venue.value));
 
     model.add(mun1);
+    model.add(bulletmuni1);
+    model.add(bulletmuni2);
     model.add(mun2);
 
     return model;
@@ -59,6 +79,8 @@ class queries {
     List<List<query_model>> model = [];
     List<query_model> mun1 =[];
     List<query_model> mun2 = [];
+    List<query_model> bulletmuni1 = bulletQuery(muni1);
+    List<query_model> bulletmuni2 = bulletQuery(muni2);
 
     var cafe = repo.getCafeForMunii(muni1);
     mun1.add(query_model("Cafe", cafe.value));
@@ -73,6 +95,8 @@ class queries {
     mun2.add(query_model("Restaurants", resturants.value));
 
     model.add(mun1);
+    model.add(bulletmuni1);
+    model.add(bulletmuni2);
     model.add(mun2);
     return model;
 
@@ -82,6 +106,8 @@ class queries {
 
     List<query_model> mun1 =[];
     List<query_model> mun2 = [];
+    List<query_model> bulletmuni1 = bulletQuery(muni1);
+    List<query_model> bulletmuni2 = bulletQuery(muni2);
 
     var bus_stations = repo.getBusStationsForMuni(muni1);
     mun1.add(query_model("Bus stations", bus_stations.value));
@@ -96,6 +122,8 @@ class queries {
     mun2.add(query_model("Train stations", train_stations.value));
 
     model.add(mun1);
+    model.add(bulletmuni1);
+    model.add(bulletmuni2);
     model.add(mun2);
 
 
@@ -114,7 +142,7 @@ class queries {
 
     var muni1QueryModel = query_model(muni1, 0, percentageMuni1);
     var muni2QueryModel = query_model(muni2, 0, percentageMuni2);
-      
+
     return [[muni1QueryModel, muni2QueryModel]];
   }
 

@@ -180,7 +180,7 @@ class MyHomePage extends StatelessWidget {
 
                     ),
 
-                  ),), Positioned(top: 400, bottom: 150, left: MediaQuery.of(context).size.width -300, right: 100, child: SizedBox( width: 50,height:
+                  ),), Positioned(top: 400, bottom: MediaQuery.of(context).size.height-450, left: MediaQuery.of(context).size.width -300, right: 100, child: SizedBox( width: 50,height:
                   100,
                     child: ElevatedButton(
 

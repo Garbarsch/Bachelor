@@ -1,3 +1,4 @@
+import 'package:bulleted_list/bulleted_list.dart';
 import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,6 +33,8 @@ class MyGraphPage extends StatelessWidget {
   String choice = "Entertainment";
   List<Munidata> data = [];
   List<List<query_model>> querymodel = [];
+  List<String> bullet1 = [];
+  List<String> bullet2 = [];
   var a;
   MyGraphPage({
   super.key,
@@ -46,7 +49,6 @@ class MyGraphPage extends StatelessWidget {
   late queries query = queries(repo: repo, csvRepo: csvRepo );
   @override
   Widget build(BuildContext context) {
-
 
     return Scaffold(
         body: Padding(
@@ -105,6 +107,21 @@ class MyGraphPage extends StatelessWidget {
                         print(state.querymodel);
                         return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                             child: SfCartesianChart(
+                        if(state.querymodel.length>2) {
+                          bullet1 = [];
+                          bullet2 = [];
+                          for (int i = 0; i < state.querymodel[2].length; i++) {
+                            bullet1.add(state.querymodel[1][i].x + state
+                                .querymodel[1][i].y.toString());
+                            bullet2.add(state.querymodel[2][i].x + state
+                                .querymodel[2][i].y.toString());
+                          }
+                        }
+                        return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1,
+                            child: Stack( children:[Positioned(left:MediaQuery.of(context).size.width-200,right: 10,top:
+                                175,bottom: 10,child: Stack(children: [  Text(selecteChoices
+                            .first),
+                            BulletedList(listItems: bullet1, ), Positioned( top: 160,right:0,left:0,bottom:0,child: Stack( children:[ Text(selecteChoices.last),  BulletedList(listItems: bullet2, )]))])),Positioned(top: 10, child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35, child: SfCartesianChart(
 
                                 primaryXAxis: CategoryAxis(),
                                 legend: Legend(
@@ -119,7 +136,9 @@ class MyGraphPage extends StatelessWidget {
 
                                 [ ColumnSeries<query_model,String>(dataSource: querymodel.first, xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y, legendItemText: selecteChoices.first ),
                                   ColumnSeries<query_model,String>(dataSource: querymodel.last, xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y,legendItemText: selecteChoices.last  )
-                                ])));
+                                ])))
+                            ])));
+
                       }
                     return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                     child: SfCartesianChart( primaryXAxis: CategoryAxis(),
@@ -144,7 +163,7 @@ class MyGraphPage extends StatelessWidget {
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25, height:1.5)),
 
                       )),
-                      Container(height: MediaQuery.of(context).size.width ), Positioned(top: 50, bottom: 520, left: MediaQuery.of(context).size.width -120, right: 20 ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
+                      Container(height: MediaQuery.of(context).size.width ), Positioned(top: 50, bottom: MediaQuery.of(context).size.height-100, left: MediaQuery.of(context).size.width -120, right: 20 ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
     child:  ElevatedButton(
 
           child: Text('Go back', style: TextStyle(fontSize: 15.0),),
@@ -204,7 +223,7 @@ class MyGraphPage extends StatelessWidget {
 
 
                       ), )),
-    Container(height: MediaQuery.of(context).size.width ), Positioned(top: 100, bottom: 350, left: MediaQuery.of(context).size.width -200,right: 10  ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: (MediaQuery.of(context).size.width/4)-30,
+    Container(height: MediaQuery.of(context).size.width ), Positioned(top: 75, bottom: 350, left: MediaQuery.of(context).size.width -200,right: 10  ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: (MediaQuery.of(context).size.width/4)-30,
     child: CustomRadioButton( buttonTextStyle: const ButtonTextStyle(
           selectedColor: Colors.black,
           unSelectedColor: Colors.black,
