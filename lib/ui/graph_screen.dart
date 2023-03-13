@@ -104,9 +104,6 @@ class MyGraphPage extends StatelessWidget {
                               )));
                         }
 
-                        print(state.querymodel);
-                        return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
-                            child: SfCartesianChart(
                         if(state.querymodel.length>2) {
                           bullet1 = [];
                           bullet2 = [];
