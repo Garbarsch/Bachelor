@@ -348,5 +348,29 @@ class csvRepository {
     return temp.length;
   }
 
+  //TODO: test
+  List<School> getAllSchoolsInMuni(String muni, List<List<LatLng>> bounds){
+
+    List<School> temp = [];
+    schoolInfoMap.values.forEach((schoolList) {
+      schoolList.forEach((school) {
+        if(schoolList.first != school){
+          if(school.campusLat != null && school.campusLon != null){
+            bounds.forEach((bound) {
+              if(jsonRepository.isPointInPolygon(LatLng(school.campusLat!, school.campusLon!), bound)){
+                temp.add(school);
+              }
+            });
+          }
+        }
+      });
+    });
+    return temp;
+
+  }
+
+
+
+
 
 }
