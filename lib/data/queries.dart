@@ -145,6 +145,25 @@ class queries {
 
     return [[muni1QueryModel, muni2QueryModel]];
   }
+  List<List<query_model>> educationBarStats(String muni1, String muni2){
+    List<List<LatLng>> muni1Bound = repo.getSingleMuniBoundary(muni1);
+    List<List<LatLng>> muni2Bound = repo.getSingleMuniBoundary(muni2);
+    var applicantsMuni1 = csvRepo.getAllApplicantsInMuni(muni1, muni1Bound);
+    var applicantsMuni2 = csvRepo.getAllApplicantsInMuni(muni2, muni2Bound);
+
+    var acceptedApplicantsMuni1 = csvRepo.getAllApplicantsAcceptedInMuni(muni1, muni1Bound);
+    var acceptedApplicantsMuni2 = csvRepo.getAllApplicantsAcceptedInMuni(muni2, muni2Bound);
+
+    var popuMuni1DivApp = ((repo.relations.where((element) => element.name == muni1).first).population)!/applicantsMuni1;
+    var popuMuni2DivApp = ((repo.relations.where((element) => element.name == muni2).first).population)!/applicantsMuni2;
+
+
+
+    var muni1QueryModel =  query_model(muni1, applicantsMuni1,0,acceptedApplicantsMuni1,popuMuni1DivApp);
+    var muni2QueryModel = query_model(muni1, applicantsMuni2,0,acceptedApplicantsMuni2,popuMuni2DivApp);
+
+    return [[muni1QueryModel, muni2QueryModel]];
+  }
 
 
 

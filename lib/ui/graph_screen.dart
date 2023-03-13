@@ -98,6 +98,34 @@ class MyGraphPage extends StatelessWidget {
                                   )
 
                                   ),
+                                  Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                                      child: SfCartesianChart(
+                                        title: ChartTitle(text: "Applicant information"),
+                                        legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
+                                        primaryXAxis: CategoryAxis(),
+                                        series: <CartesianSeries>[
+                                          ColumnSeries<query_model,String>(
+                                            dataSource: querymodel.first,
+                                            xValueMapper: (query_model data, _) => data.x,
+                                            yValueMapper: (query_model data,_) => data.y,
+                                            dataLabelSettings: DataLabelSettings(isVisible: true),
+                                          ),
+                                          ColumnSeries<query_model,String>(
+                                            dataSource: querymodel.first,
+                                            xValueMapper: (query_model data, _) => data.x,
+                                            yValueMapper: (query_model data,_) => data.y2,
+                                            dataLabelSettings: DataLabelSettings(isVisible: true),
+                                          ),ColumnSeries<query_model,String>(
+                                            dataSource: querymodel.first,
+                                            xValueMapper: (query_model data, _) => data.x,
+                                            yValueMapper: (query_model data,_) => data.y,
+                                            dataLabelSettings: DataLabelSettings(isVisible: true),
+                                          ),
+                                        ],
+                                      )
+                                  )
+
+                                  ),
                                 ],
 
 
@@ -255,7 +283,7 @@ class MyGraphPage extends StatelessWidget {
               if (values.toString() == "Education") {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
-                        data: [], querymodel: query.educationOfferPercentageQuery(selecteChoices.first,
+                        data: [], querymodel: query.educationBarStats(selecteChoices.first,
                         selecteChoices.last),type: "Education"));
               }
             }

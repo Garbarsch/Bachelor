@@ -221,6 +221,17 @@ class csvRepository {
           print(school.name);
           print("no campus!!!!!!!!\n");
           print("\n");
+          //Det Kongelige Akademi
+          //Arkitektskolen Aarhus
+          //Designskolen Kolding
+          //Copenhagen Business Academy
+          //Københavns Erhvervsakademi (KEA)
+          //Zealand Sjællands Erhvervsakademi
+          //IBA Erhvervsakademi Kolding
+          //Erhvervsakademi SydVest
+          //Erhvervsakademi MidtVest
+          //Erhvervsakademi Aarhus
+          //Erhvervsakademi Dania
           //
         }else{
           //print("Campus: ${school.campusName}\n");
@@ -326,6 +337,7 @@ class csvRepository {
 
       });
     });
+
     return educationOptions;
   }
 
@@ -368,6 +380,27 @@ class csvRepository {
     return temp;
 
   }
+  int getAllApplicantsInMuni(String muni, List<List<LatLng>> bounds){
+    var schoolsInMuni = getAllSchoolsInMuni(muni, bounds);
+    int num = 0;
+
+      for(int i=0; schoolsInMuni.length>i; i++ ){
+        num += schoolsInMuni[i].appliers.round();
+      }
+    return num;
+
+  }
+  int getAllApplicantsAcceptedInMuni(String muni, List<List<LatLng>> bounds){
+    var schoolsInMuni = getAllSchoolsInMuni(muni, bounds);
+    int num = 0;
+
+    for(int i=0; schoolsInMuni.length>i; i++ ){
+      num += schoolsInMuni[i].acceptedAppliers.round();
+    }
+    return num;
+
+  }
+
 
 
 
