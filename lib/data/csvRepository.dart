@@ -386,6 +386,7 @@ class csvRepository {
 
       for(int i=0; schoolsInMuni.length>i; i++ ){
         num += schoolsInMuni[i].appliers.round();
+        print(num);
       }
     return num;
 

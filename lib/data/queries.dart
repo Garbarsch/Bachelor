@@ -154,13 +154,13 @@ class queries {
     var acceptedApplicantsMuni1 = csvRepo.getAllApplicantsAcceptedInMuni(muni1, muni1Bound);
     var acceptedApplicantsMuni2 = csvRepo.getAllApplicantsAcceptedInMuni(muni2, muni2Bound);
 
-    var popuMuni1DivApp = ((repo.relations.where((element) => element.name == muni1).first).population)!/applicantsMuni1;
+    var popuMuni1DivApp = applicantsMuni1/((repo.relations.where((element) => element.name == muni1).first).population)!*10000;
     var popuMuni2DivApp = ((repo.relations.where((element) => element.name == muni2).first).population)!/applicantsMuni2;
 
 
 
     var muni1QueryModel =  query_model(muni1, applicantsMuni1,0,acceptedApplicantsMuni1,popuMuni1DivApp);
-    var muni2QueryModel = query_model(muni1, applicantsMuni2,0,acceptedApplicantsMuni2,popuMuni2DivApp);
+    var muni2QueryModel = query_model(muni2, applicantsMuni2,0,acceptedApplicantsMuni2,popuMuni2DivApp);
 
     return [[muni1QueryModel, muni2QueryModel]];
   }
