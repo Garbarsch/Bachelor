@@ -54,7 +54,7 @@ class MyGraphPage extends StatelessWidget {
         body: Padding(
             padding: EdgeInsets.fromLTRB(0,0, 0,0),
             child: Stack(
-                children: [ BlocBuilder<GraphPageBloc, GraphPageState>(
+                children: [BlocBuilder<GraphPageBloc, GraphPageState>(
                   builder: (context,state) {
                     print("Jeg er her");
                     print(state);
@@ -102,6 +102,56 @@ class MyGraphPage extends StatelessWidget {
 
 
                               )));
+                        }if(state.type == "Education2"){ //this is for testing the second graph of education with Line Charts
+                          return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                              child: Stack(
+                                children: [
+                                  Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                                      child: SfCartesianChart(
+                                        title: ChartTitle(text: "Applier Distribution"),
+                                        legend: Legend(isVisible: true),
+                                        tooltipBehavior: TooltipBehavior(enable: true),
+                                        series: <ChartSeries>[
+                                          LineSeries<query_model,String>(
+                                            name: "Muni1",
+                                            dataSource: querymodel.first,
+                                            xValueMapper: (query_model data, _) => data.x,
+                                            yValueMapper: (query_model data,_) => data.percentage,
+                                            dataLabelSettings: DataLabelSettings(isVisible: true),
+                                            enableTooltip: true,
+                                            dataLabelMapper: (query_model data, _) => data.percentage.toStringAsFixed(2) + " %",
+
+
+                                          ),
+                                          LineSeries<query_model,String>(
+                                              name: "Muni2",
+                                              dataSource: querymodel.last,
+                                              xValueMapper: (query_model data, _) => data.x,
+                                              yValueMapper: (query_model data,_) => data.percentage,
+                                              dataLabelSettings: DataLabelSettings(isVisible: true),
+                                              enableTooltip: true,
+                                              dataLabelMapper: (query_model data, _) => data.percentage.toStringAsFixed(2) + " %",
+
+
+                                          )
+                                        ],
+                                        primaryXAxis: CategoryAxis(
+                                          majorGridLines: MajorGridLines(width: 0),
+                                          maximumLabelWidth: 80,
+
+                                          //labelIntersectAction: AxisLabelIntersectAction.multipleRows, //for sjov
+                                          //labelAlignment: LabelAlignment.center
+                                        ),
+
+                                      )
+                                  )
+
+                                  ),
+                                ],
+
+
+                              )));
+
                         }
 
                         if(state.querymodel.length>2) {
@@ -211,6 +261,7 @@ class MyGraphPage extends StatelessWidget {
                                       value.last), type: "Education"
                                   ));
                             }
+
                           }
                         },
 
@@ -255,7 +306,7 @@ class MyGraphPage extends StatelessWidget {
               if (values.toString() == "Education") {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
-                        data: [], querymodel: query.educationOfferPercentageQuery(selecteChoices.first,
+                        data: [], querymodel: query.educationTopLayerSchoolsPercentage(selecteChoices.first,
                         selecteChoices.last),type: "Education"));
               }
             }

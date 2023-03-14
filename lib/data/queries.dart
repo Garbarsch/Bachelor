@@ -146,6 +146,88 @@ class queries {
     return [[muni1QueryModel, muni2QueryModel]];
   }
 
+  List<List<query_model>> educationTopLayerSchoolsPercentage(String muni1, String muni2){
+
+    //municipality bounds
+    List<List<LatLng>> muni1Bound = repo.getSingleMuniBoundary(muni1);
+    List<List<LatLng>> muni2Bound = repo.getSingleMuniBoundary(muni2);
+
+    //schools within these bounds
+    List<School> muni1Schools = csvRepo.getAllSchoolsInMuni(muni1, muni1Bound);
+    List<School> muni2Schools = csvRepo.getAllSchoolsInMuni(muni2, muni2Bound);
+
+    //placeholders for query_models
+    List<query_model> tempQueryList1 = [];
+    List<query_model> tempQueryList2 = [];
+
+    //var to increment all appliers of each municipality
+    var totalAppliersMuni1 = 0;
+    var totalAppliersMuni2 = 0;
+
+    //check for each top-layer school, is the schools within muni a part of that?
+    csvRepo.schoolInfoMap.forEach((key, value) {
+      String topLayerSchool = key;
+      var inMuni1 = false;
+      var inMuni2 = false;
+      int schoolAppliersMuni1 = 0;
+      int schoolAppliersMuni2 = 0;
+
+      //does this muni have a school under ths top-layer school/faculty
+      muni1Schools.forEach((element) {
+        if(value.contains(element)){
+          schoolAppliersMuni1 += element.appliers.toInt();
+          totalAppliersMuni1 += element.appliers.toInt();
+          inMuni1 = true;
+        }
+      });
+
+      //if it does, then we save it for later
+      if(inMuni1){
+        tempQueryList1.add(query_model(topLayerSchool, 0, (schoolAppliersMuni1/1), muni1)); //find ud af noget her wtf luder pis - kan være vi slet ik har brug for muni derinde, hm.
+      }
+
+      muni2Schools.forEach((element) {
+        if(value.contains(element)){
+          schoolAppliersMuni2 += element.appliers.toInt();
+          totalAppliersMuni2 += element.appliers.toInt();
+          inMuni2 = true;
+        }
+      });
+
+      if(inMuni2){
+        tempQueryList2.add(query_model(topLayerSchool, 0, (schoolAppliersMuni2/1), muni2));
+      }
+
+    });
+
+    //now make it percentage, to showcase the applier distribution of top-layer schools on the chosen municipalities
+    tempQueryList1.forEach((element) {
+      element.percentage = element.percentage/totalAppliersMuni1*100;
+    });
+    tempQueryList2.forEach((element) {
+      element.percentage = element.percentage/totalAppliersMuni2*100;
+    });
+
+
+    //we have to reorder the list to align the data for graph visualization.
+      List<query_model> tempInBoth = List<query_model>.from(tempQueryList2.where((element) => tempQueryList1.contains(element)));
+      tempInBoth.forEach((element) {
+        tempQueryList2.remove(element);
+        tempQueryList1.remove(element);
+      });
+
+
+    if(tempQueryList1.length > tempQueryList2.length){
+      tempQueryList1.addAll(tempInBoth);
+      tempInBoth.addAll(tempQueryList2);
+      return [tempQueryList1,tempInBoth];
+    }else{
+      tempQueryList2.addAll(tempInBoth);
+      tempInBoth.addAll(tempQueryList1);
+      return [tempQueryList2,tempInBoth];
+    }
+  }
+
 
 
 }
