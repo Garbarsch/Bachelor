@@ -76,13 +76,16 @@ class MyGraphPage extends StatelessWidget {
                     if(data.isEmpty){
                       if(state.querymodel.isNotEmpty){
                         if(state.type == "Education"){
-                          return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                          return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width,
                               child: Stack(
-                                children: [
-                                  Positioned(top: 40, bottom: MediaQuery.of(context).size.height/2.7, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                                children: [Positioned(left:MediaQuery.of(context).size.width-200,right: 10,top:
+                                150,bottom: 10,child: Stack(children: [  Text(selecteChoices
+                                    .first),
+                                  BulletedList(listItems: bullet1, ), Positioned( top: 170,right:0,left:0,bottom:0,child: Stack( children:[ Text(selecteChoices.last),  BulletedList(listItems: bullet2, )]))])),
+                                  Positioned(top: 40, bottom: MediaQuery.of(context).size.height/2.2, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                                   child: Stack(
                                     children: [
-                                      Positioned(top: 0, bottom: 0, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                                      Positioned(top: 0, bottom: 0, left: 10, right: 100,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                                           child: SfCartesianChart(
                                             title: ChartTitle(text: "Applier Distribution"),
                                             legend: Legend(isVisible: true),
@@ -145,7 +148,7 @@ class MyGraphPage extends StatelessWidget {
                                   )
 
                                   ),
-                                  Positioned(top: MediaQuery.of(context).size.height/2.2, bottom: 10, left: MediaQuery.of(context).size.width/3, right: -50,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/1.35,
+                                  Positioned(top: MediaQuery.of(context).size.height/2.2, bottom: 10, left: MediaQuery.of(context).size.width/3, right: 150,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/1.35,
                                       child: SfCartesianChart(
                                         title: ChartTitle(text: "Applicant information"),
                                         legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
