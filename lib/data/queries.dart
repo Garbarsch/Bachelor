@@ -27,6 +27,7 @@ class queries {
   }
 
   List<List<query_model>> entertainmentQuery(String muni1, String muni2) {
+    Stopwatch stopwatch = new Stopwatch()..start();
     List<List<query_model>> model = [];
     List<query_model> mun1 =[];
     List<query_model> mun2 = [];
@@ -72,10 +73,12 @@ class queries {
     model.add(bulletmuni2);
     model.add(mun2);
 
+    print("Entertainment query time: ${stopwatch.elapsed}");
     return model;
   }
 
   List<List<query_model>> foodQuery(String muni1, String muni2){
+    Stopwatch stopwatch = new Stopwatch()..start();
     List<List<query_model>> model = [];
     List<query_model> mun1 =[];
     List<query_model> mun2 = [];
@@ -98,10 +101,12 @@ class queries {
     model.add(bulletmuni1);
     model.add(bulletmuni2);
     model.add(mun2);
+    print("Food query time: ${stopwatch.elapsed}");
     return model;
 
   }
   List<List<query_model>> transportationQuery(String muni1,String muni2) {
+    Stopwatch stopwatch = new Stopwatch()..start();
     List<List<query_model>> model = [];
 
     List<query_model> mun1 =[];
@@ -126,7 +131,7 @@ class queries {
     model.add(bulletmuni2);
     model.add(mun2);
 
-
+    print("Transportation query time: ${stopwatch.elapsed}");
     return model;
   }
 
@@ -233,28 +238,32 @@ class queries {
       element.percentage = element.percentage/totalAppliersMuni2*100;
     });
 
-
+    List<query_model> tempInBoth = [];
     //we have to reorder the list to align the data for graph visualization.
-      List<query_model> tempInBoth = [];
-      tempInBoth = List<query_model>.from(tempQueryList2.where((element) => tempQueryList1.contains(element)));
+      for (var element in tempQueryList2) {
+        tempInBoth.addAll(tempQueryList1.where((element2) => element.x == element2.x));
+      }
+
+      List<query_model> both1 = [];
+      List<query_model> both2 = [];
       tempInBoth.forEach((element) {
-        tempQueryList2.remove(element);
-        tempQueryList1.remove(element);
+
+        both2.addAll(tempQueryList2.where((element2) => element2.x == element.x));
+        tempQueryList2.removeWhere((element2) => both2.contains(element2));
+
+        both1.addAll(tempQueryList1.where((element1) => element1.x == element.x));
+        tempQueryList1.removeWhere((element1) => both1.contains(element1));
+
       });
 
+      tempQueryList1.addAll(both1);
+      both2.addAll(tempQueryList2);
 
-    if(tempQueryList1.length > tempQueryList2.length){
-      tempQueryList1.addAll(tempInBoth);
-      tempInBoth.addAll(tempQueryList2);
-      return [tempQueryList1,tempInBoth];
-    }else{
-      tempQueryList2.addAll(tempInBoth);
-      tempInBoth.addAll(tempQueryList1);
-      return [tempQueryList2,tempInBoth];
-    }
+      return [tempQueryList1,both2];
   }
 
   List<List<query_model>> educationQuery(String muni1, String muni2){
+    Stopwatch stopwatch = new Stopwatch()..start();
       var graph1 = educationTopLayerSchoolsPercentage(muni1, muni2);
       var graph2 = educationOfferPercentageQuery(muni1, muni2);
       var graph3 = educationBarStats(muni1, muni2);
@@ -265,6 +274,7 @@ class queries {
       graph1.add(bulletMuni1);
       graph1.add(bulletMuni2);
 
+    print("Education query time: ${stopwatch.elapsed}");
       return graph1;
   }
 

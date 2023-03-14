@@ -90,7 +90,7 @@ class MyGraphPage extends StatelessWidget {
                                             series: <ChartSeries>[
                                               LineSeries<query_model,String>(
                                                 name: querymodel[0].isEmpty ? "(No schools in dataset)" : querymodel[0].first.municipality,
-                                                dataSource: querymodel.first,
+                                                dataSource: querymodel[0],
                                                 xValueMapper: (query_model data, _) => data.x,
                                                 yValueMapper: (query_model data,_) => data.percentage,
                                                 dataLabelSettings: DataLabelSettings(isVisible: true),
@@ -100,7 +100,7 @@ class MyGraphPage extends StatelessWidget {
 
                                               ),
                                               LineSeries<query_model,String>(
-                                                name: querymodel[1].isEmpty ?  "(No schools in dataset)" : querymodel[1].first.municipality,
+                                                name: querymodel[1].isEmpty ?  "(No schools in dataset)" : querymodel[1].last.municipality,
                                                 dataSource: querymodel[1],
                                                 xValueMapper: (query_model data, _) => data.x,
                                                 yValueMapper: (query_model data,_) => data.percentage,

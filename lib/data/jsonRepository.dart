@@ -35,7 +35,7 @@ class jsonRepository{
 
     //for all nodes (that contains "tags" - is an amenity node), serialize node object and put in list.
     //TODO: try to either use a larger json file, or at least we should add all nodes even though they are not amenity
-    var nodes = data.where((element) => element["type"] == "node" && element.containsKey("tags")).map((e) => Node.fromJson(e)).toList();
+    var nodes = data.where((element) => element["type"] == "node").map((e) => Node.fromJson(e)).toList(); // && element.containsKey("tags")
     //print(nodes.length); //61309 - only amenity
     //print(nodes.length); //406815 - all nodes
 
