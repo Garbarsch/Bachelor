@@ -202,7 +202,7 @@ class queries {
 
       //if it does, then we save it for later
       if(inMuni1){
-        tempQueryList1.add(query_model(topLayerSchool, 0, (schoolAppliersMuni1/1), muni1)); //find ud af noget her wtf luder pis - kan være vi slet ik har brug for muni derinde, hm.
+        tempQueryList1.add(query_model(topLayerSchool, 0, (schoolAppliersMuni1/1), 0,0,muni1)); //find ud af noget her wtf luder pis - kan være vi slet ik har brug for muni derinde, hm.
       }
 
       muni2Schools.forEach((element) {
@@ -214,7 +214,7 @@ class queries {
       });
 
       if(inMuni2){
-        tempQueryList2.add(query_model(topLayerSchool, 0, (schoolAppliersMuni2/1), muni2));
+        tempQueryList2.add(query_model(topLayerSchool, 0, (schoolAppliersMuni2/1), 0,0, muni2));
       }
 
     });
