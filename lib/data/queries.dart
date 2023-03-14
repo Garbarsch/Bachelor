@@ -130,6 +130,7 @@ class queries {
     return model;
   }
 
+
   List<List<query_model>> educationOfferPercentageQuery(String muni1, String muni2){
 
     List<List<LatLng>> muni1Bound = repo.getSingleMuniBoundary(muni1);
@@ -154,10 +155,15 @@ class queries {
     var acceptedApplicantsMuni1 = csvRepo.getAllApplicantsAcceptedInMuni(muni1, muni1Bound);
     var acceptedApplicantsMuni2 = csvRepo.getAllApplicantsAcceptedInMuni(muni2, muni2Bound);
 
-    var popuMuni1DivApp = applicantsMuni1/((repo.relations.where((element) => element.name == muni1).first).population)!*10000;
-    var popuMuni2DivApp = ((repo.relations.where((element) => element.name == muni2).first).population)!/applicantsMuni2;
+    var popuMuni2DivApp;
 
+    var  popuMuni1DivApp = applicantsMuni1/((repo.relations.where((element) => element.name == muni1).first).population)! * 10000;
 
+    if(applicantsMuni2 == 0){
+      popuMuni2DivApp = 0.0;
+    }else{
+      popuMuni2DivApp = ((repo.relations.where((element) => element.name == muni2).first).population)!/applicantsMuni2;
+    }
 
     var muni1QueryModel =  query_model(muni1, applicantsMuni1,0,acceptedApplicantsMuni1,popuMuni1DivApp);
     var muni2QueryModel = query_model(muni2, applicantsMuni2,0,acceptedApplicantsMuni2,popuMuni2DivApp);
@@ -229,7 +235,8 @@ class queries {
 
 
     //we have to reorder the list to align the data for graph visualization.
-      List<query_model> tempInBoth = List<query_model>.from(tempQueryList2.where((element) => tempQueryList1.contains(element)));
+      List<query_model> tempInBoth = [];
+      tempInBoth = List<query_model>.from(tempQueryList2.where((element) => tempQueryList1.contains(element)));
       tempInBoth.forEach((element) {
         tempQueryList2.remove(element);
         tempQueryList1.remove(element);
@@ -247,6 +254,18 @@ class queries {
     }
   }
 
+  List<List<query_model>> educationQuery(String muni1, String muni2){
+      var graph1 = educationTopLayerSchoolsPercentage(muni1, muni2);
+      var graph2 = educationOfferPercentageQuery(muni1, muni2);
+      var graph3 = educationBarStats(muni1, muni2);
+      var bulletMuni1 = bulletQuery(muni1);
+      var bulletMuni2 = bulletQuery(muni2);
+      graph1.addAll(graph2);
+      graph1.addAll(graph3);
+      graph1.add(bulletMuni1);
+      graph1.add(bulletMuni2);
 
+      return graph1;
+  }
 
 }

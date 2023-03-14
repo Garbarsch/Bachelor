@@ -374,11 +374,12 @@ class csvRepository {
 
       for(int i=0; schoolsInMuni.length>i; i++ ){
         num += schoolsInMuni[i].appliers.round();
-        print(num);
+       // print(num);
       }
     return num;
 
   }
+
   int getAllApplicantsAcceptedInMuni(String muni, List<List<LatLng>> bounds){
     var schoolsInMuni = getAllSchoolsInMuni(muni, bounds);
     int num = 0;

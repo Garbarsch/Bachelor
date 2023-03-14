@@ -56,13 +56,13 @@ class MyGraphPage extends StatelessWidget {
             child: Stack(
                 children: [ BlocBuilder<GraphPageBloc, GraphPageState>(
                   builder: (context,state) {
-                    print("Jeg er her");
-                    print(state);
+                    //print("Jeg er her");
+                    //print(state);
                     if (state is HomePageInitial) { //HOMEPAGE
                       return const CircularProgressIndicator(color: Colors.blue);
                     }
                     if (state is graphLoaded) {
-                      print("GraphLoaded og data");
+                      //print("GraphLoaded og data");
                      data = state.muni;
                      querymodel = state.querymodel;
                     }
@@ -79,19 +79,65 @@ class MyGraphPage extends StatelessWidget {
                           return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                               child: Stack(
                                 children: [
+                                  Positioned(top: 40, bottom: MediaQuery.of(context).size.height/2.7, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                                  child: Stack(
+                                    children: [
+                                      Positioned(top: 0, bottom: 0, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                                          child: SfCartesianChart(
+                                            title: ChartTitle(text: "Applier Distribution"),
+                                            legend: Legend(isVisible: true),
+                                            tooltipBehavior: TooltipBehavior(enable: true),
+                                            series: <ChartSeries>[
+                                              LineSeries<query_model,String>(
+                                                name: querymodel[0].isEmpty ? "(No schools in dataset)" : querymodel[0].first.municipality,
+                                                dataSource: querymodel.first,
+                                                xValueMapper: (query_model data, _) => data.x,
+                                                yValueMapper: (query_model data,_) => data.percentage,
+                                                dataLabelSettings: DataLabelSettings(isVisible: true),
+                                                enableTooltip: true,
+                                                dataLabelMapper: (query_model data, _) => data.percentage.toStringAsFixed(2) + " %",
 
-                                  Positioned(top: MediaQuery.of(context).size.height/1.5, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/3,
+
+                                              ),
+                                              LineSeries<query_model,String>(
+                                                name: querymodel[1].isEmpty ?  "(No schools in dataset)" : querymodel[1].first.municipality,
+                                                dataSource: querymodel[1],
+                                                xValueMapper: (query_model data, _) => data.x,
+                                                yValueMapper: (query_model data,_) => data.percentage,
+                                                dataLabelSettings: DataLabelSettings(isVisible: true),
+                                                enableTooltip: true,
+                                                dataLabelMapper: (query_model data, _) => data.percentage.toStringAsFixed(2) + " %",
+
+
+                                              )
+                                            ],
+                                            primaryXAxis: CategoryAxis(
+                                              majorGridLines: MajorGridLines(width: 0),
+                                              maximumLabelWidth: 80,
+                                            ),
+
+                                          )
+                                      )
+
+                                      ),
+                                    ],
+
+
+                                  ))),
+                                  Positioned(top: MediaQuery.of(context).size.height/2.2, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/3,
                                   child: SfCircularChart(
                                     title: ChartTitle(text: "Percentage of all danish educations available in each municipality"),
                                     legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
+                                    tooltipBehavior: TooltipBehavior(enable: true),
                                     series: <CircularSeries>[
                                       RadialBarSeries<query_model,String>(
-                                        dataSource: querymodel.first,
+                                        dataSource: querymodel[2],
                                         xValueMapper: (query_model data, _) => data.x,
                                         yValueMapper: (query_model data,_) => data.percentage,
                                         dataLabelSettings: DataLabelSettings(isVisible: true),
                                         dataLabelMapper: (query_model data, _) => data.percentage.toString() + " %",
-                                        radius: '35%',
+                                        enableTooltip: true,
+                                        radius: '70%',
                                         maximumValue: 100,
                                       )
                                     ],
@@ -99,79 +145,40 @@ class MyGraphPage extends StatelessWidget {
                                   )
 
                                   ),
-                                  Positioned(top: MediaQuery.of(context).size.height/1.5, bottom: 10, left: MediaQuery.of(context).size.width/3,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/1.35,
+                                  Positioned(top: MediaQuery.of(context).size.height/2.2, bottom: 10, left: MediaQuery.of(context).size.width/3, right: -50,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/1.35,
                                       child: SfCartesianChart(
                                         title: ChartTitle(text: "Applicant information"),
                                         legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
-                                        primaryXAxis: CategoryAxis(),
+                                        tooltipBehavior: TooltipBehavior(enable: true),
+                                        primaryXAxis: CategoryAxis(
+                                          maximumLabelWidth: 80
+                                        ),
                                         series: <CartesianSeries>[
                                           ColumnSeries<query_model,String>(
-                                            dataSource: querymodel.first,
+                                            name: "Applicants",
+                                            dataSource: querymodel[3],
                                             xValueMapper: (query_model data, _) => data.x,
                                             yValueMapper: (query_model data,_) => data.y,
+                                              enableTooltip: true,
                                               legendItemText: "Applicants"
                                           ),
                                           ColumnSeries<query_model,String>(
-                                            dataSource: querymodel.first,
+                                            name:"Accepted applicants",
+                                            dataSource: querymodel[3],
                                             xValueMapper: (query_model data, _) => data.x,
                                             yValueMapper: (query_model data,_) => data.y2,
+                                              enableTooltip: true,
                                               legendItemText: "Accepted applicants"
                                           ),ColumnSeries<query_model,String>(
-                                            dataSource: querymodel.first,
+                                            name:"Applicants per 10.000 resident",
+                                            dataSource: querymodel[3],
                                             xValueMapper: (query_model data, _) => data.x,
                                             yValueMapper: (query_model data,_) => data.y3,
+                                              enableTooltip: true,
                                               legendItemText: "Applicants per 10.000 resident"
                                           ),
 
                                         ],
-                                      )
-                                  )
-
-                                  ),
-                                ],
-
-
-                              )));
-                        }if(state.type == "Education2"){ //this is for testing the second graph of education with Line Charts
-                          return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
-                              child: Stack(
-                                children: [
-                                  Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
-                                      child: SfCartesianChart(
-                                        title: ChartTitle(text: "Applier Distribution"),
-                                        legend: Legend(isVisible: true),
-                                        tooltipBehavior: TooltipBehavior(enable: true),
-                                        series: <ChartSeries>[
-                                          LineSeries<query_model,String>(
-                                            name: "Muni1",
-                                            dataSource: querymodel.first,
-                                            xValueMapper: (query_model data, _) => data.x,
-                                            yValueMapper: (query_model data,_) => data.percentage,
-                                            dataLabelSettings: DataLabelSettings(isVisible: true),
-                                            enableTooltip: true,
-                                            dataLabelMapper: (query_model data, _) => data.percentage.toStringAsFixed(2) + " %",
-
-
-                                          ),
-                                          LineSeries<query_model,String>(
-                                              name: "Muni2",
-                                              dataSource: querymodel.last,
-                                              xValueMapper: (query_model data, _) => data.x,
-                                              yValueMapper: (query_model data,_) => data.percentage,
-                                              dataLabelSettings: DataLabelSettings(isVisible: true),
-                                              enableTooltip: true,
-                                              dataLabelMapper: (query_model data, _) => data.percentage.toStringAsFixed(2) + " %",
-
-
-                                          )
-                                        ],
-                                        primaryXAxis: CategoryAxis(
-                                          majorGridLines: MajorGridLines(width: 0),
-                                          maximumLabelWidth: 80,
-
-                                          //labelIntersectAction: AxisLabelIntersectAction.multipleRows, //for sjov
-                                          //labelAlignment: LabelAlignment.center
-                                        ),
 
                                       )
                                   )
@@ -181,7 +188,6 @@ class MyGraphPage extends StatelessWidget {
 
 
                               )));
-
                         }
 
                         if(state.querymodel.length>2) {
@@ -254,8 +260,8 @@ class MyGraphPage extends StatelessWidget {
                         selectedValues: selecteChoices,
                         onChanged: (List<String> value) {
                           selecteChoices = value;
-                          print(selecteChoices);
-                          print(choice);
+                          //print(selecteChoices);
+                          //print(choice);
                           if(value.length == 2) {
                             if (choice == "Transportation") {
                               context.read<GraphPageBloc>().add(
@@ -287,19 +293,7 @@ class MyGraphPage extends StatelessWidget {
                               context.read<GraphPageBloc>().add(
                                   updateGraph(
                                       data: [], querymodel:
-                                      query.educationOfferPercentageQuery(value.first,
-                                      value.last), type: "Education"
-                                  ));
-                              context.read<GraphPageBloc>().add(
-                                  updateGraph(
-                                      data: [], querymodel:
-                                  query.educationBarStats(value.first,
-                                      value.last), type: "Education"
-                                  ));
-                              context.read<GraphPageBloc>().add(
-                                  updateGraph(
-                                      data: [], querymodel:
-                                  query.educationTopLayerSchoolsPercentage(value.first,
+                                      query.educationQuery(value.first,
                                       value.last), type: "Education"
                                   ));
 
@@ -349,25 +343,14 @@ class MyGraphPage extends StatelessWidget {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
                         data: [], querymodel:
-                    query.educationOfferPercentageQuery(selecteChoices.first,
+                    query.educationQuery(selecteChoices.first,
                         selecteChoices.last), type: "Education"
                     ));
-                context.read<GraphPageBloc>().add(
-                    updateGraph(
-                        data: [], querymodel:
-                    query.educationBarStats(selecteChoices.first,
-                        selecteChoices.last), type: "Education"
-                    ));
-                context.read<GraphPageBloc>().add(
-                    updateGraph(
-                        data: [], querymodel:
-                    query.educationTopLayerSchoolsPercentage(selecteChoices.first,
-                        selecteChoices.last), type: "Education"));
               }
             }
 
             choice = values.toString();
-            print(choice);
+            //print(choice);
 
           },
           spacing: 0,
