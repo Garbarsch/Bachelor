@@ -79,6 +79,7 @@ class MyGraphPage extends StatelessWidget {
                           return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                               child: Stack(
                                 children: [
+
                                   Positioned(top: MediaQuery.of(context).size.height/1.5, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/3,
                                   child: SfCircularChart(
                                     title: ChartTitle(text: "Percentage of all danish educations available in each municipality"),
@@ -289,6 +290,19 @@ class MyGraphPage extends StatelessWidget {
                                       query.educationOfferPercentageQuery(value.first,
                                       value.last), type: "Education"
                                   ));
+                              context.read<GraphPageBloc>().add(
+                                  updateGraph(
+                                      data: [], querymodel:
+                                  query.educationBarStats(value.first,
+                                      value.last), type: "Education"
+                                  ));
+                              context.read<GraphPageBloc>().add(
+                                  updateGraph(
+                                      data: [], querymodel:
+                                  query.educationTopLayerSchoolsPercentage(value.first,
+                                      value.last), type: "Education"
+                                  ));
+
                             }
 
                           }
@@ -334,8 +348,21 @@ class MyGraphPage extends StatelessWidget {
               if (values.toString() == "Education") {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
-                        data: [], querymodel: query.educationBarStats(selecteChoices.first,
-                        selecteChoices.last),type: "Education"));
+                        data: [], querymodel:
+                    query.educationOfferPercentageQuery(selecteChoices.first,
+                        selecteChoices.last), type: "Education"
+                    ));
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel:
+                    query.educationBarStats(selecteChoices.first,
+                        selecteChoices.last), type: "Education"
+                    ));
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel:
+                    query.educationTopLayerSchoolsPercentage(selecteChoices.first,
+                        selecteChoices.last), type: "Education"));
               }
             }
 
