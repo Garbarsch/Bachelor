@@ -20,7 +20,7 @@ import 'package:tuple/tuple.dart';
 
 
 class MyHomePage extends StatelessWidget {
-  List<String> choices = ['Restaurants','Bus Stop','Cinemas', 'Dentists','Clinics','Muni'];
+  List<String> choices = ['Restaurants','Bus Stop','Cinemas', 'Dentists','Clinics'];
   List<String> selecteChoices = [];
   List<Marker> markers = [];
   List<Polygon> polyMuni = [];
@@ -67,6 +67,7 @@ class MyHomePage extends StatelessWidget {
     return const CircularProgressIndicator(color: Colors.blue);
     }
     if (state is homeLoaded) {
+      markers = [];
       for (int index = 0;
       index < state.coords.length; {
         print("hallo"),

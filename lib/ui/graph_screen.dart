@@ -54,7 +54,7 @@ class MyGraphPage extends StatelessWidget {
         body: Padding(
             padding: EdgeInsets.fromLTRB(0,0, 0,0),
             child: Stack(
-                children: [BlocBuilder<GraphPageBloc, GraphPageState>(
+                children: [ BlocBuilder<GraphPageBloc, GraphPageState>(
                   builder: (context,state) {
                     print("Jeg er her");
                     print(state);
@@ -79,7 +79,7 @@ class MyGraphPage extends StatelessWidget {
                           return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                               child: Stack(
                                 children: [
-                                  Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
+                                  Positioned(top: MediaQuery.of(context).size.height/1.5, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/3,
                                   child: SfCircularChart(
                                     title: ChartTitle(text: "Percentage of all danish educations available in each municipality"),
                                     legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
@@ -95,6 +95,35 @@ class MyGraphPage extends StatelessWidget {
                                       )
                                     ],
                                   )
+                                  )
+
+                                  ),
+                                  Positioned(top: MediaQuery.of(context).size.height/1.5, bottom: 10, left: MediaQuery.of(context).size.width/3,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/1.35,
+                                      child: SfCartesianChart(
+                                        title: ChartTitle(text: "Applicant information"),
+                                        legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
+                                        primaryXAxis: CategoryAxis(),
+                                        series: <CartesianSeries>[
+                                          ColumnSeries<query_model,String>(
+                                            dataSource: querymodel.first,
+                                            xValueMapper: (query_model data, _) => data.x,
+                                            yValueMapper: (query_model data,_) => data.y,
+                                              legendItemText: "Applicants"
+                                          ),
+                                          ColumnSeries<query_model,String>(
+                                            dataSource: querymodel.first,
+                                            xValueMapper: (query_model data, _) => data.x,
+                                            yValueMapper: (query_model data,_) => data.y2,
+                                              legendItemText: "Accepted applicants"
+                                          ),ColumnSeries<query_model,String>(
+                                            dataSource: querymodel.first,
+                                            xValueMapper: (query_model data, _) => data.x,
+                                            yValueMapper: (query_model data,_) => data.y3,
+                                              legendItemText: "Applicants per 10.000 resident"
+                                          ),
+
+                                        ],
+                                      )
                                   )
 
                                   ),
@@ -164,11 +193,11 @@ class MyGraphPage extends StatelessWidget {
                                 .querymodel[2][i].y.toString());
                           }
                         }
-                        return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1,
+                        return Positioned(top: 90, bottom: 0, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width,
                             child: Stack( children:[Positioned(left:MediaQuery.of(context).size.width-200,right: 10,top:
-                                175,bottom: 10,child: Stack(children: [  Text(selecteChoices
+                                150,bottom: 10,child: Stack(children: [  Text(selecteChoices
                             .first),
-                            BulletedList(listItems: bullet1, ), Positioned( top: 160,right:0,left:0,bottom:0,child: Stack( children:[ Text(selecteChoices.last),  BulletedList(listItems: bullet2, )]))])),Positioned(top: 10, child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35, child: SfCartesianChart(
+                            BulletedList(listItems: bullet1, ), Positioned( top: 170,right:0,left:0,bottom:0,child: Stack( children:[ Text(selecteChoices.last),  BulletedList(listItems: bullet2, )]))])),Positioned(top: 10,bottom: 0, child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35, child: SfCartesianChart(
 
                                 primaryXAxis: CategoryAxis(),
                                 legend: Legend(
@@ -182,7 +211,7 @@ class MyGraphPage extends StatelessWidget {
 
 
                                 [ ColumnSeries<query_model,String>(dataSource: querymodel.first, xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y, legendItemText: selecteChoices.first ),
-                                  ColumnSeries<query_model,String>(dataSource: querymodel.last, xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y,legendItemText: selecteChoices.last  )
+                                  ColumnSeries<query_model,String>(dataSource: querymodel.last, xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y,legendItemText: selecteChoices.last,  )
                                 ])))
                             ])));
 
@@ -218,7 +247,7 @@ class MyGraphPage extends StatelessWidget {
             ;
             print(context.read<GraphPageBloc>().state);},
 
-            ))), Container(height: MediaQuery.of(context).size.width ), Positioned(top: 50, bottom: 520, left: 20, right: MediaQuery.of(context).size.width -263 ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width,
+            ))), Container(height: MediaQuery.of(context).size.height ), Positioned(top:10 , bottom: MediaQuery.of(context).size.height-150, left: 20, right: MediaQuery.of(context).size.width -263 ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width,
                       child:  DropDownMultiSelect(
                         options: (repo.relations.map((e) => e.name!).toList()),
                         selectedValues: selecteChoices,
@@ -270,8 +299,7 @@ class MyGraphPage extends StatelessWidget {
                         'Choose filter',
 
 
-                      ), )),
-    Container(height: MediaQuery.of(context).size.width ), Positioned(top: 75, bottom: 350, left: MediaQuery.of(context).size.width -200,right: 10  ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: (MediaQuery.of(context).size.width/4)-30,
+                      ), )),  Positioned(top: 55, bottom: MediaQuery.of(context).size.height-95, left:10 ,right: MediaQuery.of(context).size.width/8 ,
     child: CustomRadioButton( buttonTextStyle: const ButtonTextStyle(
           selectedColor: Colors.black,
           unSelectedColor: Colors.black,
@@ -306,7 +334,7 @@ class MyGraphPage extends StatelessWidget {
               if (values.toString() == "Education") {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
-                        data: [], querymodel: query.educationTopLayerSchoolsPercentage(selecteChoices.first,
+                        data: [], querymodel: query.educationBarStats(selecteChoices.first,
                         selecteChoices.last),type: "Education"));
               }
             }
@@ -317,9 +345,9 @@ class MyGraphPage extends StatelessWidget {
           },
           spacing: 0,
 
-      horizontal:true,
+      horizontal:false,
           enableButtonWrap: false,
-          width: 120,
+          width: 100,
 
         height:30,
           absoluteZeroSpacing: false,
@@ -329,7 +357,7 @@ class MyGraphPage extends StatelessWidget {
 
 
 
-                )])));
+                ])));
   }
 
 }

@@ -368,4 +368,31 @@ class csvRepository {
     return temp;
 
   }
+  int getAllApplicantsInMuni(String muni, List<List<LatLng>> bounds){
+    var schoolsInMuni = getAllSchoolsInMuni(muni, bounds);
+    int num = 0;
+
+      for(int i=0; schoolsInMuni.length>i; i++ ){
+        num += schoolsInMuni[i].appliers.round();
+        print(num);
+      }
+    return num;
+
+  }
+  int getAllApplicantsAcceptedInMuni(String muni, List<List<LatLng>> bounds){
+    var schoolsInMuni = getAllSchoolsInMuni(muni, bounds);
+    int num = 0;
+
+    for(int i=0; schoolsInMuni.length>i; i++ ){
+      num += schoolsInMuni[i].acceptedAppliers.round();
+    }
+    return num;
+
+  }
+
+
+
+
+
+
 }

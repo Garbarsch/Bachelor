@@ -28,8 +28,8 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
             final state = this.state as homeLoaded;
             emit(
                 homeLoaded(
-                  coords: List.from(state.coords)..addAll(event.coords
-                  ), coordsMuni: [], coordsMultiMuni: []
+                  coords: event.coords
+                  , coordsMuni: [], coordsMultiMuni: []
 
                 )
             );
