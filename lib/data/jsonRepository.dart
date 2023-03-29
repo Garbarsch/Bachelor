@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io';
+
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
@@ -22,6 +25,7 @@ part 'package:github_client/data/queries.dart';
 class jsonRepository{
 
   late List<dynamic> data;
+  late List<dynamic> dataInterp;
   late Map<int,Node> amenityNodes;  //Amenity nodes (facilities)
 
   late List<dynamic> geoData;
@@ -31,26 +35,113 @@ class jsonRepository{
   Future<String> loadJsonData() async {
 
     var jsonText = await rootBundle.loadString('assets/rawDenmark.json');
+    //var jsonTextInterp = await rootBundle.loadString('assets/interpreter.json');
+
     data = json.decode(jsonText);
+    //dataInterp = json.decode(jsonTextInterp);
 
     //for all nodes (that contains "tags" - is an amenity node), serialize node object and put in list.
-    //TODO: try to either use a larger json file, or at least we should add all nodes even though they are not amenity
+
     var nodes = data.where((element) => element["type"] == "node").map((e) => Node.fromJson(e)).toList(); // && element.containsKey("tags")
     //print(nodes.length); //61309 - only amenity
     //print(nodes.length); //406815 - all nodes
 
+
+
     amenityNodes = { for (var n in nodes) n.id : n };
+
+    //amenityNodes = { for (var n in nodes) n.id : n };
+    //add orginal nodes last, as to override possible duplicate IDs
+
+  //Original seed
+    /*nodes.forEach((node) {
+      amenityNodes[node.id] = node;
+    });*/
+
+    print(amenityNodes.values.length);
+
 
     //serialize each relation to an object containing the list of boundary coordinates
     var gejsonText = await rootBundle.loadString('assets/MuniGeojson.geojson');
     geoData = json.decode(gejsonText);
     relations = geoData.where((element) => element["properties"]["type"] == "boundary").map((e) => MunicipalityRelation.fromJson(e)).toList();
 
+    //addFile("rawDenmarkF256.json", amenityNodes, 255, 0.001);
 
     if(amenityNodes.isEmpty){
       return "fail";
     }
     return "success";
+  }
+
+  //New File of original JSON + seeded nodes
+  //offset 0.001 seems to be aight for now, but lets test the range of added features.
+  void addFile(String fileName, Map<int,Node> currentNodes, int seedFactor, double coordOffset) async{
+    //i dont think we can write to assets in runtime.. in which case we must write to a file somewhere else
+    File file = File('${fileName}');
+    var random = Random();
+    var sourceJSON = await rootBundle.loadString('assets/rawDenmark.json');
+
+    List<dynamic> seededNodes = [];
+    var idCount = 0;
+    Tuple2<double,double> auxCoord = Tuple2(0.0, 0.0);
+    for (int i = 0  ; i<seedFactor ; i++){
+      for (var node in currentNodes.values) {
+        idCount++;
+        auxCoord = getLatLongExtra(node.lat, node.lon, random, coordOffset);
+        //We dont want duplicates...
+        if(!currentNodes.containsKey(idCount)) {
+          seededNodes.add(
+              {
+                "type": "node",
+                "id": idCount,
+                "lon": auxCoord.item1,
+                "lat": auxCoord.item2,
+              }
+          );
+        }
+      }
+    };
+
+    //String oldString = json.decode(sourceJSON);
+    List<dynamic> source = json.decode(sourceJSON);
+    source.addAll(seededNodes);
+    print("yoSeeded ${seededNodes.length}");
+    print("yoSource ${source.length}");
+
+
+    //var newJSONString = json.encode(seededNodes);
+    //newJSONString.replaceFirst("[", "");
+
+    file.writeAsString(json.encode(source)); //+ newJSONString
+    //file.writeAsString(json.encode(seededNodes));
+
+  }
+
+  //Gives seeded nodes new lat/long based on some offset.
+  //doing random multiplied by offset gives a "maximum" on new value.
+  //https://stackoverflow.com/questions/13318207/how-to-get-a-random-number-from-range-in-dart
+  Tuple2<double,double> getLatLongExtra(double lat, double lon, Random random, double offset){
+    int quadrant = random.nextInt(4)+1;
+    Tuple2<double,double> coord;
+    switch (quadrant){
+      case 1:
+        coord = Tuple2(lat+(-offset * random.nextDouble()), lon+(-offset * random.nextDouble()));
+        break;
+      case 2:
+        coord = Tuple2(lat-(-offset * random.nextDouble()), lon+(-offset * random.nextDouble()));
+        break;
+      case 3:
+        coord = Tuple2(lat-(-offset * random.nextDouble()), lon-(-offset * random.nextDouble()));
+        break;
+      case 4:
+        coord = Tuple2(lat+(-offset * random.nextDouble()), lon-(-offset * random.nextDouble()));
+        break;
+      default:
+        coord = Tuple2(lat+(-offset * random.nextDouble()), lon+(-offset * random.nextDouble()));
+        break;
+    }
+    return coord;
   }
 
 
@@ -89,7 +180,7 @@ class jsonRepository{
       coords.add(getRestaurantCoords());
     }
     if (type.contains("Restaurants")){
-      coords.add(getRestaurantCoords());
+      coords.add(getCafesCoords()); //ret her!!!
     }
     if (type.contains("Bus Stop")){
       coords.add(getBusCoords());
@@ -160,12 +251,18 @@ class jsonRepository{
 
   //get all cafes
   List<LatLng> getCafesCoords(){
+    Stopwatch watch = new Stopwatch()..start();
     List<LatLng> tupList = [];
+    var count = 0;
     for (var node in amenityNodes.values) {
+      count++;
       if(node.isAmenity && node.tags?["amenity"] == "cafe"){
         tupList.add(LatLng(node.lat, node.lon) );
       }
     }
+    print("Cafe time: ");
+    print("${watch.elapsed.inMilliseconds}");
+    print("Count: ${count}\n");
     return tupList;
   }
   static bool rayCastIntersect(LatLng point, LatLng vertA, LatLng vertB) {

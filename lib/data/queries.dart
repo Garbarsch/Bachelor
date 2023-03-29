@@ -73,7 +73,7 @@ class queries {
     model.add(bulletmuni2);
     model.add(mun2);
 
-    print("Entertainment query time: ${stopwatch.elapsed}");
+    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
     return model;
   }
 
@@ -101,7 +101,7 @@ class queries {
     model.add(bulletmuni1);
     model.add(bulletmuni2);
     model.add(mun2);
-    print("Food query time: ${stopwatch.elapsed}");
+    print("Food query time: ${stopwatch.elapsed.inMilliseconds}");
     return model;
 
   }
@@ -131,7 +131,7 @@ class queries {
     model.add(bulletmuni2);
     model.add(mun2);
 
-    print("Transportation query time: ${stopwatch.elapsed}");
+    print("Transportation query time: ${stopwatch.elapsed.inMilliseconds}");
     return model;
   }
 
@@ -195,6 +195,7 @@ class queries {
     var totalAppliersMuni2 = 0;
 
     //check for each top-layer school, is the schools within muni a part of that?
+    //TODO: vi burde nok bare tjekke hvilke toplayer skole høre til hver skole i kommunen i stedet.
     csvRepo.schoolInfoMap.forEach((key, value) {
       String topLayerSchool = key;
       var inMuni1 = false;
@@ -238,8 +239,9 @@ class queries {
       element.percentage = element.percentage/totalAppliersMuni2*100;
     });
 
-    List<query_model> tempInBoth = [];
+
     //we have to reorder the list to align the data for graph visualization.
+    List<query_model> tempInBoth = [];
       for (var element in tempQueryList2) {
         tempInBoth.addAll(tempQueryList1.where((element2) => element.x == element2.x));
       }
@@ -274,7 +276,7 @@ class queries {
       graph1.add(bulletMuni1);
       graph1.add(bulletMuni2);
 
-    print("Education query time: ${stopwatch.elapsed}");
+    print("Education query time: ${stopwatch.elapsed.inMilliseconds}");
       return graph1;
   }
 
