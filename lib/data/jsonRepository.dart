@@ -188,7 +188,12 @@ class jsonRepository{
     // (y-b)/m = x : Formula to solve for x
 
     // M is rise over run -> the slope or angle between vertices A and B.
-    final double m = (aY - bY) / (aX - bX);
+    double m;
+    if(aX-bX == 0){
+       m = (aY - bY) / 0.1;
+    } else {
+       m = (aY - bY) / (aX - bX);
+    }
     // B is the Y-intercept of the line between vertices A and B
     final double b = ((aX * -1) * m) + aY;
     // We want to find the X location at which a flat horizontal ray at Y height
