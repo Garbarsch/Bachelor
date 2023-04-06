@@ -62,7 +62,7 @@ class MyHomePage extends StatelessWidget {
             child: Stack(
                 children: [ BlocBuilder<HomePageBloc, HomePageState>(
                   builder: (context,state) {
-    print(state);
+    //print(state);
     if (state is HomePageInitial) { //HOMEPAGE
     return const CircularProgressIndicator(color: Colors.blue);
     }
@@ -70,7 +70,7 @@ class MyHomePage extends StatelessWidget {
       markers = [];
       for (int index = 0;
       index < state.coords.length; {
-        print("hallo"),
+        //print("hallo"),
         markers.add(
             Marker(
               point: state.coords[index],
@@ -83,21 +83,21 @@ class MyHomePage extends StatelessWidget {
       });
       // if(state is homeLoadedMunicipalities){
 
-      print("Carl");
-      print(state.coordsMuni);
+      //print("Carl");
+      //print(state.coordsMuni);
       polyMuni.add(
           Polygon(points: state.coordsMuni, color: Colors.blue,)
       );
 
-      print("halloklam");
-      print(polyMuni.first.points);
+      //print("halloklam");
+      //print(polyMuni.first.points);
       //LOADEDGRAPH
 
-      print("HALLO2");
+      //print("HALLO2");
     }
 
                      else {
-                      print("HALLObøsse");
+                      //print("HALLObøsse");
 //ELSE
                       return const Text('Something went wrong');
                     }
