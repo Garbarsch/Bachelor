@@ -4,7 +4,7 @@ import 'package:latlong2/latlong.dart';
 
 class Node{
   final int id;
-  final double lon,lat;
+   double lon,lat;
   final bool isAmenity;
   Map<String,dynamic>? tags;
 

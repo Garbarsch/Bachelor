@@ -8,6 +8,8 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/data/csvRepository.dart';
+import 'package:github_client/data/hilbertCurve.dart';
+import 'package:github_client/data/radixSpline.dart';
 import 'package:github_client/models/municipality_model.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
@@ -18,6 +20,8 @@ import '../models/relation.dart';
 import 'package:github_client/models/query/query_model.dart';
 
 import '../models/school_model.dart';
+import 'hilbert_geohash.dart';
+import 'radixSpline_builder.dart' as rsb;
 
 part 'package:github_client/data/queries.dart';
 
@@ -30,6 +34,10 @@ class jsonRepository{
 
   late List<dynamic> geoData;
   late List<MunicipalityRelation> relations;
+  late List<Node> nodesall;
+  late List<int> encodedNodes;
+  late RadixSpline radixSpline;
+
 
   //add some exceptions pls
   Future<String> loadJsonData() async {
@@ -47,6 +55,9 @@ class jsonRepository{
     //print(nodes.length); //406815 - all nodes
 
 
+    nodesall = data.where((element) => element["type"] == "node").map((e) => Node.fromJson(e)).toList();
+    encodedNodes = addToHilbertCurveAndSort(nodesall);
+    radixSpline = hilbertToRadixspline(encodedNodes);
 
     amenityNodes = { for (var n in nodes) n.id : n };
 
@@ -65,6 +76,15 @@ class jsonRepository{
     var gejsonText = await rootBundle.loadString('assets/MuniGeojson.geojson');
     geoData = json.decode(gejsonText);
     relations = geoData.where((element) => element["properties"]["type"] == "boundary").map((e) => MunicipalityRelation.fromJson(e)).toList();
+    Node node1 = new Node(id: 3, lon: 12.2, lat: 23.2, isAmenity: true);
+    //print(hilbertCurve().encode(node1));
+   // var a = hilbertCurve().encode(node1);
+   // print(hilbertCurve().decode(32,a.toDouble()).x);
+   // print(hilbertCurve().decode(32,a.toDouble()).y);
+
+  // var ab = addToHilbertCurveAndSort(nodes);
+//print("finished hilber");
+  //  hilbertToRadixspline(ab);
 
     //addFile("rawDenmarkF256.json", amenityNodes, 255, 0.001);
 
@@ -245,6 +265,49 @@ class jsonRepository{
 
     return coords.expand((e)=>e).toList();
 
+  }
+
+  List<int> addToHilbertCurveAndSort(List<Node> nodes){
+    List<int> encoded = [];
+    List<Node> test = [];
+    test.add(Node(id: 1241412, lon: 1, lat: 1, isAmenity: true));
+    test.add(Node(id: 1241412, lon: 1, lat: 2, isAmenity: true));
+    test.add(Node(id: 1241412, lon: 7, lat: 2, isAmenity: true));
+    test.add(Node(id: 1241412, lon: 2, lat: 5, isAmenity: true));
+
+    test.forEach((element) {
+      encoded.add(hilbertCurve().encode(element));
+      print(element.lat);
+      print(element.lon);
+      print(encoded.last);
+    });
+    print("encoded:"); print(encoded.length);
+    encoded.sort();
+    print("encoded sorted:"); print(encoded.length);
+    return encoded;
+  }
+  RadixSpline hilbertToRadixspline(List<int> encoded){
+    int min = encoded.first;
+    int max = encoded.last;
+    print("min:" );
+    print(min);
+    print("max:" );
+    print(max);
+    var rsBuilder = rsb.Builder(min, max);
+    print("builder completed");
+    for (var element in encoded) {rsBuilder.AddKey(element);}
+    var radixSpline = rsBuilder.finalize();
+    var bound = radixSpline.getSearchBound(encoded[encoded.length~/2]-5);
+    print(encoded[encoded.length~/2]-5);
+    print("in range:"); print(bound.begin); print(bound.end);
+    var start = bound.begin;
+    var last = bound.end;
+    print("the value looked for:"); print(encoded[encoded.length~/2]); print(encoded.length~/2);
+
+    print("position:");
+    print(radixSpline.lowerBound2(encoded,start,last,encoded[encoded.length~/2]-5));
+
+    return radixSpline;
   }
 
   //We could have probably made an ENUM of the amenities available, and just a single getAmenityCoords(Enum...){}
@@ -483,11 +546,10 @@ class jsonRepository{
   //get all restaurants
   List<LatLng> getRestaurantCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
-      if(node.isAmenity && node.tags?["amenity"] == "restaurant"){
+      nodesall.forEach((node) {
         tupList.add(LatLng(node.lat, node.lon));
-      }
-    });
+      });
+      print(tupList.length);
     return tupList;
   }
 
