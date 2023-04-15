@@ -47,6 +47,8 @@ class MyGraphPage extends StatelessWidget {
     builder: (_) => MyGraphPage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
   late queries query = queries(repo: repo, csvRepo: csvRepo );
+  late queriesRtree queryRect = queriesRtree(repo: repo, csvRepo: csvRepo );
+
   @override
   Widget build(BuildContext context) {
 
@@ -279,7 +281,7 @@ class MyGraphPage extends StatelessWidget {
                               context.read<GraphPageBloc>().add(
                                   updateGraph(
                                       data: [], querymodel:
-                                    query.entertainmentQuery( value.first,
+                                    queryRect.entertainmentQueryRect( value.first,
                                         value.last),
                                         type: "Entertainment"
                                   ));
@@ -327,7 +329,7 @@ class MyGraphPage extends StatelessWidget {
               if (values.toString() == "Entertainment") {
                 context.read<GraphPageBloc>().add(
                     updateGraph(
-                        data: [], querymodel: query.entertainmentQuery( selecteChoices.first,
+                        data: [], querymodel: queryRect.entertainmentQueryRect( selecteChoices.first,
                         selecteChoices.last),type: "Entertainment"));
               }
               if (values.toString() == "Transportation") {

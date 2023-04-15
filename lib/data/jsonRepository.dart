@@ -8,18 +8,20 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/data/csvRepository.dart';
+import 'package:github_client/data/r_tree.dart' as rt;
 import 'package:github_client/models/municipality_model.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as toolkit;
 import '../models/node.dart';
 import '../models/relation.dart';
-import 'package:r_tree/r_tree.dart' as rt;
 import 'package:github_client/models/query/query_model.dart';
 
 import '../models/school_model.dart';
 
 part 'package:github_client/data/queries.dart';
+part 'package:github_client/data/queriesRtree.dart';
+
 
 // ignore: camel_case_types
 class jsonRepository{
@@ -48,7 +50,6 @@ class jsonRepository{
     //print(nodes.length); //61309 - only amenity
     //print(nodes.length); //406815 - all nodes
 
-  boundingBoxDK = addBoundingBoxToDenmark();
 
     amenityNodes = { for (var n in nodes) n.id : n };
 
@@ -73,12 +74,15 @@ class jsonRepository{
     if(amenityNodes.isEmpty){
       return "fail";
     }
+    boundingBoxDK = addBoundingBoxToDenmark();
+    rTree = RtreeIni();
     return "success";
+
   }
 
   rt.RTree<String?> RtreeIni(){
-     rTree = rt.RTree<String>();
-    nodes.forEach((element) {rTree.insert(rt.RTreeDatum(Rectangle(element.lon, element.lat, 0, 0),element.isAmenity ? element.tags!["amenity"] : null));});
+     rTree = rt.RTree<String?>();
+    nodes.forEach((element) {rTree.insert(rt.RDataRect(Rectangle(element.lon, element.lat, 0, 0),element.isAmenity ? element.tags!["amenity"] : null));});
     return  rTree;
   }
   Rectangle<num> addBoundingBoxToMuni( String muni){

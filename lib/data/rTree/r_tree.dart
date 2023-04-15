@@ -51,7 +51,7 @@ class RTree<E> {
 
   // Returns all items whose rectangles overlap the @searchRect
   //  Note: Rectangles that share only a border are not considered to overlap
-  Iterable<RDataRect<E>> search(Rectangle searchRect,
+  Iterable<RDataRect<E>>? search(Rectangle searchRect,
       {bool Function(E item)? shouldInclude}) {
     shouldInclude ??= (_) => true;
 
