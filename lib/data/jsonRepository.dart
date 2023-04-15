@@ -14,7 +14,7 @@ import 'package:tuple/tuple.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as toolkit;
 import '../models/node.dart';
 import '../models/relation.dart';
-
+import 'package:r_tree/r_tree.dart' as rt;
 import 'package:github_client/models/query/query_model.dart';
 
 import '../models/school_model.dart';
@@ -30,7 +30,9 @@ class jsonRepository{
 
   late List<dynamic> geoData;
   late List<MunicipalityRelation> relations;
-
+  late List<Node> nodes;
+  late rt.RTree<String?> rTree;
+  late  Rectangle<num> boundingBoxDK;
   //add some exceptions pls
   Future<String> loadJsonData() async {
 
@@ -42,11 +44,11 @@ class jsonRepository{
 
     //for all nodes (that contains "tags" - is an amenity node), serialize node object and put in list.
 
-    var nodes = data.where((element) => element["type"] == "node").map((e) => Node.fromJson(e)).toList(); // && element.containsKey("tags")
+     nodes = data.where((element) => element["type"] == "node").map((e) => Node.fromJson(e)).toList(); // && element.containsKey("tags")
     //print(nodes.length); //61309 - only amenity
     //print(nodes.length); //406815 - all nodes
 
-
+  boundingBoxDK = addBoundingBoxToDenmark();
 
     amenityNodes = { for (var n in nodes) n.id : n };
 
@@ -72,6 +74,85 @@ class jsonRepository{
       return "fail";
     }
     return "success";
+  }
+
+  rt.RTree<String?> RtreeIni(){
+     rTree = rt.RTree<String>();
+    nodes.forEach((element) {rTree.insert(rt.RTreeDatum(Rectangle(element.lon, element.lat, 0, 0),element.isAmenity ? element.tags!["amenity"] : null));});
+    return  rTree;
+  }
+  Rectangle<num> addBoundingBoxToMuni( String muni){
+    var bounds = relations.where((element) => element.name == muni).first;
+    var minLat = double.infinity;
+    var maxLat = double.negativeInfinity;
+    var minLong = double.infinity;
+    var maxLong = double.negativeInfinity;
+    if(bounds.isMulti){
+      for (var latlong in bounds.boundaryCoords) {
+        //min y
+        minLat = latlong.latitude < minLat ? latlong.latitude : minLat;
+        //max y
+        maxLat = latlong.latitude > maxLat ? latlong.latitude : maxLat;
+        //min x
+        minLong = latlong.longitude < minLong ? latlong.longitude : minLong;
+        //max x
+        maxLong = latlong.longitude > maxLong ? latlong.longitude : maxLong;
+      }
+
+    }else{
+      bounds.multiBoundaryCoords?.forEach((boundary) {
+        for (var latlong in boundary) {
+          //min y
+          minLat = latlong.latitude < minLat ? latlong.latitude : minLat;
+          //max y
+          maxLat = latlong.latitude > maxLat ? latlong.latitude : maxLat;
+          //min x
+          minLong = latlong.longitude < minLong ? latlong.longitude : minLong;
+          //max x
+          maxLong = latlong.longitude > maxLong ? latlong.longitude : maxLong;
+        }
+
+  });
+          }
+    return Rectangle(minLong, minLat, maxLong-minLong, maxLat-minLat);
+      }
+  //Adds a rectangle around all of Denmark to be used for grid partitioning.
+  Rectangle<num> addBoundingBoxToDenmark(){
+    var minLat = double.infinity;
+    var maxLat = double.negativeInfinity;
+    var minLong = double.infinity;
+    var maxLong = double.negativeInfinity;
+    for (var element in relations) {
+      if(!element.isMulti){
+        for (var latlong in element.boundaryCoords) {
+          //min y
+          minLat = latlong.latitude < minLat ? latlong.latitude : minLat;
+          //max y
+          maxLat = latlong.latitude > maxLat ? latlong.latitude : maxLat;
+          //min x
+          minLong = latlong.longitude < minLong ? latlong.longitude : minLong;
+          //max x
+          maxLong = latlong.longitude > maxLong ? latlong.longitude : maxLong;
+        }
+
+      }else{
+        element.multiBoundaryCoords?.forEach((boundary) {
+          for (var latlong in boundary) {
+            //min y
+            minLat = latlong.latitude < minLat ? latlong.latitude : minLat;
+            //max y
+            maxLat = latlong.latitude > maxLat ? latlong.latitude : maxLat;
+            //min x
+            minLong = latlong.longitude < minLong ? latlong.longitude : minLong;
+            //max x
+            maxLong = latlong.longitude > maxLong ? latlong.longitude : maxLong;
+          }
+
+        });
+
+      }
+    }
+    return Rectangle(minLong, minLat, maxLong-minLong, maxLat-minLat);
   }
 
   //New File of original JSON + seeded nodes
