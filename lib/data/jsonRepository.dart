@@ -82,7 +82,17 @@ class jsonRepository{
 
   rt.RTree<String?> RtreeIni(){
      rTree = rt.RTree<String?>();
-    nodes.forEach((element) {rTree.insert(rt.RDataRect(Rectangle(element.lon, element.lat, 0, 0),element.isAmenity ? element.tags!["amenity"] : null));});
+
+    nodes.forEach((element) {
+      if(element.isAmenity && element.tags?["railway"] == "station" ){
+        rTree.insert(rt.RDataRect(Rectangle(element.lon, element.lat, 0, 0),"train_station"));
+            }
+      if(element.tags != null){
+      if((element.tags!.containsKey("public_transport") && element.tags?["public_transport"] == "station")){
+        rTree.insert(rt.RDataRect(Rectangle(element.lon, element.lat, 0, 0),"bus_station"));
+      } else {
+        rTree.insert(rt.RDataRect(Rectangle(element.lon, element.lat, 0, 0),element.isAmenity  ? element.tags!["amenity"]  : null));
+      } }});
     return  rTree;
   }
   Rectangle<num> addBoundingBoxToMuni( String muni){
@@ -91,7 +101,7 @@ class jsonRepository{
     var maxLat = double.negativeInfinity;
     var minLong = double.infinity;
     var maxLong = double.negativeInfinity;
-    if(bounds.isMulti){
+    if(!bounds.isMulti){
       for (var latlong in bounds.boundaryCoords) {
         //min y
         minLat = latlong.latitude < minLat ? latlong.latitude : minLat;

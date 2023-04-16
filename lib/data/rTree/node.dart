@@ -41,7 +41,7 @@ abstract class Node<E> extends RRect {
   /// Parent node of this node, or null if this is the root node
  late  Node<E>? parent;
 
- late Rectangle? _minimumBoundingRect;
+  Rectangle? _minimumBoundingRect = null;
 
   /// Returns the rectangle this Node covers
   @override

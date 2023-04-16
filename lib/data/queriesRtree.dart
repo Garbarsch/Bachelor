@@ -29,84 +29,26 @@ class queriesRtree {
 
   List<List<query_model>> entertainmentQueryRect(String muni1, String muni2) {
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<List<query_model>> modeltemp = [];
-    List<List<query_model>> model = [];
-    List<query_model> mun1 =[];
-    List<query_model> mun2 = [];
-    List<query_model> bulletmuni1 = bulletQuery(muni1);
-    List<query_model> bulletmuni2 = bulletQuery(muni2);
-
+    var query = getNighlifeForMuniRtree(muni1) + getNighlifeForMuniRtree(muni2);
     print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
-   return getNighlifeForMuniRtree(muni1) + getNighlifeForMuniRtree(muni2);
+   return query;
 
 
-
-
-    model.add(mun1);
-    model.add(bulletmuni1);
-    model.add(bulletmuni2);
-    model.add(mun2);
-
-
-    return model;
   }
 
   List<List<query_model>> foodQuery(String muni1, String muni2){
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<List<query_model>> model = [];
-    List<query_model> mun1 =[];
-    List<query_model> mun2 = [];
-    List<query_model> bulletmuni1 = bulletQuery(muni1);
-    List<query_model> bulletmuni2 = bulletQuery(muni2);
+    var query = getFoodMuniRtree(muni1) + getFoodMuniRtree(muni2);
+    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    return query;
 
-    var cafe = repo.getCafeForMunii(muni1);
-    mun1.add(query_model("Cafe", cafe.value));
-
-    cafe = repo.getCafeForMunii(muni2);
-    mun2.add(query_model("Cafe", cafe.value));
-
-    var resturants = repo.getRestuarantsForMuni(muni1);
-    mun1.add(query_model("Restaurants", resturants.value));
-
-    resturants = repo.getRestuarantsForMuni(muni2);
-    mun2.add(query_model("Restaurants", resturants.value));
-
-    model.add(mun1);
-    model.add(bulletmuni1);
-    model.add(bulletmuni2);
-    model.add(mun2);
-    print("Food query time: ${stopwatch.elapsed.inMilliseconds}");
-    return model;
 
   }
   List<List<query_model>> transportationQuery(String muni1,String muni2) {
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<List<query_model>> model = [];
-
-    List<query_model> mun1 =[];
-    List<query_model> mun2 = [];
-    List<query_model> bulletmuni1 = bulletQuery(muni1);
-    List<query_model> bulletmuni2 = bulletQuery(muni2);
-
-    var bus_stations = repo.getBusStationsForMuni(muni1);
-    mun1.add(query_model("Bus stations", bus_stations.value));
-
-    bus_stations = repo.getBusStationsForMuni(muni2);
-    mun2.add(query_model("Bus stations", bus_stations.value));
-
-    var train_stations = repo.getTrainStationsForMuni(muni1);
-    mun1.add(query_model("Train stations", train_stations.value));
-
-    train_stations = repo.getTrainStationsForMuni(muni2);
-    mun2.add(query_model("Train stations", train_stations.value));
-
-    model.add(mun1);
-    model.add(bulletmuni1);
-    model.add(bulletmuni2);
-    model.add(mun2);
-
-    print("Transportation query time: ${stopwatch.elapsed.inMilliseconds}");
-    return model;
+    var query = getStationsForMuniRtree(muni1) + getStationsForMuniRtree(muni2);
+    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    return query;
   }
 
 
@@ -254,9 +196,118 @@ class queriesRtree {
     return graph1;
   }
 
+  List<List<query_model>> getFoodMuniRtree(String muni){
+
+    Rectangle<num> boundingBox  = repo.addBoundingBoxToMuni(muni);
+
+    var munilist = repo.getMunilist([muni]);
+    List<query_model> bullet = [];
+    List<query_model> mun = [];
+    List<List<query_model>> model = [];
+
+    int cafecounter =0;
+    int restaurantscounter = 0;
+    int stationcounter = 0;
+
+    for (rt.RDataRect match in repo.rTree.search(boundingBox)!) {
+      switch (match.value) {
+        case "cafe":
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
+              cafecounter++;
+            }}
+          //  nodes.add(match);
+          break;
+        case "restaurant":
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
+              restaurantscounter++;
+            }}
+          //  nodes.add(match);
+          break;
+        case "train_station":
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
+              stationcounter++;
+            }}
+          //  nodes.add(match);
+          break;
+      }
+
+    }
+    mun.add(query_model("Restaurants:", restaurantscounter));
+    mun.add(query_model("Cafes:", cafecounter));
+    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes:", cafecounter));
+    bullet.add(query_model("Restaurants:", restaurantscounter));
+    bullet.add(query_model("Train Stations:", stationcounter));
+    model.add(mun);
+    model.add(bullet);
+    return model;
+
+  }
+  List<List<query_model>> getStationsForMuniRtree(String muni){
+
+    Rectangle<num> boundingBox  = repo.addBoundingBoxToMuni(muni);
+
+    var munilist = repo.getMunilist([muni]);
+    List<query_model> bullet = [];
+    List<query_model> mun = [];
+    List<List<query_model>> model = [];
+
+    int cafecounter =0;
+    int restaurantscounter = 0;
+    int stationcounter = 0;
+    int busstationcounter = 0;
+
+    for (rt.RDataRect match in repo.rTree.search(boundingBox)!) {
+      switch (match.value) {
+        case "cafe":
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
+              cafecounter++;
+            }}
+          //  nodes.add(match);
+          break;
+        case "restaurant":
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
+              restaurantscounter++;
+            }}
+          //  nodes.add(match);
+          break;
+        case "train_station":
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
+              stationcounter++;
+            }}
+          break;
+        case "bus_station":
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
+              busstationcounter++;
+            }}
+          //  nodes.add(match);
+          break;
+      }
+
+    }
+    mun.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model("Bus Stations:", busstationcounter));
+    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes:", cafecounter));
+    bullet.add(query_model("Restaurants:", restaurantscounter));
+    bullet.add(query_model("Train Stations:", stationcounter));
+    model.add(mun);
+    model.add(bullet);
+    return model;
+
+  }
+
   List<List<query_model>> getNighlifeForMuniRtree(String muni){
 
     Rectangle<num> boundingBox  = repo.addBoundingBoxToMuni(muni);
+
     var munilist = repo.getMunilist([muni]);
     List<query_model> bullet = [];
     List<query_model> mun = [];
@@ -275,70 +326,70 @@ class queriesRtree {
       switch (match.value) {
         case "bar":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               nightlifecounter++;
             }}
           // nodes.add(match);
           break;
         case "pub":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               nightlifecounter++;
             }}
           //nodes.add(match);
           break;
         case "nightclub":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               nightlifecounter++;
             }}
           //nodes.add(match);
           break;
         case "cinema":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               cinemacounter++;
             }}
           //  nodes.add(match);
           break;
         case "arts_centre":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               art_centrecounter++;
             }}
           // nodes.add(match);
           break;
         case "community_centre":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               community_centrecounter++;
             }}
           // nodes.add(match);
           break;
         case "music_venue":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               music_venuecounter++;
             }}
           //  nodes.add(match);
           break;
         case "cafe":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               cafecounter++;
             }}
           //  nodes.add(match);
           break;
-        case "restaurants":
+        case "restaurant":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               restaurantscounter++;
             }}
           //  nodes.add(match);
           break;
-        case "station":
+        case "train_station":
           for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.rect.left.toDouble(), match.rect.top.toDouble()), munilist[j])){
+            if (jsonRepository.isPointInPolygon(LatLng(match.rect.top.toDouble(), match.rect.left.toDouble()), munilist[j])){
               stationcounter++;
             }}
           //  nodes.add(match);
