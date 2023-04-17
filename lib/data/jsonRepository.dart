@@ -339,9 +339,9 @@ class jsonRepository{
     // M is rise over run -> the slope or angle between vertices A and B.
     double m;
     if(aX-bX == 0){
-      m = (aY - bY) / 0.1;
+       m = (aY - bY) / 0.1;
     } else {
-      m = (aY - bY) / (aX - bX);
+       m = (aY - bY) / (aX - bX);
     }
     // B is the Y-intercept of the line between vertices A and B
     final double b = ((aX * -1) * m) + aY;
@@ -877,6 +877,8 @@ class jsonRepository{
   //collects the municipality boundary of a single given municipality
   List<LatLng> getMuniBoundary(String muni){
     return relations.where((element) => element.name == muni).first.boundaryCoords;
+
+    //return relations.where((element) => element.name == muni).first.boundaryCoords;
   }
 
   //returns a list of polygons corresponding to the boundaries of the chosen municipalities

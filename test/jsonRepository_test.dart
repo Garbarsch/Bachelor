@@ -341,6 +341,14 @@ void main() async{
       print(expected.value);
     });
 
+    test("Test of isPointInPolygon method", (){
+      List<LatLng> vertices = [LatLng(10, 10),LatLng(1, 10),LatLng(1, 1),LatLng(10, 1)]; // a square
+      expect(jsonRepository.isPointInPolygon(LatLng(5, 5), vertices),true);
+      expect(jsonRepository.isPointInPolygon(LatLng(7, 7), vertices),true);
+      expect(jsonRepository.isPointInPolygon(LatLng(20, 20), vertices),false);
+      expect(jsonRepository.isPointInPolygon(LatLng(1, 11), vertices),false);
+    });
+
   });
 
 
