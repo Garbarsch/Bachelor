@@ -881,6 +881,7 @@ class jsonRepository{
     //return relations.where((element) => element.name == muni).first.boundaryCoords;
   }
 
+
   //returns a list of polygons corresponding to the boundaries of the chosen municipalities
   List<Polygon> getMuniPolygons(List<String> municipalities){
 
@@ -899,6 +900,26 @@ class jsonRepository{
         polyList.add(Polygon(points: boundary.boundaryCoords, isFilled: true));
 
       }
+    }
+
+    return polyList;
+
+  }
+
+
+  List<Polygon> getLargestMuniPolygon(List<String> municipalities){
+
+    List<Polygon> polyList = [];
+    List<LatLng> temp = [] ;
+    var muni = relations.where((element) => municipalities.contains(element.name));
+    for (var boundary in muni) {
+      for (var coordList in boundary.multiBoundaryCoords!){
+        if(coordList.length>temp.length){
+          temp = coordList;
+        }
+      }
+        polyList.add(Polygon(points: temp, isFilled: true));
+
     }
 
     return polyList;

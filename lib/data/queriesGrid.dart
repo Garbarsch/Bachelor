@@ -4,12 +4,36 @@ class queriesGrid{
   final jsonRepository repo;
   final csvRepository csvRepo;
   late final PGridFile grid;
+  late List<List<Rectangle<num>>> gridRects;
 
   queriesGrid(this.repo, this.csvRepo){
     grid = PGridFile(repo.addBoundingBoxToDenmark(), 30000, repo);
     grid.initializeGrid();
+    gridRects = grid.linearScalesRectangles;
   }
 
+  List<Polygon> drawIndexAlgorithmOnMap(){
+    var muni = "Viborg Kommune";
+    List<Polygon> polygonsToBeDrawn;
+    List<Polygon> boundary = [];
+    List<Polygon> polyList = repo.getMuniPolygons([muni]);
+    //List<Polygon> polyList2 = repo.getLargestMuniPolygon([muni]);
+
+    Rectangle<num>? muni1Rect = repo.relations.firstWhere((element) => element.name == muni).boundingBox;
+
+    // Make the coordinates of each corner of the munirect to LatLongs.
+    Polygon boundingBoxToPolygon = Polygon(points: [LatLng(muni1Rect!.bottomLeft.y.toDouble(), muni1Rect.bottomLeft.x.toDouble()),LatLng(muni1Rect!.topLeft.y.toDouble(), muni1Rect.topLeft.x.toDouble()),LatLng(muni1Rect!.topRight.y.toDouble(), muni1Rect.topRight.x.toDouble()),LatLng(muni1Rect!.bottomRight.y.toDouble(), muni1Rect.bottomRight.x.toDouble())],isFilled: false, color: Colors.black, borderStrokeWidth: 2);
+    boundary.add(boundingBoxToPolygon);
+    List<Polygon> gridpolygons = [];
+    gridRects.forEach((element) { element.forEach((element) {gridpolygons.add(Polygon(points: [LatLng(element.bottomLeft.y.toDouble(), element.bottomLeft.x.toDouble()),LatLng(element.topLeft.y.toDouble(), element.topLeft.x.toDouble()),LatLng(element.topRight.y.toDouble(), element.topRight.x.toDouble()),LatLng(element.bottomRight.y.toDouble(), element.bottomRight.x.toDouble()) ],isFilled: false, color: Colors.redAccent)); });});
+
+    //green is boundary box of muni
+    //pink is cells from grid file.
+
+
+
+    return   polyList+ gridpolygons + boundary  ;
+  }
 
   List<query_model> bulletQuery(String muni, MunicipalityRelation muniRect) {//den her skal også fikses.
     List<query_model> mun =[];
