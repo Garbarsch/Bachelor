@@ -44,6 +44,11 @@ class RTree<E> {
       _growTree(_root, splitNode);
     }
   }
+  getChildren(){
+    List<Polygon> rTreePolygons  = [];
+    _root.children.forEach((element)  {rTreePolygons.add(Polygon(points: [LatLng(element.rect!.bottomLeft.y.toDouble(), element.rect!.bottomLeft.x.toDouble()),LatLng(element.rect!.topLeft.y.toDouble(), element.rect!.topLeft.x.toDouble()),LatLng(element.rect!.topRight.y.toDouble(), element.rect!.topRight.x.toDouble()),LatLng(element.rect!.bottomRight.y.toDouble(), element.rect!.bottomRight.x.toDouble()) ],isFilled: false, color: Colors.redAccent)); });
+  return rTreePolygons;
+  }
 
   _resetRoot() {
     _root = LeafNode<E>(_branchFactor);

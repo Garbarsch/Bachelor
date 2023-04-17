@@ -25,6 +25,28 @@ class queriesRtree {
 
 
   }
+  List<Polygon> drawIndexAlgorithmOnMap(){
+    var muni = "Viborg Kommune";
+    List<Polygon> polygonsToBeDrawn;
+    List<Polygon> boundary = [];
+    List<Polygon> polyList = repo.getMuniPolygons([muni]);
+    Rectangle<num> boundingBox  = repo.addBoundingBoxToMuni(muni);
+
+    Polygon muniPoly = Polygon(points: [LatLng(boundingBox!.bottomLeft.y.toDouble(), boundingBox.bottomLeft.x.toDouble()),LatLng(boundingBox!.topLeft.y.toDouble(), boundingBox.topLeft.x.toDouble()),LatLng(boundingBox!.topRight.y.toDouble(), boundingBox.topRight.x.toDouble()),LatLng(boundingBox!.bottomRight.y.toDouble(), boundingBox.bottomRight.x.toDouble())],isFilled: false, color: Colors.black, borderStrokeWidth: 2);
+
+    // Make the coordinates of each corner of the munirect to LatLongs.
+    boundary.add(muniPoly);
+    print(repo.rTree.getChildren().length);
+    List<Polygon> children = repo.rTree.getChildren();
+
+
+    //green is boundary box of muni
+    //pink is cells from grid file.
+
+
+
+    return   polyList+ children + boundary  ;
+  }
 
 
   List<List<query_model>> entertainmentQueryRect(String muni1, String muni2) {

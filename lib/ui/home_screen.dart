@@ -38,7 +38,7 @@ class MyHomePage extends StatelessWidget {
     //required this.shapeSource, required this.mapData,
   });
 
-
+  late queriesRtree query = queriesRtree(repo: repo,csvRepo: csvRepo);
 
   final List<Municipality> mapData =  Municipality(name: 'h').getList;
   final MapController _mapController = MapController();
@@ -74,11 +74,11 @@ class MyHomePage extends StatelessWidget {
         markers.add(
             Marker(
               point: state.coords[index],
-              width: 80,
-              height: 80,
+              width: 30,
+              height: 30,
               builder: (context) =>
                   Icon(Icons.circle, color: Colors.red,
-                    size: 4,),
+                    size: 0.5,),
             )), index++
       });
       // if(state is homeLoadedMunicipalities){
@@ -91,9 +91,11 @@ class MyHomePage extends StatelessWidget {
 
       //print("halloklam");
       //print(polyMuni.first.points);
+
       //LOADEDGRAPH
 
       //print("HALLO2");
+
     }
 
                      else {

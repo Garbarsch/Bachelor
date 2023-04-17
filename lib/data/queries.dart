@@ -18,7 +18,7 @@ class queries {
   var munici = repo.relations.where((element) => element.name == muni).first;
   mun.add((query_model("Population: ", munici.population!)));
   mun.add(query_model("Cafes: ",repo.getCafeForMunii(muni).value));
-  mun.add(query_model("Restuarants: ", repo.getRestuarantsForMuni(muni).value));
+  mun.add(query_model("Restaurants: ", repo.getRestuarantsForMuni(muni).value));
   mun.add(query_model("Train stations: ", repo.getTrainStationsForMuni(muni).value));
 
   return mun;
