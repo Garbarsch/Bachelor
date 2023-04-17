@@ -8,67 +8,45 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/data/csvRepository.dart';
-import 'package:github_client/models/municipality_model.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
-import 'package:maps_toolkit/maps_toolkit.dart' as toolkit;
 import '../models/node.dart';
 import '../models/relation.dart';
-
 import 'package:github_client/models/query/query_model.dart';
-
 import '../models/school_model.dart';
-
+import 'GridFile.dart';
+import 'PGridFile.dart';
+part 'package:github_client/data/queriesGrid.dart';
 part 'package:github_client/data/queries.dart';
+
 
 // ignore: camel_case_types
 class jsonRepository{
-
-  late List<dynamic> data;
-  late List<dynamic> dataInterp;
-  late Map<int,Node> amenityNodes;  //Amenity nodes (facilities)
-
-  late List<dynamic> geoData;
+  //late Map<int,Node> amenityNodes;  //all nodes now
+  late List<Node> nodes;
   late List<MunicipalityRelation> relations;
 
   //add some exceptions pls
   Future<String> loadJsonData() async {
 
     var jsonText = await rootBundle.loadString('assets/rawDenmark.json');
-    //var jsonTextInterp = await rootBundle.loadString('assets/interpreter.json');
 
-    data = json.decode(jsonText);
-    //dataInterp = json.decode(jsonTextInterp);
+    List<dynamic> data = json.decode(jsonText);
 
     //for all nodes (that contains "tags" - is an amenity node), serialize node object and put in list.
 
-    var nodes = data.where((element) => element["type"] == "node").map((e) => Node.fromJson(e)).toList(); // && element.containsKey("tags")
-    //print(nodes.length); //61309 - only amenity
-    //print(nodes.length); //406815 - all nodes
-
-
-
-    amenityNodes = { for (var n in nodes) n.id : n };
-
-    //amenityNodes = { for (var n in nodes) n.id : n };
-    //add orginal nodes last, as to override possible duplicate IDs
-
-  //Original seed
-    /*nodes.forEach((node) {
-      amenityNodes[node.id] = node;
-    });*/
-
-    print(amenityNodes.values.length);
+    nodes = data.where((element) => element["type"] == "node").map((e) => Node.fromJson(e)).toList(); // && element.containsKey("tags")
+   // amenityNodes = { for (var n in nodes) n.id : n };
 
 
     //serialize each relation to an object containing the list of boundary coordinates
     var gejsonText = await rootBundle.loadString('assets/MuniGeojson.geojson');
-    geoData = json.decode(gejsonText);
+    List<dynamic> geoData = json.decode(gejsonText);
     relations = geoData.where((element) => element["properties"]["type"] == "boundary").map((e) => MunicipalityRelation.fromJson(e)).toList();
+    //add rectangles around municipalities
+    addBoundingBoxToMunicipality();
 
-    //addFile("rawDenmarkF256.json", amenityNodes, 255, 0.001);
-
-    if(amenityNodes.isEmpty){
+    if(nodes.isEmpty){
       return "fail";
     }
     return "success";
@@ -78,7 +56,7 @@ class jsonRepository{
   //offset 0.001 seems to be aight for now, but lets test the range of added features.
   void addFile(String fileName, Map<int,Node> currentNodes, int seedFactor, double coordOffset) async{
     //i dont think we can write to assets in runtime.. in which case we must write to a file somewhere else
-    File file = File('${fileName}');
+    File file = File(fileName);
     var random = Random();
     var sourceJSON = await rootBundle.loadString('assets/rawDenmark.json');
 
@@ -101,21 +79,11 @@ class jsonRepository{
           );
         }
       }
-    };
-
-    //String oldString = json.decode(sourceJSON);
+    }
     List<dynamic> source = json.decode(sourceJSON);
     source.addAll(seededNodes);
-    print("yoSeeded ${seededNodes.length}");
-    print("yoSource ${source.length}");
-
-
-    //var newJSONString = json.encode(seededNodes);
-    //newJSONString.replaceFirst("[", "");
 
     file.writeAsString(json.encode(source)); //+ newJSONString
-    //file.writeAsString(json.encode(seededNodes));
-
   }
 
   //Gives seeded nodes new lat/long based on some offset.
@@ -146,8 +114,8 @@ class jsonRepository{
 
 
   void printAllNodes(){
-    if(amenityNodes.isNotEmpty){
-      print(amenityNodes.values);
+    if(nodes.isNotEmpty){
+      print(nodes);
     }else{
       print("nodes list empty");
     }
@@ -156,7 +124,7 @@ class jsonRepository{
   //Remember to call this when if csvRepo has been initialized.
   Future<void> addPopulationToMunicipality(csvRepository csvRepo) async{
     if(relations.isEmpty){
-      throw new Exception("JSON file not loaded yet");
+      throw Exception("JSON file not loaded yet");
     }
     try{
       Map<String,int> muniPops = await csvRepo.getAllMuniPopulations();
@@ -170,17 +138,107 @@ class jsonRepository{
     }catch(e){
       print(e);
     }
-
   }
 
-  //fix types in node model!!
+  void addBoundingBoxToMunicipality(){
+    for (var element in relations) {
+      var minLat = double.infinity;
+      var maxLat = double.negativeInfinity;
+      var minLong = double.infinity;
+      var maxLong = double.negativeInfinity;
+      if(!element.isMulti){
+        for (var latlong in element.boundaryCoords) {
+          //min y
+          minLat = latlong.latitude < minLat ? latlong.latitude : minLat;
+          //max y
+          maxLat = latlong.latitude > maxLat ? latlong.latitude : maxLat;
+          //min x
+          minLong = latlong.longitude < minLong ? latlong.longitude : minLong;
+          //max x
+          maxLong = latlong.longitude > maxLong ? latlong.longitude : maxLong;
+        }
+
+      }else{
+        element.multiBoundaryCoords?.forEach((boundary) {
+          for (var latlong in boundary) {
+            //min y
+            minLat = latlong.latitude < minLat ? latlong.latitude : minLat;
+            //max y
+            maxLat = latlong.latitude > maxLat ? latlong.latitude : maxLat;
+            //min x
+            minLong = latlong.longitude < minLong ? latlong.longitude : minLong;
+            //max x
+            maxLong = latlong.longitude > maxLong ? latlong.longitude : maxLong;
+          }
+
+        });
+
+      }
+      element.boundingBox = Rectangle(minLong, minLat, maxLong-minLong, maxLat-minLat);
+    }
+  }
+  //TODO:test
+  //Adds a rectangle around all of Denmark to be used for grid partitioning.
+  Rectangle<num> addBoundingBoxToDenmark(){
+    var minLat = double.infinity;
+    var maxLat = double.negativeInfinity;
+    var minLong = double.infinity;
+    var maxLong = double.negativeInfinity;
+    for (var element in relations) {
+      if(!element.isMulti){
+        for (var latlong in element.boundaryCoords) {
+          //min y
+          minLat = latlong.latitude < minLat ? latlong.latitude : minLat;
+          //max y
+          maxLat = latlong.latitude > maxLat ? latlong.latitude : maxLat;
+          //min x
+          minLong = latlong.longitude < minLong ? latlong.longitude : minLong;
+          //max x
+          maxLong = latlong.longitude > maxLong ? latlong.longitude : maxLong;
+        }
+
+      }else{
+        element.multiBoundaryCoords?.forEach((boundary) {
+          for (var latlong in boundary) {
+            //min y
+            minLat = latlong.latitude < minLat ? latlong.latitude : minLat;
+            //max y
+            maxLat = latlong.latitude > maxLat ? latlong.latitude : maxLat;
+            //min x
+            minLong = latlong.longitude < minLong ? latlong.longitude : minLong;
+            //max x
+            maxLong = latlong.longitude > maxLong ? latlong.longitude : maxLong;
+          }
+
+        });
+
+      }
+    }
+    return Rectangle(minLong, minLat, maxLong-minLong, maxLat-minLat);
+  }
+
+  List<Node> allNodesInRectangle(Rectangle rect){
+    List<Node> nodesList  = [];
+    nodes.forEach((node) {
+      if(rect != null){
+            if(node.lon >= rect.left &&
+            node.lon <= rect.left + rect.width &&
+            node.lat >= rect.top &&
+            node.lat <= rect.top + rect.height){
+              nodesList.add(node);
+            }
+      }
+    });
+    return nodesList;
+  }
+
   List <LatLng> getCoords(List<String> type){
     List<List<LatLng>> coords = [];
     if (type.contains("Cafe")){
-      coords.add(getRestaurantCoords());
+      coords.add(getCafesCoords());
     }
     if (type.contains("Restaurants")){
-      coords.add(getCafesCoords()); //ret her!!!
+      coords.add(getRestaurantCoords()); //ret her!!!
     }
     if (type.contains("Bus Stop")){
       coords.add(getBusCoords());
@@ -247,22 +305,14 @@ class jsonRepository{
 
   }
 
-  //We could have probably made an ENUM of the amenities available, and just a single getAmenityCoords(Enum...){}
-
   //get all cafes
   List<LatLng> getCafesCoords(){
-    Stopwatch watch = new Stopwatch()..start();
     List<LatLng> tupList = [];
-    var count = 0;
-    for (var node in amenityNodes.values) {
-      count++;
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "cafe"){
         tupList.add(LatLng(node.lat, node.lon) );
       }
     }
-    print("Cafe time: ");
-    print("${watch.elapsed.inMilliseconds}");
-    print("Count: ${count}\n");
     return tupList;
   }
   static bool rayCastIntersect(LatLng point, LatLng vertA, LatLng vertB) {
@@ -287,7 +337,12 @@ class jsonRepository{
     // (y-b)/m = x : Formula to solve for x
 
     // M is rise over run -> the slope or angle between vertices A and B.
-    final double m = (aY - bY) / (aX - bX);
+    double m;
+    if(aX-bX == 0){
+      m = (aY - bY) / 0.1;
+    } else {
+      m = (aY - bY) / (aX - bX);
+    }
     // B is the Y-intercept of the line between vertices A and B
     final double b = ((aX * -1) * m) + aY;
     // We want to find the X location at which a flat horizontal ray at Y height
@@ -303,14 +358,81 @@ class jsonRepository{
   static bool isPointInPolygon(LatLng point, List<LatLng> vertices) {
     int intersectCount = 0;
     for (int i = 0; i < vertices.length; i += 1) {
-      final LatLng vertB =
-      i == vertices.length - 1 ? vertices[0] : vertices[i + 1];
+      final LatLng vertB = i == vertices.length - 1 ? vertices[0] : vertices[i + 1];
       if (rayCastIntersect(point, vertices[i], vertB)) {
         intersectCount += 1;
       }
     }
     return (intersectCount % 2) == 1;
   }
+
+  //checks whether point is between sides of the bounding rectangle
+  static bool isPointInMuniBoundingBox(LatLng point, String muni, List<MunicipalityRelation> relations) {
+    Rectangle<num>? rect = relations.where((element) => element.name == muni).first.boundingBox;
+    if(rect != null){
+        return point.longitude >= rect.left &&
+               point.longitude <= rect.left + rect.width &&
+               point.latitude >= rect.top &&
+               point.latitude <= rect.top + rect.height;
+    }
+    return false;
+  }
+
+  List<Node> getNodesInRectangle(List<Node> nodes, Rectangle rect) {
+    List<Node> returnNodes = [];
+    if(rect != null){
+      nodes.forEach((node) {
+        if(node.lon >= rect.left &&
+            node.lon <= rect.left + rect.width &&
+            node.lat >= rect.top &&
+            node.lat <= rect.top + rect.height){
+          returnNodes.add(node);
+        }
+
+      });
+
+    }
+    return returnNodes;
+  }
+
+  //TODO: give better name plox
+  Munidata getBoxCoordsForMuni(String muni, List<String> amenity){
+    List<LatLng> coords = getCoords(amenity);
+    List<LatLng> boxCoords = [];
+    //Get the data points within the boundingbox (rectangle) of the muni
+    for (int coordCount = 0; coordCount < coords.length; coordCount++){
+      if(isPointInMuniBoundingBox(coords[coordCount], muni, relations)){
+        boxCoords.add(coords[coordCount]);
+      }
+    }
+
+    //Now search the points as not to count false positives.
+    int temp = 0;
+    if(boxCoords.isNotEmpty){
+      var bounds = getMunilist([muni]);
+      for (int coord = 0; coord < boxCoords.length; coord++){
+        for(int j =0; bounds.length> j; j++) {
+          if (isPointInPolygon(boxCoords[coord], bounds[j])){
+            temp++;
+          }
+        } }
+
+    }
+    return Munidata(muni.substring(0, muni.indexOf(' ')), temp);
+  }
+
+  //For testing - THIS IS ONLY APPROX, WILL FIND FALSE POSITIVES.
+  Munidata  getCafeForMuniRect(String muni){
+    List<LatLng> coords = getCafesCoords();
+    int temp = 0;
+    for (int coordCount = 0; coordCount < coords.length; coordCount++){
+        if(jsonRepository.isPointInMuniBoundingBox(coords[coordCount], muni, relations)){
+          temp++;
+        }
+      }
+    return Munidata(muni.substring(0, muni.indexOf(' ')), temp);
+  }
+
 
   List<Munidata> getCafeForMuni(String muni){
 
@@ -329,7 +451,6 @@ class jsonRepository{
   }
   Munidata getCafeForMunii(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -345,7 +466,6 @@ class jsonRepository{
 
   Munidata getNighlifeForMuni(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -362,7 +482,6 @@ class jsonRepository{
 
   Munidata getRestuarantsForMuni(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -378,7 +497,6 @@ class jsonRepository{
   }
   Munidata getBusStationsForMuni(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -394,7 +512,6 @@ class jsonRepository{
   }
   Munidata getTrainStationsForMuni(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -410,7 +527,6 @@ class jsonRepository{
   }
   Munidata getCinemaForMuni(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -426,7 +542,6 @@ class jsonRepository{
   }
   Munidata getArtCentreForMuni(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -442,7 +557,6 @@ class jsonRepository{
   }
   Munidata getCommunityCentreForMuni(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -458,7 +572,6 @@ class jsonRepository{
   }
   Munidata getMusicVenueForMuni(String muni){
 
-    List<Munidata> data = [];
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
@@ -473,23 +586,99 @@ class jsonRepository{
 
   }
 
+  //TODO: test
+  Munidata getAmenityNodesInMuni (List<Node> nodes, String muni, String amenity){
+    int count = 0;
+    var bounds = getMunilist([muni]);
+    nodes.forEach((node) {
+        if(node.isAmenity){
+           if(node.tags?["amenity"] == amenity){
+             for(int j =0; bounds.length> j; j++) {
+               if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
+                 count++;
+               }
+             }
+           }else if(amenity == "station"){
+             if(node.tags?["railway"] == "station"){
+               for(int j =0; bounds.length> j; j++) {
+                 if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
+                   count++;
+                 }
+               }
+             }
+           }else if(amenity == "nightlife"){
+             if(node.tags?["amenity"] == "bar" ||node.tags?["amenity"] == "pub" || node.tags?["amenity"] == "nightclub"){
+               for(int j =0; bounds.length> j; j++) {
+                 if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
+                   count++;
+                 }
+               }
+             }
+           }else if(amenity == "bus"){
+             if((node.tags!["amenity"] == "bus_station")){
+               for(int j =0; bounds.length> j; j++) {
+                 if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
+                   count++;
+                 }
+               }
+             }else if(node.tags!.containsKey("public_transport") && node.tags!["public_transport"] == "station"){
+               for(int j =0; bounds.length> j; j++) {
+                 if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
+                   count++;
+                 }
+               }
+             }
+           }
+        }
+      });
+
+    return Munidata(muni, count);
+  }
+  //TODO: test
+  Munidata getAmenityNodesFromNodes (List<Node> nodes,String muni, String amenity){
+    int count = 0;
+    nodes.forEach((node) {
+      if(node.isAmenity){
+        if(node.tags?["amenity"] == amenity){
+              count++;
+        }else if(amenity == "station"){
+          if(node.tags?["railway"] == "station"){
+                count++;
+          }
+        }else if(amenity == "nightlife"){
+          if(node.tags?["amenity"] == "bar" ||node.tags?["amenity"] == "pub" || node.tags?["amenity"] == "nightclub"){
+                count++;
+          }
+        }else if(amenity == "bus"){
+          if((node.tags!["amenity"] == "bus_station")){
+                count++;
+          }else if(node.tags!.containsKey("public_transport") && node.tags!["public_transport"] == "station"){
+                count++;
+          }
+        }
+      }
+    });
+
+    return Munidata(muni, count);
+  }
+
 
 
   //get all restaurants
   List<LatLng> getRestaurantCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "restaurant"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
 
   //get all bus stations
   List<LatLng> getBusCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity){
         if((node.tags!["amenity"] == "bus_station")){
           tupList.add(LatLng(node.lat, node.lon));
@@ -497,58 +686,58 @@ class jsonRepository{
           tupList.add(LatLng(node.lat, node.lon));
         }
       }
-    });
+    }
     return tupList;
   }
 
   //coordinates of nodes tagged "college" or "university"
   List<LatLng> getHigherEducationCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && (node.tags?["amenity"] == "college" || node.tags?["amenity"] == "university")){
         tupList.add(LatLng(node.lat , node.lon));
       }
-    });
+    }
     return tupList;
   }
 
   //coordinates of nodes tagged "cinema"
   List<LatLng> getCinemaCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "cinema"){
         tupList.add(LatLng (node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
 
   //coordinates of nodes tagged "dentist"
   List<LatLng> getDentistCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "dentist"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
 
   //coordinates of nodes tagged "cinema"
   List<LatLng> getClinicsCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "clinic"){
         tupList.add(LatLng(node.lat, node.lon ));
       }
-    });
+    }
     return tupList;
   }
 
   //coordinates train stations
   List<LatLng> getTrainStationCoords(){
     List<LatLng> tupList = [];
-    for (var node in amenityNodes.values) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["railway"] == "station"){
         tupList.add(LatLng(node.lat, node.lon));
       }
@@ -559,128 +748,128 @@ class jsonRepository{
   //coordinates of nodes tagged "library"
   List<LatLng> getLibraryCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "library"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getBarPubNightClubCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && (node.tags?["amenity"] == "bar" ||node.tags?["amenity"] == "pub" || node.tags?["amenity"] == "nightclub")){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getTrainingCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "training"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getHospitalCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "hospital"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getArtsCentreCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "arts_centre"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getCommunityCentreCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "community_centre"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getEventsVenueCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "events_venue"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getExhibitionCentreCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "exhibition_centre"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getConferenceCentreCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "conference_centre"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getMusicVenueCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "music_venue"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getSocialCentreCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "social_centre"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getTheatreCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "theatre"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getFireStationCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "fire_station"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
   List<LatLng> getPoliceCoords(){
     List<LatLng> tupList = [];
-    amenityNodes.values.forEach((node) {
+    for (var node in nodes) {
       if(node.isAmenity && node.tags?["amenity"] == "police"){
         tupList.add(LatLng(node.lat, node.lon));
       }
-    });
+    }
     return tupList;
   }
 
@@ -688,8 +877,6 @@ class jsonRepository{
   //collects the municipality boundary of a single given municipality
   List<LatLng> getMuniBoundary(String muni){
     return relations.where((element) => element.name == muni).first.boundaryCoords;
-
-    //return relations.where((element) => element.name == muni).first.boundaryCoords;
   }
 
   //returns a list of polygons corresponding to the boundaries of the chosen municipalities
@@ -758,10 +945,9 @@ class jsonRepository{
 
 
 
-
 }class Munidata{
   Munidata(this.name, this.value);
-  final name;
+  final String name;
   int value;
 
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/bloc/graph_page_bloc.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/data/csvRepository.dart';
@@ -14,8 +13,6 @@ import 'package:multiselect/multiselect.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:maps_toolkit/maps_toolkit.dart' as toolkit;
-import 'package:tuple/tuple.dart';
 
 
 

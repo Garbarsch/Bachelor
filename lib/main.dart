@@ -6,8 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_client/bloc/graph_page_bloc.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/data/csvRepository.dart';
-import 'package:github_client/models/municipality_model.dart';
-import 'package:syncfusion_flutter_maps/maps.dart';
 
 import 'data/jsonRepository.dart';
 import 'ui/home_screen.dart';

@@ -3,23 +3,13 @@ import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/bloc/home_page_bloc.dart';
 import 'package:github_client/data/csvRepository.dart';
 import 'package:github_client/data/jsonRepository.dart';
-import 'package:github_client/models/municipality_model.dart';
 import 'package:github_client/models/query/query_model.dart';
 import 'package:github_client/ui/home_screen.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:multiselect/multiselect.dart';
-import 'package:searchfield/searchfield.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
-import 'package:syncfusion_flutter_maps/maps.dart';
-import 'package:flutter_map/plugin_api.dart';
-import 'package:tuple/tuple.dart';
-import 'package:awesome_select/awesome_select.dart';
 
 import '../bloc/graph_page_bloc.dart';
 
@@ -39,14 +29,13 @@ class MyGraphPage extends StatelessWidget {
   MyGraphPage({
   super.key,
   required this.repo, required this.csvRepo, required BuildContext blocContext,
-  //required this.shapeSource, required this.mapData,
   });
 
   
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
     builder: (_) => MyGraphPage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
-  late queries query = queries(repo: repo, csvRepo: csvRepo );
+  late queriesGrid query = queriesGrid(repo, csvRepo);
   @override
   Widget build(BuildContext context) {
 
@@ -56,22 +45,16 @@ class MyGraphPage extends StatelessWidget {
             child: Stack(
                 children: [ BlocBuilder<GraphPageBloc, GraphPageState>(
                   builder: (context,state) {
-                    //print("Jeg er her");
-                    //print(state);
                     if (state is HomePageInitial) { //HOMEPAGE
                       return const CircularProgressIndicator(color: Colors.blue);
                     }
                     if (state is graphLoaded) {
-                      //print("GraphLoaded og data");
                      data = state.muni;
                      querymodel = state.querymodel;
                     }
 
                     else {
                       return Text("hallo");
-
-
-
                     }
                     if(data.isEmpty){
                       if(state.querymodel.isNotEmpty){

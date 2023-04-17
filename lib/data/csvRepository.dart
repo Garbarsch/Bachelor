@@ -211,9 +211,9 @@ class csvRepository {
   //For testing
   void printAllSchoolInfo(){
 
-    schoolInfoMap.keys.forEach((element) {
-      print("Top-layer school: ${element}\n");
-      schoolInfoMap[element]!.forEach((school) {
+    for (var element in schoolInfoMap.keys) {
+      print("Top-layer school: $element\n");
+      for (var school in schoolInfoMap[element]!) {
         //print("School name: ${school.name}\n");
         //print("School accepted appliers: ${school.acceptedAppliers}\n");
         //print("School total appliers: ${school.appliers}\n");
@@ -228,9 +228,9 @@ class csvRepository {
           //print("Campus lon: ${school.campusLon}\n");
           //print("\n");
         }
-      });
+      }
 
-    });
+    }
 
   }
 
@@ -243,7 +243,7 @@ class csvRepository {
 
     if(schoolInfoMap.keys.contains(school)){
       List<School> schoolList = List.from(schoolInfoMap[school]!);
-      if(schoolList!.isNotEmpty){
+      if(schoolList.isNotEmpty){
         schoolList.removeAt(0);
         return schoolList;
       }
@@ -262,20 +262,20 @@ class csvRepository {
   //returns all top-layer school (eg. Københavns Universitet)
   List<School> getAllTopLayerSchools (){
     List<School> returnList = [];
-    schoolInfoMap.values.forEach((list) {
+    for (var list in schoolInfoMap.values) {
       returnList.add(list.first);
-    });
+    }
     return returnList;
   }
 
   //return a list of all schools from all top-layer schools (without the top-layer entries)
   List<School> getAllEducations(){
     List<School> returnList = [];
-    schoolInfoMap.values.forEach((list) {
+    for (var list in schoolInfoMap.values) {
       List<School> schoolList = List.from(list);//we must do List.from as not to mess with the original list
       schoolList.removeAt(0);
       returnList.addAll(schoolList);
-    });
+    }
     return returnList;
   }
 
@@ -308,8 +308,8 @@ class csvRepository {
   Set<String> getAllEducationOptions(){
     Set<String> educationOptions = {};
 
-    schoolInfoMap.values.forEach((schoolList) {
-      schoolList.forEach((school) {
+    for (var schoolList in schoolInfoMap.values) {
+      for (var school in schoolList) {
         if (schoolList.first != school) {
           String name = school.name;
           String education = name.substring(0,name.indexOf(","));
@@ -324,27 +324,27 @@ class csvRepository {
           educationOptions.add(education.trim());
         }
 
-      });
-    });
+      }
+    }
     return educationOptions;
   }
 
   //TODO: test this
   int getAmountEducationsInMuni(String muni, List<List<LatLng>> bounds){
       Set<String> temp = {};
-      schoolInfoMap.values.forEach((schoolList) {
-        schoolList.forEach((school) {
+      for (var schoolList in schoolInfoMap.values) {
+        for (var school in schoolList) {
           if(schoolList.first != school){
             if(school.campusLat != null && school.campusLon != null){
-              bounds.forEach((bound) {
+              for (var bound in bounds) {
                 if(jsonRepository.isPointInPolygon(LatLng(school.campusLat!, school.campusLon!), bound)){
                   temp.add(school.education!);
                 }
-              });
+              }
             }
           }
-          });
-      });
+          }
+      }
     return temp.length;
   }
 
@@ -352,19 +352,19 @@ class csvRepository {
   List<School> getAllSchoolsInMuni(String muni, List<List<LatLng>> bounds){
 
     List<School> temp = [];
-    schoolInfoMap.values.forEach((schoolList) {
-      schoolList.forEach((school) {
+    for (var schoolList in schoolInfoMap.values) {
+      for (var school in schoolList) {
         if(schoolList.first != school){
           if(school.campusLat != null && school.campusLon != null){
-            bounds.forEach((bound) {
+            for (var bound in bounds) {
               if(jsonRepository.isPointInPolygon(LatLng(school.campusLat!, school.campusLon!), bound)){
                 temp.add(school);
               }
-            });
+            }
           }
         }
-      });
-    });
+      }
+    }
     return temp;
 
   }

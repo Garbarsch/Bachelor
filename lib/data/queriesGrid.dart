@@ -1,23 +1,28 @@
 part of 'package:github_client/data/jsonRepository.dart';
-class queries {
+
+class queriesGrid{
   final jsonRepository repo;
   final csvRepository csvRepo;
+  late final PGridFile grid;
 
-  queries({required this.repo, required this.csvRepo});
-
-
-  List<query_model> bulletQuery(String muni) {
-  List<query_model> mun =[];
-
-  var munici = repo.relations.where((element) => element.name == muni).first;
-  mun.add((query_model("Population: ", munici.population!)));
-  mun.add(query_model("Cafes: ",repo.getCafeForMunii(muni).value));
-  mun.add(query_model("Restuarants: ", repo.getRestuarantsForMuni(muni).value));
-  mun.add(query_model("Train stations: ", repo.getTrainStationsForMuni(muni).value));
-
-  return mun;
+  queriesGrid(this.repo, this.csvRepo){
+    grid = PGridFile(repo.addBoundingBoxToDenmark(), 30000, repo);
+    grid.initializeGrid();
+  }
 
 
+  List<query_model> bulletQuery(String muni, MunicipalityRelation muniRect) {//den her skal også fikses.
+    List<query_model> mun =[];
+
+    var munici = repo.relations.where((element) => element.name == muni).first;
+    List<Node> muniNodes = grid.find(munici);
+
+    mun.add((query_model("Population: ", munici.population!)));
+    mun.add(query_model("Cafes: ", repo.getAmenityNodesFromNodes(muniNodes, muni, "cafe").value)); //getAmenityNodesFromNdes for PGrid and getAmenityNdesInMuni for normal grid
+    mun.add(query_model("Restuarants: ", repo.getAmenityNodesFromNodes(muniNodes, muni, "restaurant").value));
+    mun.add(query_model("Train stations: ", repo.getAmenityNodesFromNodes(muniNodes, muni, "station").value));
+
+    return mun;
   }
 
   List<List<query_model>> entertainmentQuery(String muni1, String muni2) {
@@ -25,46 +30,50 @@ class queries {
     List<List<query_model>> model = [];
     List<query_model> mun1 =[];
     List<query_model> mun2 = [];
-    List<query_model> bulletmuni1 = bulletQuery(muni1);
-    List<query_model> bulletmuni2 = bulletQuery(muni2);
+    MunicipalityRelation muni1Rect = repo.relations.firstWhere((element) => element.name == muni1);
+    MunicipalityRelation muni2Rect = repo.relations.firstWhere((element) => element.name == muni2);
 
+    List<query_model> bulletMuni1 = bulletQuery(muni1, muni1Rect);
+    List<query_model> bulletMuni2 = bulletQuery(muni2, muni2Rect);
 
-    var nightlife = repo.getNighlifeForMuni(muni1);
+    List<Node> muni1Nodes = grid.find(muni1Rect!);
+    List<Node> muni2Nodes = grid.find(muni2Rect!);
+
+    var nightlife = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "nightlife");
     mun1.add(query_model("Nightlife", nightlife.value));
 
-    nightlife = repo.getNighlifeForMuni(muni2);
+    nightlife = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "cafe");
     mun2.add(query_model("Nightlife", nightlife.value));
 
-    var cinema = repo.getCinemaForMuni(muni1);
+    var cinema = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "cinema");
     mun1.add(query_model("Cinema", cinema.value));
 
-    cinema = repo.getCinemaForMuni(muni2);
+    cinema = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "cafe");
     mun2.add(query_model("Cinema", cinema.value));
 
-
-    var art_centre = repo.getArtCentreForMuni(muni1);
+    var art_centre = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "arts_centre");
     mun1.add(query_model("Art Centre", art_centre.value));
 
-    art_centre = repo.getArtCentreForMuni(muni2);
+    art_centre = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "arts_centre");
     mun1.add(query_model("Art Centre", art_centre.value));
 
 
-    var community_centre = repo.getCommunityCentreForMuni(muni1);
+    var community_centre = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "community_centre");
     mun1.add(query_model("Community Centre", community_centre.value));
 
-    community_centre = repo.getCommunityCentreForMuni(muni2);
+    community_centre = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "community_centre");
     mun2.add(query_model("Community Centre", community_centre.value));
 
 
-    var music_venue = repo.getMusicVenueForMuni(muni1);
+    var music_venue = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "music_venue");
     mun1.add(query_model("Music Venues", music_venue.value));
 
-    music_venue = repo.getMusicVenueForMuni(muni2);
+    music_venue = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "music_venue");
     mun2.add(query_model("Music Venues", music_venue.value));
 
     model.add(mun1);
-    model.add(bulletmuni1);
-    model.add(bulletmuni2);
+    model.add(bulletMuni1);
+    model.add(bulletMuni2);
     model.add(mun2);
 
     print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
@@ -76,24 +85,33 @@ class queries {
     List<List<query_model>> model = [];
     List<query_model> mun1 =[];
     List<query_model> mun2 = [];
-    List<query_model> bulletmuni1 = bulletQuery(muni1);
-    List<query_model> bulletmuni2 = bulletQuery(muni2);
 
-    var cafe = repo.getCafeForMunii(muni1);
+    MunicipalityRelation muni1Rect = repo.relations.firstWhere((element) => element.name == muni1);
+    MunicipalityRelation muni2Rect = repo.relations.firstWhere((element) => element.name == muni2);
+
+    List<query_model> bulletMuni1 = bulletQuery(muni1, muni1Rect!);
+    List<query_model> bulletMuni2 = bulletQuery(muni2, muni2Rect!);
+
+    List<Node> muni1Nodes = grid.find(muni1Rect!);
+    List<Node> muni2Nodes = grid.find(muni2Rect!);
+
+    var cafe = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "cafe");
     mun1.add(query_model("Cafe", cafe.value));
 
-    cafe = repo.getCafeForMunii(muni2);
+
+
+    cafe = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "cafe");
     mun2.add(query_model("Cafe", cafe.value));
 
-    var resturants = repo.getRestuarantsForMuni(muni1);
+    var resturants = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "restaurant");
     mun1.add(query_model("Restaurants", resturants.value));
 
-    resturants = repo.getRestuarantsForMuni(muni2);
+    resturants = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "restaurant");
     mun2.add(query_model("Restaurants", resturants.value));
 
     model.add(mun1);
-    model.add(bulletmuni1);
-    model.add(bulletmuni2);
+    model.add(bulletMuni1);
+    model.add(bulletMuni2);
     model.add(mun2);
     print("Food query time: ${stopwatch.elapsed.inMilliseconds}");
     return model;
@@ -105,24 +123,33 @@ class queries {
 
     List<query_model> mun1 =[];
     List<query_model> mun2 = [];
-    List<query_model> bulletmuni1 = bulletQuery(muni1);
-    List<query_model> bulletmuni2 = bulletQuery(muni2);
+    /*Rectangle<num>? muni1Rect = repo.relations.firstWhere((element) => element.name == muni1).boundingBox;
+    Rectangle<num>? muni2Rect = repo.relations.firstWhere((element) => element.name == muni2).boundingBox;*/
+    MunicipalityRelation muni1Rect = repo.relations.firstWhere((element) => element.name == muni1);
+    MunicipalityRelation muni2Rect = repo.relations.firstWhere((element) => element.name == muni2);
 
-    var bus_stations = repo.getBusStationsForMuni(muni1);
+    List<query_model> bulletMuni1 = bulletQuery(muni1, muni1Rect!);
+    List<query_model> bulletMuni2 = bulletQuery(muni2, muni2Rect!);
+
+    List<Node> muni1Nodes = grid.find(muni1Rect!);
+    List<Node> muni2Nodes = grid.find(muni2Rect!);
+
+
+    var bus_stations =  repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "bus");
     mun1.add(query_model("Bus stations", bus_stations.value));
 
-    bus_stations = repo.getBusStationsForMuni(muni2);
+    bus_stations = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "bus");
     mun2.add(query_model("Bus stations", bus_stations.value));
 
-    var train_stations = repo.getTrainStationsForMuni(muni1);
+    var train_stations = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "station");
     mun1.add(query_model("Train stations", train_stations.value));
 
-    train_stations = repo.getTrainStationsForMuni(muni2);
+    train_stations = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "station");
     mun2.add(query_model("Train stations", train_stations.value));
 
     model.add(mun1);
-    model.add(bulletmuni1);
-    model.add(bulletmuni2);
+    model.add(bulletMuni1);
+    model.add(bulletMuni2);
     model.add(mun2);
 
     print("Transportation query time: ${stopwatch.elapsed.inMilliseconds}");
@@ -236,42 +263,47 @@ class queries {
 
     //we have to reorder the list to align the data for graph visualization.
     List<query_model> tempInBoth = [];
-      for (var element in tempQueryList2) {
-        tempInBoth.addAll(tempQueryList1.where((element2) => element.x == element2.x));
-      }
+    for (var element in tempQueryList2) {
+      tempInBoth.addAll(tempQueryList1.where((element2) => element.x == element2.x));
+    }
 
-      List<query_model> both1 = [];
-      List<query_model> both2 = [];
-      tempInBoth.forEach((element) {
+    List<query_model> both1 = [];
+    List<query_model> both2 = [];
+    tempInBoth.forEach((element) {
 
-        both2.addAll(tempQueryList2.where((element2) => element2.x == element.x));
-        tempQueryList2.removeWhere((element2) => both2.contains(element2));
+      both2.addAll(tempQueryList2.where((element2) => element2.x == element.x));
+      tempQueryList2.removeWhere((element2) => both2.contains(element2));
 
-        both1.addAll(tempQueryList1.where((element1) => element1.x == element.x));
-        tempQueryList1.removeWhere((element1) => both1.contains(element1));
+      both1.addAll(tempQueryList1.where((element1) => element1.x == element.x));
+      tempQueryList1.removeWhere((element1) => both1.contains(element1));
 
-      });
+    });
 
-      tempQueryList1.addAll(both1);
-      both2.addAll(tempQueryList2);
+    tempQueryList1.addAll(both1);
+    both2.addAll(tempQueryList2);
 
-      return [tempQueryList1,both2];
+    return [tempQueryList1,both2];
   }
 
   List<List<query_model>> educationQuery(String muni1, String muni2){
     Stopwatch stopwatch = new Stopwatch()..start();
-      var graph1 = educationTopLayerSchoolsPercentage(muni1, muni2);
-      var graph2 = educationOfferPercentageQuery(muni1, muni2);
-      var graph3 = educationBarStats(muni1, muni2);
-      var bulletMuni1 = bulletQuery(muni1);
-      var bulletMuni2 = bulletQuery(muni2);
-      graph1.addAll(graph2);
-      graph1.addAll(graph3);
-      graph1.add(bulletMuni1);
-      graph1.add(bulletMuni2);
+    var graph1 = educationTopLayerSchoolsPercentage(muni1, muni2);
+    var graph2 = educationOfferPercentageQuery(muni1, muni2);
+    var graph3 = educationBarStats(muni1, muni2);
+    /*Rectangle<num>? muni1Rect = repo.relations.firstWhere((element) => element.name == muni1).boundingBox;
+    Rectangle<num>? muni2Rect = repo.relations.firstWhere((element) => element.name == muni2).boundingBox;*/
+    MunicipalityRelation muni1Rect = repo.relations.firstWhere((element) => element.name == muni1);
+    MunicipalityRelation muni2Rect = repo.relations.firstWhere((element) => element.name == muni2);
+
+    List<query_model> bulletMuni1 = bulletQuery(muni1, muni1Rect!);
+    List<query_model> bulletMuni2 = bulletQuery(muni2, muni2Rect!);
+    graph1.addAll(graph2);
+    graph1.addAll(graph3);
+    graph1.add(bulletMuni1);
+    graph1.add(bulletMuni2);
 
     print("Education query time: ${stopwatch.elapsed.inMilliseconds}");
-      return graph1;
+    return graph1;
   }
 
 }

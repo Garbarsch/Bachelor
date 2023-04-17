@@ -1,6 +1,4 @@
-
-
-import 'dart:ffi';
+import 'dart:math';
 
 import 'package:latlong2/latlong.dart';
 
@@ -11,8 +9,9 @@ class MunicipalityRelation{
   List<LatLng> boundaryCoords; //node ids
   List<List<LatLng>>? multiBoundaryCoords;
   final bool isMulti;
+  late Rectangle? boundingBox;
 
-  MunicipalityRelation({required this.id, required this.name, required this.boundaryCoords, this.multiBoundaryCoords, required this.isMulti, this.population});
+  MunicipalityRelation({required this.id, required this.name, required this.boundaryCoords, this.multiBoundaryCoords, required this.isMulti, this.population, this.boundingBox});
 
   factory MunicipalityRelation.fromJson(Map<String,dynamic> data){
     if(data["geometry"]["type"] == "MultiPolygon"){
