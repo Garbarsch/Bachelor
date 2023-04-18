@@ -8,7 +8,7 @@ import '../models/node.dart';
 import '../models/relation.dart';
 import 'jsonRepository.dart';
 
-class GridFile {
+class GridFileFlex {
   //gridArray is a two-dimensional grid/matrix of all cells of our grid
   //Each cell element holds a pointer to the bucket/block/data page that contains the data points of that cell
   //Multiple cells can point to the same block
@@ -31,77 +31,38 @@ class GridFile {
   //Collection of blocks - map is well suited for a small collection, but is it scalable? it is for now at least.
   late final Map<int, List<Node>> blockCollection; //b-tree or quadtree.
 
-  late int blockCapacity; //Block/Bucket capacity; how many records (nodes) fits here - some value we "assume".
+ //Block/Bucket capacity; how many records (nodes) fits here - some value we "assume".
+  late int cellCapacity;
   late final Rectangle<num> bounds; //Bounding box of the country
   jsonRepository jRepo;
 
-  GridFile(this.bounds, this.blockCapacity, this.jRepo); //data kan vi bare tage fra repo
+  GridFileFlex(this.bounds, this.jRepo, this.cellCapacity); //data kan vi bare tage fra repo
 
   void initializeGrid(){
     var cellSize = averageMunicipalitySize();
     double height = cellSize.item1;
     double width = cellSize.item2;
-
-    //create linear scales - modified a bid, instead of 2 one-dimensional arrays we use 1 2-d list of rectangles
-    linearScalesRectangles = partitionLinearScales(height, width);
-
-
-    //initial repository - all with key 0 until the block collection has been created.
-    gridArray =  List.generate(linearScalesRectangles.length, (index) => List.generate(linearScalesRectangles[0].length, (index) => 0), growable: false);
-
-
-    //the collection of blocks - a map atm, would be faster in terms of growing data to have a B+ tree probably.
-    blockCollection = initializeBlockCollection(linearScalesRectangles);
-
+    initializeScalesAndBlockCollection(height, width, cellCapacity);
   }
 
-  //For each of the cells (rectangles), collect all nodes within the rectangles as a collection mapped to by a key
-  //the repository (gridArray) entry matching the cell index of the linear scales is set to the key of the block (list of nodes)
-  Map<int, List<Node>> initializeBlockCollection(List<List<Rectangle>>linearScalesRect){
-    Map<int, List<Node>> blockMap = {};
-    int blockCount = 0;
-    int x = 0;
-    int y = 0;
-    for (var columnList in linearScalesRect) { //columns
-      y=0;
-      for (var rowElement in columnList) { //each row rectangle
-        var cellNodes = jRepo.allNodesInRectangle(rowElement); //all nodes in that rectangle
-        //if(blockMap.containsKey(blockCount)){ //if we have initialized a block of this key
-         // if(blockMap[blockCount]!.length + cellNodes.length >= blockCapacity){ //if the block will not overflow
-           // blockCount++; //count to get a new block id
-         // }else{
-            blockMap[blockCount] = cellNodes; //block will not overflow: add nodes (IF WE CHANGE THIS, WE HAVE TO DO AN ADD ALL HERE)
-            gridArray[x][y] = blockCount; //add key to directory
-        blockCount++;
-          //}
-       // }else{
-          //blockMap[blockCount] = cellNodes; //if we have no blocks at this id, add a new list of the cell nodes
-          //gridArray[i][y] = blockCount; //add key to directory
-       // }
-        y++;
-      }
-      x++;
-    }
-    return blockMap;
-  }
-
-  //partitions the country bounding box into a grid (one list of lists of rectangles) of rectangles based on average municipality size.
-  List<List<Rectangle>> partitionLinearScales (double latPartitionSize, double longPartitionSize){
-    //NOTE THAT RECTANGLES IN CS ARE UPSIDE DOWN - so we are index [0][0] is left bottom of the rect of denmark
+//okay so as in the paper (p.15) we must define splitting and merging policies, that is, for
+// - the two-disk-access principle for point queries,
+// - efficient processing of range queries in large linearly ordered domains and so on (p.5)
+    //So we our grid partitioning here goes from a starting point - the average muni size - then if the cell is above a block capacity, we split, if it is below we merge.
+    //OKAY - another thing then, cell capacity vs. block capacity, two thresholds, the block capacity will be given, but the cell capacity we must analyze and find the most appropriate.
+    //for each x cell
+  void initializeScalesAndBlockCollection(double latPartitionSize, double longPartitionSize, int cellCapacity){
     var latPartitions = (bounds.height/latPartitionSize).ceil();
     var longPartitions = (bounds.width/longPartitionSize).ceil();
-
-    //print(latPartitions);
-    //print(longPartitions);
 
     List<List<Rectangle>> scales = [];//List.generate(latPartitions, (index) => List.generate(longPartitions, (index) => null));
 
     var left = bounds.left;
     var top = bounds.top; //bottom is top in programming coordinates...
 
-
     //for each x cell
     for(int i = 0 ; i<longPartitions ; i++){
+      //gridArray.add([]);
       top = bounds.top; //top is the bottom left corner
       scales.add([]); //add a new list
       for(int y = 0 ; y<latPartitions ; y++){ //for each cell up
@@ -110,9 +71,88 @@ class GridFile {
       }
       left+=longPartitionSize; //same here, but left to right
     }
-    //print(scales.length);
-    //print(scales[0].length);
-    return scales;
+    flexGrid(cellCapacity, longPartitions, latPartitions, scales);
+
+  }
+  void flexGrid(int cellCapacity, int longPartitions, int latPartitions,  List<List<Rectangle>> scales){
+    Map<int,List<Node>> block = {};
+    gridArray = [];
+    int longPartitionsInner = longPartitions;
+
+
+    int blockCount = 1;
+    for(int x = 0 ; x<longPartitionsInner ; x++){ //latPartitions
+      gridArray.add([]);
+      bool ySplit = true;
+      for(int y = 0 ; y<scales[x].length ; y++){ //for each cell up
+
+        var cellRect = scales[x][y];
+        var cellNodes = jRepo.allNodesInRectangle(cellRect);
+
+        if(cellNodes.length == 0){ //if there are no cells in the node, we dont want to save and search through an empty cell.
+          scales[x].removeAt(y);
+          y--;
+        }else if(cellNodes.length > cellCapacity){
+        if(!ySplit && scales.length-1 > x && scales[x+1].length>=y){
+          //We check whether the x values is less than the last element, as we must check if we can insert a new cell in the next list.
+          //And whether we can insert the new cell between or at the end of the next list.
+          var rect1 = Rectangle(cellRect.left, cellRect.top, cellRect.width/2, cellRect.height);
+          var rect2 = Rectangle(cellRect.left + (cellRect.width/2), cellRect.top, cellRect.width/2, cellRect.height);
+          scales[x][y] = rect1;
+          if(x+1 == scales.length){ //We check if there is another x element after, if not we must create a new x-list.
+            scales.add([]);
+            longPartitionsInner++;
+          }
+
+          scales[x+1].add(rect2);
+          //we go one back to check the if one of the cells we just created are still above the cell-capacity.
+          y--;
+
+          ySplit  = true;
+
+          }else{
+          var rect1 = Rectangle(cellRect.left, cellRect.top, cellRect.width, cellRect.height/2);
+          var rect2 = Rectangle(cellRect.left, cellRect.top+(cellRect.height/2), cellRect.width, cellRect.height/2);
+          scales[x][y] = rect1;
+          scales[x].insert(y+1, rect2);
+          y--;
+          ySplit = false;
+        }
+        }else{
+          block[blockCount] = cellNodes;
+          gridArray[x].add(blockCount);
+          blockCount++;
+        }
+      }
+    }
+
+    //splitelse{
+          // }
+
+        /*else if(cellNodes.length < cellCapacity )
+        {
+          int yMerge = y+1;
+          bool capacityReached = false;
+          Rectangle mergedRect = cellRect;
+          while(!capacityReached){
+            if(yMerge != latPartitionsInner){
+              var nextRect = scales[x][yMerge];
+              var yMergeCellNodes = jRepo.allNodesInRectangle(nextRect);
+              if(yMergeCellNodes.length + cellNodes.length < cellCapacity){
+                mergedRect = Rectangle(mergedRect.left, mergedRect.top, mergedRect.width, mergedRect.height + nextRect.height);
+              }else{
+                scales[x][y] =
+              }
+            }else{
+              capacityReached = true;
+            }
+
+          }
+
+}**/
+
+    blockCollection = block;
+    linearScalesRectangles = scales;
   }
 
 
@@ -136,7 +176,7 @@ class GridFile {
     List<Node> nodes = [];
 
     List<Tuple2<int, int>> containingIndices = [];
-
+    Stopwatch stopwatch2 = new Stopwatch()..start();
     //Search the grid for cells that intersect the query rectangle and save their indices
     for (int i = 0; i < linearScalesRectangles.length; i++){
       List<Rectangle> innerList = linearScalesRectangles[i];
@@ -151,7 +191,7 @@ class GridFile {
         containingIndices.addAll(intersectingIndices);
       }
     }
-
+    print("Grid File Flex find intersecting cells time: ${stopwatch2.elapsed.inMilliseconds}");
     //Get the block pointers from the directory (gridFile) of the cells
     Set<int> blockKeys = {};
     containingIndices.forEach((element) {
@@ -161,24 +201,27 @@ class GridFile {
     var bounds = jRepo.getMunilist([query.name]);
     //grab all nodes of one or more each blocks.
     blockKeys.forEach((element) {
-      //returns all nodes of the block that is amenity and within the polygon
-      var blockNodes = blockCollection[element]!;
-      for (var node in blockNodes) {
-        if(node.isAmenity){
-          if(pointInRect(node, query.boundingBox!)){
-            for (int i = 0; i < bounds.length; i++) {
-              if (jsonRepository.isPointInPolygon(LatLng(node.lat, node.lon), bounds[i])) {
-                nodes.add(node);
-                break;
+      if(element != 0){
+        var blockNodes = blockCollection[element]!;
+        for (var node in blockNodes) {
+          if(node.isAmenity){
+            if(pointInRect(node, query.boundingBox!)){
+              for (int i = 0; i < bounds.length; i++) {
+                if (jsonRepository.isPointInPolygon(LatLng(node.lat, node.lon), bounds[i])) {
+                  nodes.add(node);
+                  break;
+                }
               }
             }
           }
         }
       }
+      //returns all nodes of the block that is amenity and within the polygon
+
     });
     print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;
-   }
+  }
 
   bool pointInRect (Node node, Rectangle rect){
     return (node.lon >= rect.left &&

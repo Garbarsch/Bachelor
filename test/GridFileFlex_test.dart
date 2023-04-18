@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_client/data/GridFile.dart';
+import 'package:github_client/data/GridFileFlex.dart';
 import 'package:github_client/data/jsonRepository.dart';
 import 'package:github_client/models/node.dart';
 import 'package:latlong2/latlong.dart';
@@ -19,7 +20,7 @@ void main() async {
       print("load JSON time: ${stopwatch.elapsed.inMilliseconds}");
 
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(denmarkBounds, 3000000, repo);
+      var gridFile = GridFileFlex(denmarkBounds, repo, 400);
       gridFile.initializeGrid();
 
       expect(gridFile.gridArray, isNotNull);
@@ -29,13 +30,13 @@ void main() async {
 
     test("linearScales correspondence with gridFile (directory", () {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(denmarkBounds, 3000000, repo);
+      var gridFile = GridFileFlex(denmarkBounds, repo, 400);
       gridFile.initializeGrid();
 
-      var scalesLatLength = gridFile.linearScalesRectangles.length;
-      var scalesLongLength = gridFile.linearScalesRectangles[0].length;
-      var gridLatLength = gridFile.gridArray.length;
-      var gridLongLength = gridFile.gridArray[0].length;
+      var scalesLongLength = gridFile.linearScalesRectangles.length;
+      var scalesLatLength = gridFile.linearScalesRectangles[0].length;
+      var gridLongLength = gridFile.gridArray.length;
+      var gridLatLength = gridFile.gridArray[0].length;
 
       expect(scalesLatLength, gridLatLength);
       expect(scalesLongLength, gridLongLength);
@@ -44,7 +45,7 @@ void main() async {
     test("cells match Denmark", ()
     {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(denmarkBounds, 3000000, repo);
+      var gridFile = GridFileFlex(denmarkBounds, repo, 400);
       gridFile.initializeGrid();
 
       print(denmarkBounds.top);
@@ -64,7 +65,7 @@ void main() async {
     test("Test all nodes in blocks", ()
     {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(denmarkBounds, 3000000, repo);
+      var gridFile = GridFileFlex(denmarkBounds, repo, 400);
       gridFile.initializeGrid();
 
       int countBlockNodes = 0;
@@ -77,13 +78,14 @@ void main() async {
       expect(countBlockNodes, repo.nodes.length);
     });
   });
+
     group("Access nodes", () {
       jsonRepository repo = jsonRepository();
 
       test("grid file FIND on Københavns Kommune contains all the boundary box nodes", () async {
         await repo.loadJsonData();
         Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-        var gridFile = GridFile(denmarkBounds, 3000000, repo);
+        var gridFile = GridFileFlex(denmarkBounds, repo, 500);
         gridFile.initializeGrid();
 
         var CPH = repo.relations.firstWhere((element) => element.name == "Aarhus Kommune");
@@ -102,8 +104,8 @@ void main() async {
             for (int j = 0; bounds.length > j; j++) {
               if (jsonRepository.isPointInPolygon(
                   LatLng(element.lat, element.lon), bounds[j])) {
-                  nodesInPolygon.add(element);
-                  break;
+                nodesInPolygon.add(element);
+                break;
               }
             }
           }
@@ -123,13 +125,6 @@ void main() async {
 
       });
     });
-
-
-
-
-
-
-
 
 
 }
