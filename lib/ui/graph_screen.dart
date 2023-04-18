@@ -35,7 +35,7 @@ class MyGraphPage extends StatelessWidget {
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
     builder: (_) => MyGraphPage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
-  late queriesGrid query = queriesGrid(repo, csvRepo);
+  late queriesGrid query = queriesGrid( repo, csvRepo);
   @override
   Widget build(BuildContext context) {
 
@@ -179,11 +179,11 @@ class MyGraphPage extends StatelessWidget {
                         if(state.querymodel.length>2) {
                           bullet1 = [];
                           bullet2 = [];
-                          for (int i = 0; i < state.querymodel[2].length; i++) {
+                          for (int i = 0; i < state.querymodel[3].length; i++) {
                             bullet1.add(state.querymodel[1][i].x + state
                                 .querymodel[1][i].y.toString());
-                            bullet2.add(state.querymodel[2][i].x + state
-                                .querymodel[2][i].y.toString());
+                            bullet2.add(state.querymodel[3][i].x + state
+                                .querymodel[3][i].y.toString());
                           }
                         }
                         return Positioned(top: 90, bottom: 0, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width,
@@ -204,7 +204,7 @@ class MyGraphPage extends StatelessWidget {
 
 
                                 [ ColumnSeries<query_model,String>(dataSource: querymodel.first, xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y, legendItemText: selecteChoices.first ),
-                                  ColumnSeries<query_model,String>(dataSource: querymodel.last, xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y,legendItemText: selecteChoices.last,  )
+                                  ColumnSeries<query_model,String>(dataSource: querymodel[2], xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y,legendItemText: selecteChoices.last,  )
                                 ])))
                             ])));
 
