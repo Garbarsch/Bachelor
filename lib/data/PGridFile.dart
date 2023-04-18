@@ -133,22 +133,8 @@ class PGridFile {
     print("PGrid File find intersecting cells time: ${stopwatch2.elapsed.inMilliseconds}");
 
     Stopwatch stopwatch3 = new Stopwatch()..start();
-    nodes = subGridCellsRec(containingIndices, polyBounds,concavePoints );
+    nodes = subGridCellsRec(containingIndices, polyBounds,concavePoints, query.boundingBox! );
     print("SubGridCell Time: ${stopwatch3.elapsed.inMilliseconds}");
-   /* //Get the block pointers from the directory (gridFile) of the cells
-    Set<int> blockKeys = {};
-    containingIndices.forEach((element) {
-      blockKeys.add(gridArray[element.item1][element.item2]);
-    });
-
-    //grab all nodes of each blocks.
-    blockKeys.forEach((element) {
-      nodes.addAll(blockCollection[element]!); //jRepo.getNodesInRectangle(blockCollection[element]!, query.boundingBox!)
-    });*/
-
-    //Filter nodes on query bounding box and amenities (not sure if amenities should be given here)
-   // nodes = nodesOfQueryAmenityAndBoundingBox(query.boundingBox!, amenities, nodes);
-
 
     print("PGrid File Total Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;
@@ -192,7 +178,8 @@ class PGridFile {
     return returnNodes;
   }
 
-  RectStatus isFullyContained(Rectangle rect, List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints) {
+  RectStatus isFullyContained(Rectangle rect, List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox) {
+
     // Convert rectangle corners to LatLng points.
     final corners = [
       LatLng(rect.topLeft.y.toDouble(), rect.topLeft.x.toDouble()),
@@ -205,6 +192,7 @@ class PGridFile {
 
     // Check each polygon of the municipality for containment.
     for (final polygon in polyBounds) {
+
       bool allCornersInside = true;
       bool anyCornerInside = false;
 
@@ -221,24 +209,15 @@ class PGridFile {
           break;
         }
       }
-
-      // Check if all corners are inside, then if any concave point intersect the cell rectangle.
-      if (allCornersInside) {
-        // If a concave point intersects the cell rectangle, but all corners are inside, the cell is intersecting.
-        if (concavePoints[polyBounds.indexOf(polygon)]
-            .any((point) => latLongInRect(point, rect))) {
-          anyPolygonIntersects = true;
-        } else {
-          // All corners inside and no concave points intersect the cell, then the cell is fully contained.
-          return RectStatus.inside;
-        }
-      } else if (anyCornerInside) {
-        // Else if just any corner is inside, but not all, the cell is intersecting.
+      if(!allCornersInside && anyCornerInside){
         anyPolygonIntersects = true;
+      }else if (concavePoints[polyBounds.indexOf(polygon)]
+          .any((point) => latLongInRect(point, rect))) {
+        anyPolygonIntersects = true;
+      }else if(allCornersInside){
+        return RectStatus.inside;
       }
     }
-
-    // No containment found in any polygon, the cell is fully outside the municipality polygon.
     if (!anyPolygonIntersects) {
       return RectStatus.outside;
     }
@@ -277,7 +256,7 @@ class PGridFile {
     return concavePoints;
   }
 
-  List<Node> subGridCellsRec(List<Tuple2<int, int>> containingIndices, List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints){
+  List<Node> subGridCellsRec(List<Tuple2<int, int>> containingIndices, List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox){
     List<Node> nodes = [];
     print("Amount of top-layer cells: ${containingIndices.length}");
     int countTopCellsFullyContained = 0;
@@ -285,7 +264,7 @@ class PGridFile {
 
     for (var cellIndex in containingIndices) {
       var rect = linearScalesRectangles[cellIndex.item1][cellIndex.item2];
-      var rectStatus = isFullyContained(rect, polyBounds, concavePoints);
+      var rectStatus = isFullyContained(rect, polyBounds, concavePoints, muniBoundingBox);
 
       var block = blockCollection[gridArray[cellIndex.item1][cellIndex.item2]]!;
 
@@ -295,7 +274,7 @@ class PGridFile {
       } else if (rectStatus == RectStatus.intersect) {
         intersectingCells++;
         if(block.length > 1000){
-          nodes.addAll(subGridPartition(cellIndex.item1, cellIndex.item2, polyBounds, concavePoints));
+          nodes.addAll(subGridPartition(cellIndex.item1, cellIndex.item2, polyBounds, concavePoints, muniBoundingBox));
         }
       }
     }
@@ -305,7 +284,7 @@ class PGridFile {
     return nodes;
   }
 
-  List<Node> subGridPartition (int xIndex, int yIndex,  List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints){
+  List<Node> subGridPartition (int xIndex, int yIndex,  List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox ){
 
     //we have to decide whether we partition based on data distribution or just amount of nodes.
     //If we were to look at distribution and make flex grid partitions here, we would need to order the list of nodes and search through
@@ -335,7 +314,7 @@ class PGridFile {
       top = sourceRect.top; //top is the bottom left corner
       for(int y = 0 ; y<latPartitions ; y++){ //for each cell up
         Rectangle subCell = Rectangle(left, top, longPartitionsSize, latPartitionsSize);
-        var rectStatus = isFullyContained(subCell,polyBounds,concavePoints);
+        var rectStatus = isFullyContained(subCell,polyBounds,concavePoints, muniBoundingBox);
         if(rectStatus == RectStatus.inside){
           containedSubCells.add(subCell);
           //hvis vi kunne kalde en "add nodes of cell" metode her og havde en bedre måde at tilgå dem.
@@ -362,7 +341,7 @@ class PGridFile {
           //label to break out of loop
           secondInnerLoop:
           for (var cell in intersectingSubCells) {
-            if (pointInRect(node, cell)) {
+            if (pointInRect(node, cell)) { //gør det forskel?
               for (int i = 0; i < polyBounds.length; i++) {
                 if (jsonRepository.isPointInPolygon(
                     LatLng(node.lat, node.lon), polyBounds[i])) {
