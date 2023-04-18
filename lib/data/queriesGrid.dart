@@ -51,133 +51,23 @@ class queriesGrid{
 
   List<List<query_model>> entertainmentQuery(String muni1, String muni2) {
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<List<query_model>> model = [];
-    List<query_model> mun1 =[];
-    List<query_model> mun2 = [];
-    MunicipalityRelation muni1Rect = repo.relations.firstWhere((element) => element.name == muni1);
-    MunicipalityRelation muni2Rect = repo.relations.firstWhere((element) => element.name == muni2);
-
-    List<query_model> bulletMuni1 = bulletQuery(muni1, muni1Rect);
-    List<query_model> bulletMuni2 = bulletQuery(muni2, muni2Rect);
-
-    List<Node> muni1Nodes = grid.find(muni1Rect!);
-    List<Node> muni2Nodes = grid.find(muni2Rect!);
-
-    var nightlife = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "nightlife");
-    mun1.add(query_model("Nightlife", nightlife.value));
-
-    nightlife = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "cafe");
-    mun2.add(query_model("Nightlife", nightlife.value));
-
-    var cinema = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "cinema");
-    mun1.add(query_model("Cinema", cinema.value));
-
-    cinema = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "cafe");
-    mun2.add(query_model("Cinema", cinema.value));
-
-    var art_centre = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "arts_centre");
-    mun1.add(query_model("Art Centre", art_centre.value));
-
-    art_centre = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "arts_centre");
-    mun1.add(query_model("Art Centre", art_centre.value));
-
-
-    var community_centre = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "community_centre");
-    mun1.add(query_model("Community Centre", community_centre.value));
-
-    community_centre = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "community_centre");
-    mun2.add(query_model("Community Centre", community_centre.value));
-
-
-    var music_venue = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "music_venue");
-    mun1.add(query_model("Music Venues", music_venue.value));
-
-    music_venue = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "music_venue");
-    mun2.add(query_model("Music Venues", music_venue.value));
-
-    model.add(mun1);
-    model.add(bulletMuni1);
-    model.add(bulletMuni2);
-    model.add(mun2);
-
+    var query = getNighlifeForMuniForGrid(muni1) + getNighlifeForMuniForGrid(muni2);
     print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
-    return model;
+    return query;
   }
 
   List<List<query_model>> foodQuery(String muni1, String muni2){
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<List<query_model>> model = [];
-    List<query_model> mun1 =[];
-    List<query_model> mun2 = [];
-
-    MunicipalityRelation muni1Rect = repo.relations.firstWhere((element) => element.name == muni1);
-    MunicipalityRelation muni2Rect = repo.relations.firstWhere((element) => element.name == muni2);
-
-    List<query_model> bulletMuni1 = bulletQuery(muni1, muni1Rect!);
-    List<query_model> bulletMuni2 = bulletQuery(muni2, muni2Rect!);
-
-    List<Node> muni1Nodes = grid.find(muni1Rect!);
-    List<Node> muni2Nodes = grid.find(muni2Rect!);
-
-    var cafe = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "cafe");
-    mun1.add(query_model("Cafe", cafe.value));
-
-
-
-    cafe = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "cafe");
-    mun2.add(query_model("Cafe", cafe.value));
-
-    var resturants = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "restaurant");
-    mun1.add(query_model("Restaurants", resturants.value));
-
-    resturants = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "restaurant");
-    mun2.add(query_model("Restaurants", resturants.value));
-
-    model.add(mun1);
-    model.add(bulletMuni1);
-    model.add(bulletMuni2);
-    model.add(mun2);
-    print("Food query time: ${stopwatch.elapsed.inMilliseconds}");
-    return model;
+    var query = getNighlifeForMuniForGrid(muni1) + getNighlifeForMuniForGrid(muni2);
+    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    return query;
 
   }
   List<List<query_model>> transportationQuery(String muni1,String muni2) {
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<List<query_model>> model = [];
-
-    List<query_model> mun1 =[];
-    List<query_model> mun2 = [];
-    /*Rectangle<num>? muni1Rect = repo.relations.firstWhere((element) => element.name == muni1).boundingBox;
-    Rectangle<num>? muni2Rect = repo.relations.firstWhere((element) => element.name == muni2).boundingBox;*/
-    MunicipalityRelation muni1Rect = repo.relations.firstWhere((element) => element.name == muni1);
-    MunicipalityRelation muni2Rect = repo.relations.firstWhere((element) => element.name == muni2);
-
-    List<query_model> bulletMuni1 = bulletQuery(muni1, muni1Rect!);
-    List<query_model> bulletMuni2 = bulletQuery(muni2, muni2Rect!);
-
-    List<Node> muni1Nodes = grid.find(muni1Rect!);
-    List<Node> muni2Nodes = grid.find(muni2Rect!);
-
-
-    var bus_stations =  repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "bus");
-    mun1.add(query_model("Bus stations", bus_stations.value));
-
-    bus_stations = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "bus");
-    mun2.add(query_model("Bus stations", bus_stations.value));
-
-    var train_stations = repo.getAmenityNodesFromNodes(muni1Nodes, muni1, "station");
-    mun1.add(query_model("Train stations", train_stations.value));
-
-    train_stations = repo.getAmenityNodesFromNodes(muni2Nodes, muni2, "station");
-    mun2.add(query_model("Train stations", train_stations.value));
-
-    model.add(mun1);
-    model.add(bulletMuni1);
-    model.add(bulletMuni2);
-    model.add(mun2);
-
-    print("Transportation query time: ${stopwatch.elapsed.inMilliseconds}");
-    return model;
+    var query = getStationsForGrid(muni1) + getStationsForGrid(muni2);
+    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    return query;
   }
 
 
@@ -328,6 +218,173 @@ class queriesGrid{
 
     print("Education query time: ${stopwatch.elapsed.inMilliseconds}");
     return graph1;
+  }
+
+  List<List<query_model>> getStationsForGrid(String muni){
+    MunicipalityRelation munilist = repo.relations.firstWhere((element) => element.name == muni);
+    List<Node> muniNodes = grid.find(munilist!);
+    List<query_model> bullet = [];
+    List<query_model> mun = [];
+    List<List<query_model>> model = [];
+
+    int cafecounter =0;
+    int restaurantscounter = 0;
+    int stationcounter = 0;
+    int busstationcounter = 0;
+
+    for (Node match in muniNodes) {
+      if(match.isAmenity && match.tags?["railway"] == "station" ){
+            stationcounter++;
+        //  nodes.add(match);
+      }
+      if(match.tags != null){
+        if((match.tags!.containsKey("public_transport") && match.tags?["public_transport"] == "station")){
+              busstationcounter++;
+        //  nodes.add(match);
+
+      }}
+
+      switch (match.tags?["amenity"]) {
+        case "station":
+              cafecounter++;
+          //  nodes.add(match);
+          break;
+        case "restaurant":
+              restaurantscounter++;
+          //  nodes.add(match);
+          break;
+        case "bus_station":
+              busstationcounter++;
+          //  nodes.add(match);
+          break;
+      }
+
+    }
+    mun.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model("Bus Stations:", busstationcounter));
+    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes:", cafecounter));
+    bullet.add(query_model("Restaurants:", restaurantscounter));
+    bullet.add(query_model("Train Stations:", stationcounter));
+    model.add(mun);
+    model.add(bullet);
+    return model;
+
+  }
+  List<List<query_model>> getFoodMuniForRect(String muni){
+    MunicipalityRelation munilist = repo.relations.firstWhere((element) => element.name == muni);
+    List<Node> muniNodes = grid.find(munilist!);
+    List<query_model> bullet = [];
+    List<query_model> mun = [];
+    List<List<query_model>> model = [];
+
+    int cafecounter =0;
+    int restaurantscounter = 0;
+    int stationcounter = 0;
+
+    for (Node match in muniNodes) {
+      if(match.isAmenity && match.tags?["railway"] == "station" ){
+            stationcounter++;
+        //  nodes.add(match);
+      }
+      switch (match.tags?["amenity"]) {
+        case "cafe":
+              cafecounter++;
+          //  nodes.add(match);
+          break;
+        case "restaurant":
+              restaurantscounter++;
+          //  nodes.add(match);
+          break;
+      }
+
+    }
+    mun.add(query_model("Restaurants:", restaurantscounter));
+    mun.add(query_model("Cafes:", cafecounter));
+    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes:", cafecounter));
+    bullet.add(query_model("Restaurants:", restaurantscounter));
+    bullet.add(query_model("Train Stations:", stationcounter));
+    model.add(mun);
+    model.add(bullet);
+    return model;
+
+  }
+
+  List<List<query_model>> getNighlifeForMuniForGrid(String muni){
+    MunicipalityRelation munilist = repo.relations.firstWhere((element) => element.name == muni);
+    List<Node> muniNodes = grid.find(munilist!);
+    List<query_model> bullet = [];
+    List<query_model> mun = [];
+    List<List<query_model>> model = [];
+
+    int nightlifecounter= 0;
+    int cinemacounter = 0;
+    int art_centrecounter = 0;
+    int community_centrecounter = 0;
+    int music_venuecounter = 0;
+    int cafecounter =0;
+    int restaurantscounter = 0;
+    int stationcounter = 0;
+
+    for (Node match in muniNodes) {
+      if(match.isAmenity && match.tags?["railway"] == "station" ){
+            stationcounter++;
+        //  nodes.add(match);
+      }
+      switch (match.tags?["amenity"]) {
+        case "bar":
+              nightlifecounter++;
+          // nodes.add(match);
+          break;
+        case "pub":
+              nightlifecounter++;
+          //nodes.add(match);
+          break;
+        case "nightclub":
+              nightlifecounter++;
+          //nodes.add(match);
+          break;
+        case "cinema":
+              cinemacounter++;
+          //  nodes.add(match);
+          break;
+        case "arts_centre":
+              art_centrecounter++;
+          // nodes.add(match);
+          break;
+        case "community_centre":
+              community_centrecounter++;
+          // nodes.add(match);
+          break;
+        case "music_venue":
+              music_venuecounter++;
+          //  nodes.add(match);
+          break;
+        case "cafe":
+              cafecounter++;
+          //  nodes.add(match);
+          break;
+        case "restaurant":
+              restaurantscounter++;
+          //  nodes.add(match);
+          break;
+      }
+
+    }
+    mun.add(query_model("Nightlife", nightlifecounter));
+    mun.add(query_model("Cinema", cinemacounter));
+    mun.add(query_model("Art Centres", art_centrecounter));
+    mun.add(query_model("Community Centres", community_centrecounter));
+    mun.add(query_model("Music Venues", music_venuecounter));
+    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes:", cafecounter));
+    bullet.add(query_model("Restaurants:", restaurantscounter));
+    bullet.add(query_model("Train Stations:", stationcounter));
+    model.add(mun);
+    model.add(bullet);
+    return model;
+
   }
 
 }
