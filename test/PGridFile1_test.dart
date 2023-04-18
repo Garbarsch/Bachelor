@@ -20,7 +20,7 @@ void main() async {
       var gridFile = PGridFile1(denmarkBounds, 3000000, repo);
       gridFile.initializeGrid();
 
-      var CPH = repo.relations.firstWhere((element) => element.name == "Aarhus Kommune");
+      var CPH = repo.relations.firstWhere((element) => element.name == "Viborg Kommune");
 
       //the Grid File Nodes returned
       List<Node> nodes = gridFile.find(CPH);
@@ -29,7 +29,7 @@ void main() async {
       List<Node> allNodesInMuniRect = repo.allNodesInRectangle(CPH.boundingBox!);
 
       List<Node> nodesInPolygon = [];
-      var bounds = repo.getMunilist(["Aarhus Kommune"]);
+      var bounds = repo.getMunilist(["Viborg Kommune"]);
 
       for (var element in allNodesInMuniRect) {
         if(element.isAmenity) {

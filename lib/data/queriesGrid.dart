@@ -3,11 +3,11 @@ part of 'package:github_client/data/jsonRepository.dart';
 class queriesGrid{
   final jsonRepository repo;
   final csvRepository csvRepo;
-  late final PGridFile grid;
+  late final GridFileFlex grid;
   late List<List<Rectangle<num>>> gridRects;
 
   queriesGrid(this.repo, this.csvRepo){
-    grid = PGridFile(repo.addBoundingBoxToDenmark(), 30000, repo);
+    grid = GridFileFlex(repo.addBoundingBoxToDenmark(),repo,400); //1000
     grid.initializeGrid();
     gridRects = grid.linearScalesRectangles;
   }
