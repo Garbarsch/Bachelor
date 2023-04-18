@@ -27,6 +27,7 @@ class MyHomePage extends StatelessWidget {
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
     builder: (_) => MyHomePage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
+  late queriesGrid query = queriesGrid(repo, csvRepo);
 
   int temp = 0;
     MyHomePage({
@@ -82,6 +83,8 @@ class MyHomePage extends StatelessWidget {
 
       //print("Carl");
       //print(state.coordsMuni);
+
+
       polyMuni.add(
           Polygon(points: state.coordsMuni, color: Colors.blue,)
       );
