@@ -345,6 +345,7 @@ class queriesGrid{
               break;
           }
       }
+
     }
     mun.add(query_model("Train Stations:", stationcounter));
     mun.add(query_model("Bus Stations:", busstationcounter));

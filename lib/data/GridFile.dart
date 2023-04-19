@@ -44,7 +44,7 @@ class GridFile {
     double width = cellSize.item2;
 
     //create linear scales - modified a bid, instead of 2 one-dimensional arrays we use 1 2-d list of rectangles
-    linearScalesRectangles = partitionLinearScales(width, height);
+    linearScalesRectangles = partitionLinearScales(height, width);
 
 
     //initial repository - all with key 0 until the block collection has been created.

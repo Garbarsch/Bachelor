@@ -124,7 +124,7 @@ class MyHomePage extends StatelessWidget {
                 userAgentPackageName: 'dev.fleaflet.flutter_map.example'
             ),
             PolygonLayer(
-                polygons: state.coordsMultiMuni
+                polygons: query.drawIndexAlgorithmOnMap()
             ),
             MarkerLayer(
 

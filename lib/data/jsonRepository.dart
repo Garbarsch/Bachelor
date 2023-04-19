@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:github_client/data/GridFileFlex.dart';
 import 'package:github_client/data/csvRepository.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
