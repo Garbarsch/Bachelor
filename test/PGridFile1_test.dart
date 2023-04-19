@@ -17,7 +17,7 @@ void main() async {
     test("grid file FIND on Københavns Kommune contains all the boundary box nodes", () async {
       await repo.loadJsonData();
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = PGridFile1(denmarkBounds, 3000000, repo);
+      var gridFile = PGridFile1(denmarkBounds, 3000000, repo.relations,repo.nodes);
       gridFile.initializeGrid();
 
       var CPH = repo.relations.firstWhere((element) => element.name == "Aarhus Kommune");
@@ -26,7 +26,7 @@ void main() async {
       List<Node> nodes = gridFile.find(CPH);
 
       //The bounding box around CPH from repo
-      List<Node> allNodesInMuniRect = repo.allNodesInRectangle(CPH.boundingBox!);
+      List<Node> allNodesInMuniRect = gridFile.allNodesInRectangle(CPH.boundingBox!);
 
       List<Node> nodesInPolygon = [];
       var bounds = repo.getMunilist(["Aarhus Kommune"]);

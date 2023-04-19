@@ -219,13 +219,6 @@ class queries {
       }
 
       switch (match.tags?["amenity"]) {
-        case "station":
-          for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
-              cafecounter++;
-            }}
-          //  nodes.add(match);
-          break;
         case "restaurant":
           for(int j =0; munilist.length> j; j++) {
             if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){

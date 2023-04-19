@@ -33,9 +33,10 @@ class GridFile {
 
   late int blockCapacity; //Block/Bucket capacity; how many records (nodes) fits here - some value we "assume".
   late final Rectangle<num> bounds; //Bounding box of the country
-  jsonRepository jRepo;
+  late List<MunicipalityRelation> relations;
+  late List<Node> nodes;
 
-  GridFile(this.bounds, this.blockCapacity, this.jRepo); //data kan vi bare tage fra repo
+  GridFile(this.bounds, this.blockCapacity, this.relations,this.nodes); //data kan vi bare tage fra repo
 
   void initializeGrid(){
     var cellSize = averageMunicipalitySize();
@@ -65,7 +66,7 @@ class GridFile {
     for (var columnList in linearScalesRect) { //columns
       y=0;
       for (var rowElement in columnList) { //each row rectangle
-        var cellNodes = jRepo.allNodesInRectangle(rowElement); //all nodes in that rectangle
+        var cellNodes = allNodesInRectangle(rowElement); //all nodes in that rectangle
         //if(blockMap.containsKey(blockCount)){ //if we have initialized a block of this key
          // if(blockMap[blockCount]!.length + cellNodes.length >= blockCapacity){ //if the block will not overflow
            // blockCount++; //count to get a new block id
@@ -119,12 +120,12 @@ class GridFile {
   Tuple2<double, double> averageMunicipalitySize(){
     double height = 0;
     double width = 0;
-    for (var element in jRepo.relations) {
+    for (var element in relations) {
         height += element.boundingBox!.height;
         width += element.boundingBox!.width;
     }
     //average height, average width
-    return Tuple2((height/(jRepo.relations.length)/6), (width/(jRepo.relations.length)/6));
+    return Tuple2((height/(relations.length)/6), (width/(relations.length)/6));
   }
 
 
@@ -158,7 +159,7 @@ class GridFile {
       blockKeys.add(gridArray[element.item1][element.item2]);
     });
 
-    var bounds = jRepo.getMunilist([query.name]);
+    var bounds = getMunilist([query.name]);
     //grab all nodes of one or more each blocks.
     blockKeys.forEach((element) {
       //returns all nodes of the block that is amenity and within the polygon
@@ -179,6 +180,37 @@ class GridFile {
     print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;
    }
+  List<List<LatLng>> getMunilist(List<String> municipalities){
+
+    List<List<LatLng>> list = [];
+    var muni = relations.where((element) => municipalities.contains(element.name));
+    for (var boundary in muni) {
+      if(boundary.isMulti){
+        for (var coordList in boundary.multiBoundaryCoords!) {
+          list.add(coordList);
+        }
+      }
+      else{
+        list.add(boundary.boundaryCoords);
+      }
+    }
+    return list;
+
+  }
+  List<Node> allNodesInRectangle(Rectangle rect){
+    List<Node> nodesList  = [];
+    nodes.forEach((node) {
+      if(rect != null){
+        if(node.lon >= rect.left &&
+            node.lon <= rect.left + rect.width &&
+            node.lat >= rect.top &&
+            node.lat <= rect.top + rect.height){
+          nodesList.add(node);
+        }
+      }
+    });
+    return nodesList;
+  }
 
   bool pointInRect (Node node, Rectangle rect){
     return (node.lon >= rect.left &&

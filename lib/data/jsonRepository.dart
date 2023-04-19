@@ -25,7 +25,8 @@ class jsonRepository{
   //late Map<int,Node> amenityNodes;  //all nodes now
   late List<Node> nodes;
   late List<MunicipalityRelation> relations;
-
+  late final PGridFile grid;
+  late List<List<Rectangle<num>>> gridRects;
   //add some exceptions pls
   Future<String> loadJsonData() async {
 
@@ -44,12 +45,22 @@ class jsonRepository{
     List<dynamic> geoData = json.decode(gejsonText);
     relations = geoData.where((element) => element["properties"]["type"] == "boundary").map((e) => MunicipalityRelation.fromJson(e)).toList();
     //add rectangles around municipalities
+
+
     addBoundingBoxToMunicipality();
+
+    IniGrid();
 
     if(nodes.isEmpty){
       return "fail";
     }
     return "success";
+  }
+
+   void IniGrid(){
+    grid = PGridFile(addBoundingBoxToDenmark(), 30000, relations,nodes);
+    grid.initializeGrid();
+    gridRects = grid.linearScalesRectangles;
   }
 
   //New File of original JSON + seeded nodes
@@ -217,20 +228,7 @@ class jsonRepository{
     return Rectangle(minLong, minLat, maxLong-minLong, maxLat-minLat);
   }
 
-  List<Node> allNodesInRectangle(Rectangle rect){
-    List<Node> nodesList  = [];
-    nodes.forEach((node) {
-      if(rect != null){
-            if(node.lon >= rect.left &&
-            node.lon <= rect.left + rect.width &&
-            node.lat >= rect.top &&
-            node.lat <= rect.top + rect.height){
-              nodesList.add(node);
-            }
-      }
-    });
-    return nodesList;
-  }
+
 
   List <LatLng> getCoords(List<String> type){
     List<List<LatLng>> coords = [];

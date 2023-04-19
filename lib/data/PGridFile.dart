@@ -28,9 +28,10 @@ class PGridFile {
 
   late int blockCapacity; //Block/Bucket capacity; how many records (nodes) fits here - some value we "assume".
   late final Rectangle<num> bounds; //Bounding box of the country
-  jsonRepository jRepo;
+  late List<MunicipalityRelation> relations;
+  late List<Node> nodes;
 
-  PGridFile(this.bounds, this.blockCapacity, this.jRepo); //data kan vi bare tage fra repo
+  PGridFile(this.bounds, this.blockCapacity, this.relations,this.nodes); //data kan vi bare tage fra repo
 
   void initializeGrid(){
     var cellSize = averageMunicipalitySize();
@@ -58,7 +59,7 @@ class PGridFile {
     for (var columnList in linearScalesRect) { //columns
       y=0;
       for (var rowElement in columnList) { //each row rectangle
-        var cellNodes = jRepo.allNodesInRectangle(rowElement); //all nodes in that rectangle
+        var cellNodes = allNodesInRectangle(rowElement); //all nodes in that rectangle
         blockMap[blockCount] = cellNodes; //block will not overflow: add nodes (IF WE CHANGE THIS, WE HAVE TO DO AN ADD ALL HERE)
         gridArray[x][y] = blockCount; //add key to directory
         blockCount++;
@@ -96,21 +97,21 @@ class PGridFile {
   Tuple2<double, double> averageMunicipalitySize(){
     double height = 0;
     double width = 0;
-    for (var element in jRepo.relations) {
+    for (var element in relations) {
       height += element.boundingBox!.height;
       width += element.boundingBox!.width;
     }
     //average height, average width
-    return Tuple2((height/(jRepo.relations.length)/6), (width/(jRepo.relations.length)/6));
+    return Tuple2((height/(relations.length)/6), (width/(relations.length)/6));
   }
 
   //Given a range query (rectangle), find all intersecting cells of the grid
   //find the block pointers of the cells in the directory
   //return the blocks that match.
-  List<Node> find (MunicipalityRelation query){
+  List<List<Node>> find (MunicipalityRelation query){
 
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<Node> nodes = [];
+    List<List<Node>> nodes = [];
     List<List<LatLng>> polyBounds = getQueryPolyBoundaryPoints(query);
     List<List<LatLng>> concavePoints = getConcavePointsOfPolygon(polyBounds);
     List<Tuple2<int, int>> containingIndices = [];
@@ -256,8 +257,8 @@ class PGridFile {
     return concavePoints;
   }
 
-  List<Node> subGridCellsRec(List<Tuple2<int, int>> containingIndices, List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox){
-    List<Node> nodes = [];
+  List<List<Node>> subGridCellsRec(List<Tuple2<int, int>> containingIndices, List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox){
+    List<List<Node>> nodes = [[],[]];
     print("Amount of top-layer cells: ${containingIndices.length}");
     int countTopCellsFullyContained = 0;
     int intersectingCells = 0;
@@ -270,11 +271,12 @@ class PGridFile {
 
       if (rectStatus == RectStatus.inside) {
         countTopCellsFullyContained++;
-        nodes.addAll(block.where((node) => node.isAmenity));
+        nodes[0].addAll(block.where((node) => node.isAmenity));
       } else if (rectStatus == RectStatus.intersect) {
         intersectingCells++;
         if(block.length > 1000){
-          nodes.addAll(subGridPartition(cellIndex.item1, cellIndex.item2, polyBounds, concavePoints, muniBoundingBox));
+          nodes[0].addAll(subGridPartition(cellIndex.item1, cellIndex.item2, polyBounds, concavePoints, muniBoundingBox).first);
+          nodes[1].addAll(subGridPartition(cellIndex.item1, cellIndex.item2, polyBounds, concavePoints, muniBoundingBox).last);
         }
       }
     }
@@ -284,11 +286,11 @@ class PGridFile {
     return nodes;
   }
 
-  List<Node> subGridPartition (int xIndex, int yIndex,  List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox ){
+  List<List<Node>> subGridPartition (int xIndex, int yIndex,  List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox ){
 
     //we have to decide whether we partition based on data distribution or just amount of nodes.
     //If we were to look at distribution and make flex grid partitions here, we would need to order the list of nodes and search through
-    List<Node> returnNodes = [];
+    List<List<Node>> returnNodes = [[],[]];
 
     Rectangle sourceRect = linearScalesRectangles[xIndex][yIndex];
     List<Node> sourceCellNodes = blockCollection[gridArray[xIndex][yIndex]]!;
@@ -332,7 +334,7 @@ class PGridFile {
       if(node.isAmenity) {
         for (var cel in containedSubCells) {
           if (pointInRect(node, cel)) {
-            returnNodes.add(node);
+            returnNodes[0].add(node);
             found = true;
             break;
           }
@@ -341,22 +343,15 @@ class PGridFile {
           //label to break out of loop
           secondInnerLoop:
           for (var cell in intersectingSubCells) {
-            if (pointInRect(node, cell)) { //gør det forskel?
-              for (int i = 0; i < polyBounds.length; i++) {
-                if (jsonRepository.isPointInPolygon(
-                    LatLng(node.lat, node.lon), polyBounds[i])) {
-                  returnNodes.add(node);
+           // if (pointInRect(node, cell)) { //gør det forskel?
+              {
+                  returnNodes[1].add(node);
                   break secondInnerLoop;
                 }
               }
             }
           }
-        }
-      }
-
     }
-
-
     return returnNodes;
   }
 
@@ -385,6 +380,20 @@ class PGridFile {
       list.add(queryMuni.boundaryCoords);
     }
     return list;
+  }
+  List<Node> allNodesInRectangle(Rectangle rect){
+    List<Node> nodesList  = [];
+    nodes.forEach((node) {
+      if(rect != null){
+        if(node.lon >= rect.left &&
+            node.lon <= rect.left + rect.width &&
+            node.lat >= rect.top &&
+            node.lat <= rect.top + rect.height){
+          nodesList.add(node);
+        }
+      }
+    });
+    return nodesList;
   }
   
 

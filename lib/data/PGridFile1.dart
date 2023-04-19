@@ -28,9 +28,10 @@ class PGridFile1 {
 
   late int blockCapacity; //Block/Bucket capacity; how many records (nodes) fits here - some value we "assume".
   late final Rectangle<num> bounds; //Bounding box of the country
-  jsonRepository jRepo;
+  late List<MunicipalityRelation> relations;
+  late List<Node> nodes;
 
-  PGridFile1(this.bounds, this.blockCapacity, this.jRepo); //data kan vi bare tage fra repo
+  PGridFile1(this.bounds, this.blockCapacity,this.relations,this.nodes ); //data kan vi bare tage fra repo
 
   void initializeGrid(){
     var cellSize = averageMunicipalitySize();
@@ -58,7 +59,7 @@ class PGridFile1 {
     for (var columnList in linearScalesRect) { //columns
       y=0;
       for (var rowElement in columnList) { //each row rectangle
-        var cellNodes = jRepo.allNodesInRectangle(rowElement); //all nodes in that rectangle
+        var cellNodes = allNodesInRectangle(rowElement); //all nodes in that rectangle
         blockMap[blockCount] = cellNodes; //block will not overflow: add nodes (IF WE CHANGE THIS, WE HAVE TO DO AN ADD ALL HERE)
         gridArray[x][y] = blockCount; //add key to directory
         blockCount++;
@@ -109,12 +110,12 @@ class PGridFile1 {
   Tuple2<double, double> averageMunicipalitySize(){
     double height = 0;
     double width = 0;
-    for (var element in jRepo.relations) {
+    for (var element in relations) {
       height += element.boundingBox!.height;
       width += element.boundingBox!.width;
     }
     //average height, average width
-    return Tuple2((height/(jRepo.relations.length)/6), (width/(jRepo.relations.length)/6));
+    return Tuple2((height/(relations.length)/6), (width/(relations.length)/6));
   }
 
   //Given a range query (rectangle), find all intersecting cells of the grid
@@ -124,7 +125,7 @@ class PGridFile1 {
 
     Stopwatch stopwatch = new Stopwatch()..start();
     List<Node> nodes = [];
-    List<List<LatLng>> polyBounds = jRepo.getMunilist([query.name]);
+    List<List<LatLng>> polyBounds = getMunilist([query.name]);
     List<List<LatLng>> concavePoints = getConcavePointsOfPolygon(polyBounds);
     List<Tuple2<int, int>> containingIndices = [];
 
@@ -268,6 +269,36 @@ class PGridFile1 {
     print("top-layer cells intersecting: ${intersectingCells}");
 
     return nodes;
+  }
+  List<Node> allNodesInRectangle(Rectangle rect){
+    List<Node> nodesList  = [];
+    nodes.forEach((node) {
+      if(rect != null){
+        if(node.lon >= rect.left &&
+            node.lon <= rect.left + rect.width &&
+            node.lat >= rect.top &&
+            node.lat <= rect.top + rect.height){
+          nodesList.add(node);
+        }
+      }
+    });
+    return nodesList;
+  }
+  List<List<LatLng>> getMunilist(List<String> municipalities){
+    List<List<LatLng>> list = [];
+    var muni = relations.where((element) => municipalities.contains(element.name));
+    for (var boundary in muni) {
+      if(boundary.isMulti){
+        for (var coordList in boundary.multiBoundaryCoords!) {
+          list.add(coordList);
+        }
+      }
+      else{
+        list.add(boundary.boundaryCoords);
+      }
+    }
+    return list;
+
   }
 
 
