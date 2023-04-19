@@ -20,7 +20,7 @@ void main() async {
       print("load JSON time: ${stopwatch.elapsed.inMilliseconds}");
 
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFileFlex(denmarkBounds, repo, 400);
+      var gridFile = GridFileFlex(denmarkBounds, repo.relations,repo.nodes, 400);
       gridFile.initializeGrid();
 
       expect(gridFile.gridArray, isNotNull);
@@ -30,7 +30,7 @@ void main() async {
 
     test("linearScales correspondence with gridFile (directory", () {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFileFlex(denmarkBounds, repo, 400);
+      var gridFile = GridFileFlex(denmarkBounds, repo.relations,repo.nodes, 400);
       gridFile.initializeGrid();
 
       var scalesLongLength = gridFile.linearScalesRectangles.length;
@@ -45,7 +45,7 @@ void main() async {
     test("cells match Denmark", ()
     {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFileFlex(denmarkBounds, repo, 400);
+      var gridFile = GridFileFlex(denmarkBounds, repo.relations,repo.nodes, 400);
       gridFile.initializeGrid();
 
       print(denmarkBounds.top);
@@ -65,7 +65,7 @@ void main() async {
     test("Test all nodes in blocks", ()
     {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFileFlex(denmarkBounds, repo, 400);
+      var gridFile = GridFileFlex(denmarkBounds, repo.relations,repo.nodes, 400);
       gridFile.initializeGrid();
 
       int countBlockNodes = 0;
@@ -85,16 +85,16 @@ void main() async {
       test("grid file FIND on Københavns Kommune contains all the boundary box nodes", () async {
         await repo.loadJsonData();
         Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-        var gridFile = GridFileFlex(denmarkBounds, repo, 500);
+        var gridFile = GridFileFlex(denmarkBounds, repo.relations,repo.nodes, 500);
         gridFile.initializeGrid();
 
         var CPH = repo.relations.firstWhere((element) => element.name == "Aarhus Kommune");
 
         //the Grid File Nodes returned
-        List<Node> nodes = gridFile.find(CPH);
+        List<List<Node>> nodes = gridFile.find(CPH);
 
         //The bounding box around CPH from repo
-        List<Node> allNodesInMuniRect = repo.allNodesInRectangle(CPH.boundingBox!);
+        List<Node> allNodesInMuniRect = gridFile.allNodesInRectangle(CPH.boundingBox!);
 
         List<Node> nodesInPolygon = [];
         var bounds = repo.getMunilist(["Aarhus Kommune"]);
@@ -112,16 +112,25 @@ void main() async {
         }
 
 
-        nodes.forEach((element) {
+        for( var element in nodes[1]){
+          for (int j = 0; bounds.length > j; j++) {
+            if (jsonRepository.isPointInPolygon(
+                LatLng(element.lat, element.lon), bounds[j])) {
+              nodes[0].add(element);
+            }
+          }
+        }
+
+        nodes[0].forEach((element) {
           if(!allNodesInMuniRect.contains(element)){
             print("FEJL");
           }
         });
-        print(nodes.length);
+        print(nodes[0].length);
         print(allNodesInMuniRect.length);
         print(nodesInPolygon.length);
-        expect(nodes.length < allNodesInMuniRect.length, true);
-        expect(nodesInPolygon.length, nodes.length);
+        expect(nodes[0].length < allNodesInMuniRect.length, true);
+        expect(nodesInPolygon.length, nodes[0].length);
 
       });
     });

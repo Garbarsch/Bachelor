@@ -26,7 +26,7 @@ class jsonRepository{
   //late Map<int,Node> amenityNodes;  //all nodes now
   late List<Node> nodes;
   late List<MunicipalityRelation> relations;
-  late final PGridFile grid;
+  late final  grid;
   late List<List<Rectangle<num>>> gridRects;
   //add some exceptions pls
   Future<String> loadJsonData() async {
@@ -59,7 +59,7 @@ class jsonRepository{
   }
 
    void IniGrid(){
-    grid = PGridFile(addBoundingBoxToDenmark(), 30000, relations,nodes);
+    grid = GridFileFlex(addBoundingBoxToDenmark(), relations,nodes,30000);
     grid.initializeGrid();
     gridRects = grid.linearScalesRectangles;
   }

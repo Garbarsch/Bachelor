@@ -285,11 +285,13 @@ class queriesGrid{
           if (match.isAmenity && match.tags?["railway"] == "station") {
             if (i == 0) {
               stationcounter++;
+              continue;
             } else {
               for (int j = 0; munilist.length > j; j++) {
                 if (jsonRepository.isPointInPolygon(
                     LatLng(match.lat, match.lon), munilist[j])) {
                   stationcounter++;
+                  continue;
                 }
               }
             }
@@ -316,20 +318,24 @@ class queriesGrid{
             case "restaurant":
               if(i ==0) {
                 restaurantscounter++;
+                continue;
               } else {
                 for(int j =0; munilist.length> j; j++) {
                   if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                     restaurantscounter++;
+                    continue;
                   }}}
               //  nodes.add(match);
               break;
             case "cafe":
               if(i ==0) {
                 cafecounter++;
+                continue;
               } else {
                 for(int j =0; munilist.length> j; j++) {
                   if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                     cafecounter++;
+                    continue;
                   }}}
               //  nodes.add(match);
               break;
@@ -376,10 +382,12 @@ class queriesGrid{
         if (match.isAmenity && match.tags?["railway"] == "station") {
           if(i ==0) {
             stationcounter++;
+            continue;
           } else {
             for(int j =0; munilist.length> j; j++) {
               if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                 stationcounter++;
+                continue;
               }}
           }
           //  nodes.add(match);
@@ -444,10 +452,12 @@ class queriesGrid{
       if (match.isAmenity && match.tags?["railway"] == "station") {
         if(i ==0) {
           stationcounter++;
+          continue;
         } else {
           for(int j =0; munilist.length> j; j++) {
             if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
               stationcounter++;
+              continue;
             }}
         }
         //  nodes.add(match);
