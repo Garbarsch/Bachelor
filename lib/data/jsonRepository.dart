@@ -59,7 +59,7 @@ class jsonRepository{
   }
 
    void IniGrid(){
-    grid = GridFileFlex(addBoundingBoxToDenmark(), relations,nodes,30000);
+    grid = PGridFile(addBoundingBoxToDenmark(), relations,nodes); //1000
     grid.initializeGrid();
     gridRects = grid.linearScalesRectangles;
   }
