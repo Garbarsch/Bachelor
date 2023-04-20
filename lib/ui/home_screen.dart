@@ -27,7 +27,7 @@ class MyHomePage extends StatelessWidget {
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
     builder: (_) => MyHomePage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
-  late queriesGrid query = repo.grid;
+  late queriesGrid query = queriesGrid(repo, csvRepo);
 
   int temp = 0;
     MyHomePage({

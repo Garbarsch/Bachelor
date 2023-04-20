@@ -26,8 +26,7 @@ class jsonRepository{
   //late Map<int,Node> amenityNodes;  //all nodes now
   late List<Node> nodes;
   late List<MunicipalityRelation> relations;
-  late final  grid;
-  late List<List<Rectangle<num>>> gridRects;
+  late final GridFile grid;
   //add some exceptions pls
   Future<String> loadJsonData() async {
 
@@ -47,6 +46,28 @@ class jsonRepository{
     relations = geoData.where((element) => element["properties"]["type"] == "boundary").map((e) => MunicipalityRelation.fromJson(e)).toList();
     //add rectangles around municipalities
 
+    //seed for F64
+    /*Random r = Random();
+    var idCount = 0;
+    List<Node> seededNodes = [];
+    Tuple2<double,double> auxCoord = Tuple2(0.0, 0.0);
+    for (int i = 0  ; i<3 ; i++){
+      for (var node in nodes) {
+        auxCoord = getLatLongExtra(node.lat, node.lon, r, 0.001);
+        seededNodes.add(Node.fromJson(
+              {
+                "type": "node",
+                "id": idCount,
+                "lon": auxCoord.item1,
+                "lat": auxCoord.item2,
+              })
+          );
+
+      }
+    }
+    nodes.addAll(seededNodes);*/
+
+    print("Total amount of Nodes: ${nodes.length}");
 
     addBoundingBoxToMunicipality();
 
@@ -59,7 +80,7 @@ class jsonRepository{
   }
 
    void IniGrid(){
-    grid = GridFileFlex(addBoundingBoxToDenmark(), relations,nodes,30000);
+    grid = GridFile(addBoundingBoxToDenmark(), relations,nodes); //1000
     grid.initializeGrid();}
 
   //New File of original JSON + seeded nodes

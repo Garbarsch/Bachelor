@@ -35,7 +35,7 @@ class MyGraphPage extends StatelessWidget {
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
     builder: (_) => MyGraphPage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
-  late queriesGrid query = repo.grid;
+  late queriesGrid query = queriesGrid(repo, csvRepo);
   @override
   Widget build(BuildContext context) {
 
