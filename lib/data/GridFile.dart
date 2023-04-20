@@ -132,9 +132,9 @@ class GridFile {
   //Given a range query (rectangle), find all intersecting cells of the grid
   //find the block pointers of the cells in the directory
   //return the blocks that match.
-  List<Node> find (MunicipalityRelation query){
+  List<List<Node>> find (MunicipalityRelation query){
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<Node> nodes = [];
+    List<List<Node>> nodes = [[],[]];
 
     List<Tuple2<int, int>> containingIndices = [];
 
@@ -167,15 +167,10 @@ class GridFile {
       for (var node in blockNodes) {
         if(node.isAmenity){
           if(pointInRect(node, query.boundingBox!)){
-            for (int i = 0; i < bounds.length; i++) {
-              if (jsonRepository.isPointInPolygon(LatLng(node.lat, node.lon), bounds[i])) {
-                nodes.add(node);
-                break;
-              }
+                nodes[1].add(node);
             }
           }
         }
-      }
     });
     print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;

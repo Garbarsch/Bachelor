@@ -89,7 +89,7 @@ void main() async {
         var CPH = repo.relations.firstWhere((element) => element.name == "Aarhus Kommune");
 
         //the Grid File Nodes returned
-        List<Node> nodes = gridFile.find(CPH);
+        List<List<Node>> nodes = gridFile.find(CPH);
 
         //The bounding box around CPH from repo
         List<Node> allNodesInMuniRect = gridFile.allNodesInRectangle(CPH.boundingBox!);
@@ -108,18 +108,27 @@ void main() async {
             }
           }
         }
+        for (var element in nodes[1]) {
+            for (int j = 0; bounds.length > j; j++) {
+              if (jsonRepository.isPointInPolygon(
+                  LatLng(element.lat, element.lon), bounds[j])) {
+                nodes[0].add(element);
+                break;
+              }
+            }
+        }
 
 
-        nodes.forEach((element) {
+        nodes[0].forEach((element) {
           if(!allNodesInMuniRect.contains(element)){
             print("FEJL");
           }
         });
-        print(nodes.length);
+        print(nodes[0].length);
         print(allNodesInMuniRect.length);
         print(nodesInPolygon.length);
-        expect(nodes.length < allNodesInMuniRect.length, true);
-        expect(nodesInPolygon.length, nodes.length);
+        expect(nodes[0].length < allNodesInMuniRect.length, true);
+        expect(nodesInPolygon.length, nodes[0].length);
 
       });
     });

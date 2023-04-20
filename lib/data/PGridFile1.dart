@@ -121,10 +121,10 @@ class PGridFile1 {
   //Given a range query (rectangle), find all intersecting cells of the grid
   //find the block pointers of the cells in the directory
   //return the blocks that match.
-  List<Node> find (MunicipalityRelation query){
+  List<List<Node>> find (MunicipalityRelation query){
 
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<Node> nodes = [];
+    List<List<Node>> nodes = [[],[]];
     List<List<LatLng>> polyBounds = getMunilist([query.name]);
     List<List<LatLng>> concavePoints = getConcavePointsOfPolygon(polyBounds);
     List<Tuple2<int, int>> containingIndices = [];
@@ -148,6 +148,7 @@ class PGridFile1 {
     print("PGrid File1 find intersecting cells time: ${stopwatch2.elapsed.inMilliseconds}");
 
     Stopwatch stopwatch3 = new Stopwatch()..start();
+    //List<List<Node>> = []
     nodes = cellStatusSort(containingIndices, polyBounds,concavePoints, query.boundingBox!);
     print("cellStatusSort Time: ${stopwatch3.elapsed.inMilliseconds}");
     
@@ -234,8 +235,8 @@ class PGridFile1 {
   }
 
 
-  List<Node> cellStatusSort(List<Tuple2<int, int>> containingIndices, List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox) {
-    List<Node> nodes = [];
+  List<List<Node>> cellStatusSort(List<Tuple2<int, int>> containingIndices, List<List<LatLng>> polyBounds, List<List<LatLng>> concavePoints, Rectangle muniBoundingBox) {
+    List<List<Node>> nodes = [[],[]];
     print("Amount of top-layer cells: ${containingIndices.length}");
     int countTopCellsFullyContained = 0;
     int intersectingCells = 0;
@@ -248,19 +249,15 @@ class PGridFile1 {
 
       if (rectStatus == RectStatus.inside) {
         countTopCellsFullyContained++;
-        nodes.addAll(block.where((node) => node.isAmenity));
+        nodes[0].addAll(block.where((node) => node.isAmenity));
       } else if (rectStatus == RectStatus.intersect) {
         intersectingCells++;
-        nodes.addAll(block.where((node) {
+        nodes[1].addAll(block.where((node) {
           if (!node.isAmenity) {
             return false;
-          }
-          for (int i = 0; i < polyBounds.length; i++) {
-            if (jsonRepository.isPointInPolygon(LatLng(node.lat, node.lon), polyBounds[i])) {
-              return true;
+          } else{
+            return true;
             }
-          }
-          return false;
         }));
       }
     }

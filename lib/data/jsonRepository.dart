@@ -60,9 +60,7 @@ class jsonRepository{
 
    void IniGrid(){
     grid = GridFileFlex(addBoundingBoxToDenmark(), relations,nodes,30000);
-    grid.initializeGrid();
-    gridRects = grid.linearScalesRectangles;
-  }
+    grid.initializeGrid();}
 
   //New File of original JSON + seeded nodes
   //offset 0.001 seems to be aight for now, but lets test the range of added features.
