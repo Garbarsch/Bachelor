@@ -133,6 +133,7 @@ class jsonRepository{
 
   //Remember to call this when if csvRepo has been initialized.
   Future<void> addPopulationToMunicipality(csvRepository csvRepo) async{
+
     if(relations.isEmpty){
       throw Exception("JSON file not loaded yet");
     }
@@ -148,6 +149,7 @@ class jsonRepository{
     }catch(e){
       print(e);
     }
+    //this.queryModel = queriesGrid(this, csvRepo);
   }
 
   void addBoundingBoxToMunicipality(){

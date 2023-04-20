@@ -30,7 +30,7 @@ class queriesGrid{
     return   polyList+ gridpolygons + boundary  ;
   }
 
-  List<query_model> bulletQuery(String muni, MunicipalityRelation muniRect) {//den her skal også fikses.
+  List<query_model> bulletQuery(String muni, MunicipalityRelation muniRect) {//den her skal ogsÃ¥ fikses.
     List<query_model> mun =[];
 
     var munici = repo.relations.where((element) => element.name == muni).first;
@@ -60,7 +60,7 @@ class queriesGrid{
             //  nodes.add(match);
           }
         }        //  nodes.add(match);
-               switch (match.tags?["amenity"]) {
+        switch (match.tags?["amenity"]) {
           case "restaurant":
             if(i ==0) {
               restaurantscounter++;
@@ -104,14 +104,14 @@ class queriesGrid{
   List<List<query_model>> foodQuery(String muni1, String muni2){
     Stopwatch stopwatch = new Stopwatch()..start();
     var query = getFoodMuniForRect(muni1) + getFoodMuniForRect(muni2);
-    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    print("Food query time: ${stopwatch.elapsed.inMilliseconds}");
     return query;
 
   }
   List<List<query_model>> transportationQuery(String muni1,String muni2) {
     Stopwatch stopwatch = new Stopwatch()..start();
     var query = getStationsForGrid(muni1) + getStationsForGrid(muni2);
-    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    print("Transportation query time: ${stopwatch.elapsed.inMilliseconds}");
     return query;
   }
 

@@ -36,9 +36,10 @@ class GridFile {
   late List<MunicipalityRelation> relations;
   late List<Node> nodes;
 
-  GridFile(this.bounds, this.blockCapacity, this.relations,this.nodes); //data kan vi bare tage fra repo
+  GridFile(this.bounds, this.relations,this.nodes); //data kan vi bare tage fra repo
 
   void initializeGrid(){
+    print("Grid File Fixed");
     var cellSize = averageMunicipalitySize();
     double height = cellSize.item1;
     double width = cellSize.item2;
@@ -67,18 +68,11 @@ class GridFile {
       y=0;
       for (var rowElement in columnList) { //each row rectangle
         var cellNodes = allNodesInRectangle(rowElement); //all nodes in that rectangle
-        //if(blockMap.containsKey(blockCount)){ //if we have initialized a block of this key
-         // if(blockMap[blockCount]!.length + cellNodes.length >= blockCapacity){ //if the block will not overflow
-           // blockCount++; //count to get a new block id
-         // }else{
+
             blockMap[blockCount] = cellNodes; //block will not overflow: add nodes (IF WE CHANGE THIS, WE HAVE TO DO AN ADD ALL HERE)
             gridArray[x][y] = blockCount; //add key to directory
         blockCount++;
-          //}
-       // }else{
-          //blockMap[blockCount] = cellNodes; //if we have no blocks at this id, add a new list of the cell nodes
-          //gridArray[i][y] = blockCount; //add key to directory
-       // }
+
         y++;
       }
       x++;
@@ -92,14 +86,10 @@ class GridFile {
     var latPartitions = (bounds.height/latPartitionSize).ceil();
     var longPartitions = (bounds.width/longPartitionSize).ceil();
 
-    //print(latPartitions);
-    //print(longPartitions);
-
     List<List<Rectangle>> scales = [];//List.generate(latPartitions, (index) => List.generate(longPartitions, (index) => null));
 
     var left = bounds.left;
     var top = bounds.top; //bottom is top in programming coordinates...
-
 
     //for each x cell
     for(int i = 0 ; i<longPartitions ; i++){
@@ -111,8 +101,6 @@ class GridFile {
       }
       left+=longPartitionSize; //same here, but left to right
     }
-    //print(scales.length);
-    //print(scales[0].length);
     return scales;
   }
 
@@ -125,7 +113,7 @@ class GridFile {
         width += element.boundingBox!.width;
     }
     //average height, average width
-    return Tuple2((height/(relations.length)/6), (width/(relations.length)/6));
+    return Tuple2((height/(relations.length)/1), (width/(relations.length)/1));
   }
 
 
@@ -159,6 +147,7 @@ class GridFile {
       blockKeys.add(gridArray[element.item1][element.item2]);
     });
 
+    int polyCheckCount = 0;
     var bounds = getMunilist([query.name]);
     //grab all nodes of one or more each blocks.
     blockKeys.forEach((element) {
@@ -172,7 +161,8 @@ class GridFile {
           }
         }
     });
-    print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
+    print("isPointInPolygon checked: ${polyCheckCount}");
+    //print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;
    }
   List<List<LatLng>> getMunilist(List<String> municipalities){

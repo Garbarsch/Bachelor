@@ -31,14 +31,14 @@ class queries {
   List<List<query_model>> foodQuery(String muni1, String muni2){
     Stopwatch stopwatch = new Stopwatch()..start();
     var query = getFoodMuni(muni1) + getFoodMuni(muni2);
-    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    print("Food query time: ${stopwatch.elapsed.inMilliseconds}");
     return query;
 
   }
   List<List<query_model>> transportationQuery(String muni1,String muni2) {
     Stopwatch stopwatch = new Stopwatch()..start();
     var query = getStations(muni1) + getStations(muni2);
-    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    print("Transportation query time: ${stopwatch.elapsed.inMilliseconds}");
     return query;
   }
 

@@ -9,18 +9,6 @@ import '../models/relation.dart';
 import 'jsonRepository.dart';
 
 class GridFileFlex {
-  //gridArray is a two-dimensional grid/matrix of all cells of our grid
-  //Each cell element holds a pointer to the bucket/block/data page that contains the data points of that cell
-  //Multiple cells can point to the same block
-  //The gridArray is also known as the directory.
-  //
-  // We ourselves must propose some grid scheme to best utilize the cells. Based on our predefined queries, we always query exactly 1
-  // Municipality. Thus, it would make sense to align the cell scheme to that fact. We shall make each cell the size of the average municipality bounding box, such that
-  // our range queries somewhat match the size of the cells in which we are most likely to benefit the most from our partition (if we partitioned large cells, we would have to search a lot
-  // which makes the index less useful, if the cells are too small, we have to traverse a lot of cells to find our data)
-
-  // Another thing to consider is disk utility, we want to match a capacity on disk pages aligning to "buckets" of cells
-  // So as of this moment i see two possibilities - align by disk page size, or align by range query size. I dont rly understand the need to consider disk page size.. hmm
   late final List<List<int>> gridArray;
 
   //The linear scales 1-d arrays defines the partitions of each of the domains.
@@ -40,6 +28,7 @@ class GridFileFlex {
   GridFileFlex(this.bounds, this.relations,this.nodes, this.cellCapacity); //data kan vi bare tage fra repo
 
   void initializeGrid(){
+    print("Grid File Flex");
     var cellSize = averageMunicipalitySize();
     double height = cellSize.item1;
     double width = cellSize.item2;
@@ -104,14 +93,12 @@ class GridFileFlex {
             scales.add([]);
             longPartitionsInner++;
           }
-
           scales[x+1].add(rect2);
           //we go one back to check the if one of the cells we just created are still above the cell-capacity.
           y--;
-
           ySplit  = true;
 
-          }else{
+          }else{//ySplit
           var rect1 = Rectangle(cellRect.left, cellRect.top, cellRect.width, cellRect.height/2);
           var rect2 = Rectangle(cellRect.left, cellRect.top+(cellRect.height/2), cellRect.width, cellRect.height/2);
           scales[x][y] = rect1;
@@ -119,39 +106,23 @@ class GridFileFlex {
           y--;
           ySplit = false;
         }
-        }else{
+        }/*else if(cellNodes.length < cellCapacity*0.80 && y-1 >= 0 && scales[x][y-1].width == cellRect.width && (block[blockCount-1]!.length + cellNodes.length < cellCapacity)){ //if the cell is less than 90 percent full
+
+
+          var mergeRect = scales[x][y - 1];
+          scales[x].removeAt(y);
+                scales[x][y-1] = Rectangle(
+                    cellRect.left, mergeRect.top, cellRect.width,
+                    cellRect.height + mergeRect.height);
+                y--;
+        }*/
+          else{
           block[blockCount] = cellNodes;
           gridArray[x].add(blockCount);
           blockCount++;
         }
       }
     }
-
-    //splitelse{
-          // }
-
-        /*else if(cellNodes.length < cellCapacity )
-        {
-          int yMerge = y+1;
-          bool capacityReached = false;
-          Rectangle mergedRect = cellRect;
-          while(!capacityReached){
-            if(yMerge != latPartitionsInner){
-              var nextRect = scales[x][yMerge];
-              var yMergeCellNodes = jRepo.allNodesInRectangle(nextRect);
-              if(yMergeCellNodes.length + cellNodes.length < cellCapacity){
-                mergedRect = Rectangle(mergedRect.left, mergedRect.top, mergedRect.width, mergedRect.height + nextRect.height);
-              }else{
-                scales[x][y] =
-              }
-            }else{
-              capacityReached = true;
-            }
-
-          }
-
-}**/
-
     blockCollection = block;
     linearScalesRectangles = scales;
   }
@@ -216,7 +187,7 @@ class GridFileFlex {
       //returns all nodes of the block that is amenity and within the polygon
 
     });
-    print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
+    //print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;
   }
   List<Node> allNodesInRectangle(Rectangle rect){
