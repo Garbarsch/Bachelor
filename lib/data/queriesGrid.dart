@@ -7,7 +7,7 @@ class queriesGrid{
   late List<List<Rectangle<num>>> gridRects;
 
   queriesGrid(this.repo, this.csvRepo){
-    grid = GridFileFlex(repo.addBoundingBoxToDenmark(),repo,400); //1000
+    grid = GridFileFlex(repo.addBoundingBoxToDenmark(),repo,1000); //1000
     grid.initializeGrid();
     gridRects = grid.linearScalesRectangles;
   }
@@ -59,14 +59,14 @@ class queriesGrid{
   List<List<query_model>> foodQuery(String muni1, String muni2){
     Stopwatch stopwatch = new Stopwatch()..start();
     var query = getNighlifeForMuniForGrid(muni1) + getNighlifeForMuniForGrid(muni2);
-    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    print("Food query time: ${stopwatch.elapsed.inMilliseconds}");
     return query;
 
   }
   List<List<query_model>> transportationQuery(String muni1,String muni2) {
     Stopwatch stopwatch = new Stopwatch()..start();
     var query = getStationsForGrid(muni1) + getStationsForGrid(muni2);
-    print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
+    print("Transportation query time: ${stopwatch.elapsed.inMilliseconds}");
     return query;
   }
 
