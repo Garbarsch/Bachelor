@@ -16,8 +16,7 @@ void main() async {
       test("grid file FIND on Københavns Kommune contains all the boundary box nodes", () async {
         await repo.loadJsonData();
         Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-        var gridFile = PGridFile(denmarkBounds, 3000000, repo.relations,repo.nodes);
-        gridFile.initializeGrid();
+        var gridFile = repo.grid;
 
         var CPH = repo.relations.firstWhere((element) => element.name == "Aarhus Kommune");
 
@@ -37,6 +36,7 @@ void main() async {
             if (jsonRepository.isPointInPolygon(
                 LatLng(element.lat, element.lon), bounds[j])) {
               nodes[0].add(element);
+              break;
             }
           }
             }
