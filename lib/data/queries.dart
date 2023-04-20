@@ -205,6 +205,7 @@ class queries {
         for(int j =0; munilist.length> j; j++) {
           if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
             stationcounter++;
+            continue;
           }}
         //  nodes.add(match);
       }
@@ -213,19 +214,13 @@ class queries {
         for(int j =0; munilist.length> j; j++) {
           if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
             busstationcounter++;
+            continue;
           }}}
         //  nodes.add(match);
 
       }
 
       switch (match.tags?["amenity"]) {
-        case "station":
-          for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
-              cafecounter++;
-            }}
-          //  nodes.add(match);
-          break;
         case "restaurant":
           for(int j =0; munilist.length> j; j++) {
             if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
@@ -270,6 +265,7 @@ class queries {
         for(int j =0; munilist.length> j; j++) {
           if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
             stationcounter++;
+            continue;
           }}
         //  nodes.add(match);
       }
@@ -324,6 +320,7 @@ class queries {
         for(int j =0; munilist.length> j; j++) {
           if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
             stationcounter++;
+            continue;
           }}
         //  nodes.add(match);
       }

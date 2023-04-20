@@ -19,7 +19,7 @@ void main() async {
       print("load JSON time: ${stopwatch.elapsed.inMilliseconds}");
 
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(denmarkBounds, repo);
+      var gridFile = GridFile(repo.relations,repo.nodes);
       gridFile.initializeGrid();
 
       expect(gridFile.gridArray, isNotNull);
@@ -29,7 +29,7 @@ void main() async {
 
     test("linearScales correspondence with gridFile (directory", () {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(denmarkBounds, repo);
+      var gridFile = GridFile(repo.relations,repo.nodes);
       gridFile.initializeGrid();
 
       var scalesLatLength = gridFile.linearScalesRectangles.length;
@@ -44,7 +44,7 @@ void main() async {
     test("cells match Denmark", ()
     {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(denmarkBounds, repo);
+      var gridFile = GridFile(denmarkBounds,  repo.relations,repo.nodes);
       gridFile.initializeGrid();
 
       print(denmarkBounds.top);
@@ -64,7 +64,7 @@ void main() async {
     test("Test all nodes in blocks", ()
     {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(denmarkBounds, repo);
+      var gridFile = GridFile(denmarkBounds,  repo.relations,repo.nodes);
       gridFile.initializeGrid();
 
       int countBlockNodes = 0;
@@ -92,7 +92,7 @@ void main() async {
         List<Node> nodes = gridFile.find(CPH);
 
         //The bounding box around CPH from repo
-        List<Node> allNodesInMuniRect = repo.allNodesInRectangle(CPH.boundingBox!);
+        List<Node> allNodesInMuniRect = gridFile.allNodesInRectangle(CPH.boundingBox!);
 
         List<Node> nodesInPolygon = [];
         var bounds = repo.getMunilist(["Aarhus Kommune"]);

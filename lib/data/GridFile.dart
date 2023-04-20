@@ -32,9 +32,10 @@ class GridFile {
   late final Map<int, List<Node>> blockCollection; //b-tree or quadtree.
 
   late final Rectangle<num> bounds; //Bounding box of the country
-  jsonRepository jRepo;
+  late List<MunicipalityRelation> relations;
+  late List<Node> nodes;
 
-  GridFile(this.bounds, this.jRepo); //data kan vi bare tage fra repo
+  GridFile(this.bounds, this.relations,this.nodes); //data kan vi bare tage fra repo
 
   void initializeGrid(){
     print("Grid File Fixed");
@@ -65,7 +66,7 @@ class GridFile {
     for (var columnList in linearScalesRect) { //columns
       y=0;
       for (var rowElement in columnList) { //each row rectangle
-        var cellNodes = jRepo.allNodesInRectangle(rowElement); //all nodes in that rectangle
+        var cellNodes = allNodesInRectangle(rowElement); //all nodes in that rectangle
 
             blockMap[blockCount] = cellNodes; //block will not overflow: add nodes (IF WE CHANGE THIS, WE HAVE TO DO AN ADD ALL HERE)
             gridArray[x][y] = blockCount; //add key to directory
@@ -106,12 +107,12 @@ class GridFile {
   Tuple2<double, double> averageMunicipalitySize(){
     double height = 0;
     double width = 0;
-    for (var element in jRepo.relations) {
-      height += element.boundingBox!.height;
-      width += element.boundingBox!.width;
+    for (var element in relations) {
+        height += element.boundingBox!.height;
+        width += element.boundingBox!.width;
     }
     //average height, average width
-    return Tuple2((height/(jRepo.relations.length)/1), (width/(jRepo.relations.length)/1));
+    return Tuple2((height/(relations.length)/1), (width/(relations.length)/1));
   }
 
 
@@ -146,14 +147,14 @@ class GridFile {
     });
 
     int polyCheckCount = 0;
-    var bounds = jRepo.getMunilist([query.name]);
+    var bounds = getMunilist([query.name]);
     //grab all nodes of one or more each blocks.
     blockKeys.forEach((element) {
       //returns all nodes of the block that is amenity and within the polygon
       var blockNodes = blockCollection[element]!;
       for (var node in blockNodes) {
         if(node.isAmenity){
-          //if(pointInRect(node, query.boundingBox!)){
+          if(pointInRect(node, query.boundingBox!)){
             for (int i = 0; i < bounds.length; i++) {
               polyCheckCount++;
               if (jsonRepository.isPointInPolygon(LatLng(node.lat, node.lon), bounds[i])) {
@@ -161,7 +162,7 @@ class GridFile {
                 break;
               }
             }
-          //}
+          }
         }
       }
     });
@@ -169,6 +170,37 @@ class GridFile {
     //print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;
    }
+  List<List<LatLng>> getMunilist(List<String> municipalities){
+
+    List<List<LatLng>> list = [];
+    var muni = relations.where((element) => municipalities.contains(element.name));
+    for (var boundary in muni) {
+      if(boundary.isMulti){
+        for (var coordList in boundary.multiBoundaryCoords!) {
+          list.add(coordList);
+        }
+      }
+      else{
+        list.add(boundary.boundaryCoords);
+      }
+    }
+    return list;
+
+  }
+  List<Node> allNodesInRectangle(Rectangle rect){
+    List<Node> nodesList  = [];
+    nodes.forEach((node) {
+      if(rect != null){
+        if(node.lon >= rect.left &&
+            node.lon <= rect.left + rect.width &&
+            node.lat >= rect.top &&
+            node.lat <= rect.top + rect.height){
+          nodesList.add(node);
+        }
+      }
+    });
+    return nodesList;
+  }
 
   bool pointInRect (Node node, Rectangle rect){
     return (node.lon >= rect.left &&

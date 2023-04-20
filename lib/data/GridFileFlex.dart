@@ -22,12 +22,13 @@ class GridFileFlex {
  //Block/Bucket capacity; how many records (nodes) fits here - some value we "assume".
   late int cellCapacity;
   late final Rectangle<num> bounds; //Bounding box of the country
-  jsonRepository jRepo;
+  late List<MunicipalityRelation> relations;
+  late List<Node> nodes;
 
-  GridFileFlex(this.bounds, this.jRepo, this.cellCapacity); //data kan vi bare tage fra repo
+  GridFileFlex(this.bounds, this.relations,this.nodes, this.cellCapacity); //data kan vi bare tage fra repo
 
   void initializeGrid(){
-    print("Grid File Fixed");
+    print("Grid File Flex");
     var cellSize = averageMunicipalitySize();
     double height = cellSize.item1;
     double width = cellSize.item2;
@@ -76,7 +77,7 @@ class GridFileFlex {
       for(int y = 0 ; y<scales[x].length ; y++){ //for each cell up
 
         var cellRect = scales[x][y];
-        var cellNodes = jRepo.allNodesInRectangle(cellRect);
+        var cellNodes = allNodesInRectangle(cellRect);
 
         if(cellNodes.length == 0){ //if there are no cells in the node, we dont want to save and search through an empty cell.
           scales[x].removeAt(y);
@@ -130,21 +131,21 @@ class GridFileFlex {
   Tuple2<double, double> averageMunicipalitySize(){
     double height = 0;
     double width = 0;
-    for (var element in jRepo.relations) {
+    for (var element in relations) {
       height += element.boundingBox!.height;
       width += element.boundingBox!.width;
     }
     //average height, average width
-    return Tuple2((height/(jRepo.relations.length)/3), (width/(jRepo.relations.length)/3));
+    return Tuple2((height/(relations.length)/6), (width/(relations.length)/6));
   }
 
 
   //Given a range query (rectangle), find all intersecting cells of the grid
   //find the block pointers of the cells in the directory
   //return the blocks that match.
-  List<Node> find (MunicipalityRelation query){
+  List<List<Node>> find (MunicipalityRelation query){
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<Node> nodes = [];
+    List<List<Node>> nodes = [[],[]];
 
     List<Tuple2<int, int>> containingIndices = [];
     Stopwatch stopwatch2 = new Stopwatch()..start();
@@ -169,7 +170,7 @@ class GridFileFlex {
       blockKeys.add(gridArray[element.item1][element.item2]);
     });
 
-    var bounds = jRepo.getMunilist([query.name]);
+    var bounds = getMunilist([query.name]);
     //grab all nodes of one or more each blocks.
     blockKeys.forEach((element) {
       if(element != 0){
@@ -177,12 +178,8 @@ class GridFileFlex {
         for (var node in blockNodes) {
           if(node.isAmenity){
             if(pointInRect(node, query.boundingBox!)){
-              for (int i = 0; i < bounds.length; i++) {
-                if (jsonRepository.isPointInPolygon(LatLng(node.lat, node.lon), bounds[i])) {
-                  nodes.add(node);
-                  break;
-                }
-              }
+                  nodes[1].add(node);
+
             }
           }
         }
@@ -193,6 +190,37 @@ class GridFileFlex {
     //print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;
   }
+  List<Node> allNodesInRectangle(Rectangle rect){
+    List<Node> nodesList  = [];
+    nodes.forEach((node) {
+      if(rect != null){
+        if(node.lon >= rect.left &&
+            node.lon <= rect.left + rect.width &&
+            node.lat >= rect.top &&
+            node.lat <= rect.top + rect.height){
+          nodesList.add(node);
+        }
+      }
+    });
+    return nodesList;
+  }
+  List<List<LatLng>> getMunilist(List<String> municipalities){
+    List<List<LatLng>> list = [];
+    var muni = relations.where((element) => municipalities.contains(element.name));
+    for (var boundary in muni) {
+      if(boundary.isMulti){
+        for (var coordList in boundary.multiBoundaryCoords!) {
+          list.add(coordList);
+        }
+      }
+      else{
+        list.add(boundary.boundaryCoords);
+      }
+    }
+    return list;
+
+  }
+
 
   bool pointInRect (Node node, Rectangle rect){
     return (node.lon >= rect.left &&
