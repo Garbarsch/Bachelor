@@ -30,7 +30,7 @@ class queriesGrid{
     return   polyList+ gridpolygons + boundary  ;
   }
 
-  List<query_model> bulletQuery(String muni, MunicipalityRelation muniRect) {//den her skal også fikses.
+  List<query_model> bulletQuery(String muni, MunicipalityRelation muniRect) {//den her skal ogsÃ¥ fikses.
     List<query_model> mun =[];
 
     var munici = repo.relations.where((element) => element.name == muni).first;
@@ -60,7 +60,7 @@ class queriesGrid{
             //  nodes.add(match);
           }
         }        //  nodes.add(match);
-               switch (match.tags?["amenity"]) {
+        switch (match.tags?["amenity"]) {
           case "restaurant":
             if(i ==0) {
               restaurantscounter++;
@@ -87,9 +87,9 @@ class queriesGrid{
     }
 
     mun.add((query_model("Population: ", munici.population!)));
-    mun.add(query_model("Cafes: ", repo.getAmenityNodesFromNodes(muniNodes, muni, "cafe").value)); //getAmenityNodesFromNdes for PGrid and getAmenityNdesInMuni for normal grid
-    mun.add(query_model("Restuarants: ", repo.getAmenityNodesFromNodes(muniNodes, muni, "restaurant").value));
-    mun.add(query_model("Train stations: ", repo.getAmenityNodesFromNodes(muniNodes, muni, "station").value));
+    mun.add(query_model("Cafes: ", cafecounter)); //getAmenityNodesFromNdes for PGrid and getAmenityNdesInMuni for normal grid
+    mun.add(query_model("Restaurants: ", restaurantscounter));
+    mun.add(query_model("Train stations: ", stationcounter));
 
     return mun;
   }
