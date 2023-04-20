@@ -19,7 +19,7 @@ void main() async {
       print("load JSON time: ${stopwatch.elapsed.inMilliseconds}");
 
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(repo.relations,repo.nodes);
+      var gridFile = GridFile(denmarkBounds,repo.relations,repo.nodes);
       gridFile.initializeGrid();
 
       expect(gridFile.gridArray, isNotNull);
@@ -29,7 +29,7 @@ void main() async {
 
     test("linearScales correspondence with gridFile (directory", () {
       Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-      var gridFile = GridFile(repo.relations,repo.nodes);
+      var gridFile = GridFile(denmarkBounds,repo.relations,repo.nodes);
       gridFile.initializeGrid();
 
       var scalesLatLength = gridFile.linearScalesRectangles.length;
@@ -83,7 +83,7 @@ void main() async {
       test("grid file FIND on Københavns Kommune contains all the boundary box nodes", () async {
         await repo.loadJsonData();
         Rectangle denmarkBounds = repo.addBoundingBoxToDenmark();
-        var gridFile = GridFile(denmarkBounds, repo);
+        var gridFile = GridFile(denmarkBounds, repo.relations,repo.nodes);
         gridFile.initializeGrid();
 
         var CPH = repo.relations.firstWhere((element) => element.name == "Aarhus Kommune");
