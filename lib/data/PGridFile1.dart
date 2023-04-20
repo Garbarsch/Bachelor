@@ -33,6 +33,7 @@ class PGridFile1 {
   PGridFile1(this.bounds,this.relations,this.nodes ); //data kan vi bare tage fra repo
 
   void initializeGrid(){
+    print("PGridFile1");
     var cellSize = averageMunicipalitySize();
     double height = cellSize.item1;
     double width = cellSize.item2;
@@ -124,20 +125,23 @@ class PGridFile1 {
     return Tuple2((height / relations.length) / 6, (width / relations.length) / 6);
   }
 
-  //Given a range query (rectangle), find all intersecting cells of the grid
-  //find the block pointers of the cells in the directory
-  //return the blocks that match.
-  List<List<Node>> find (MunicipalityRelation query){
-
+// Given a range query (rectangle), find all intersecting cells of the grid,
+// find the block pointers of the cells in the directory, and return the nodes of the blocks that match.
+  List<List<Node>> find(MunicipalityRelation query) {
+    // Create a stopwatch to measure the performance of the function.
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<List<Node>> nodes = [[],[]];
+
+    // Initialize variables for storing nodes, polygon boundaries, concave points, and containing indices.
+    List<List<Node>> nodes = [];
     List<List<LatLng>> polyBounds = getMunilist([query.name]);
     List<List<LatLng>> concavePoints = getConcavePointsOfPolygon(polyBounds);
     List<Tuple2<int, int>> containingIndices = [];
 
+    // Create a stopwatch to measure the time it takes to find intersecting cells.
     Stopwatch stopwatch2 = new Stopwatch()..start();
-    //Search the grid for cells that intersect the query rectangle and save their indices
-    for (int i = 0; i < linearScalesRectangles.length; i++){
+
+    // Search the grid for cells that intersect the query rectangle and save their indices.
+    for (int i = 0; i < linearScalesRectangles.length; i++) {
       List<Rectangle> innerList = linearScalesRectangles[i];
       List<Tuple2<int, int>> intersectingIndices = innerList
           .asMap()
@@ -150,15 +154,18 @@ class PGridFile1 {
         containingIndices.addAll(intersectingIndices);
       }
     }
-
     print("PGrid File1 find intersecting cells time: ${stopwatch2.elapsed.inMilliseconds}");
 
+    // Create a stopwatch to measure the time it takes to sort cell statuses.
     Stopwatch stopwatch3 = new Stopwatch()..start();
-    //List<List<Node>> = []
-    nodes = cellStatusSort(containingIndices, polyBounds,concavePoints, query.boundingBox!);
+
+    // Sort cell statuses and return the resulting nodes.
+    nodes = cellStatusSort(containingIndices, polyBounds, concavePoints, query.boundingBox!);
     print("cellStatusSort Time: ${stopwatch3.elapsed.inMilliseconds}");
 
-    print("PGrid1 File Total Find Time: ${stopwatch.elapsed.inMilliseconds}");
+    // Print the total time it took to execute the function.
+    print("PGrid File1 Total Find Time: ${stopwatch.elapsed.inMilliseconds}");
+
     return nodes;
   }
 

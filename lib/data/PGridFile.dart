@@ -33,6 +33,7 @@ class PGridFile {
   PGridFile(this.bounds, this.relations,this.nodes); //data kan vi bare tage fra repo
 
   void initializeGrid(){
+    print("PGridFile (subgrid)");
     var cellSize = averageMunicipalitySize();
     double height = cellSize.item1;
     double width = cellSize.item2;
