@@ -31,6 +31,7 @@ class GridFile {
   //Collection of blocks - map is well suited for a small collection, but is it scalable? it is for now at least.
   late final Map<int, List<Node>> blockCollection; //b-tree or quadtree.
 
+  late int blockCapacity; //Block/Bucket capacity; how many records (nodes) fits here - some value we "assume".
   late final Rectangle<num> bounds; //Bounding box of the country
   late List<MunicipalityRelation> relations;
   late List<Node> nodes;
@@ -119,9 +120,9 @@ class GridFile {
   //Given a range query (rectangle), find all intersecting cells of the grid
   //find the block pointers of the cells in the directory
   //return the blocks that match.
-  List<Node> find (MunicipalityRelation query){
+  List<List<Node>> find (MunicipalityRelation query){
     Stopwatch stopwatch = new Stopwatch()..start();
-    List<Node> nodes = [];
+    List<List<Node>> nodes = [[],[]];
 
     List<Tuple2<int, int>> containingIndices = [];
 
@@ -155,16 +156,10 @@ class GridFile {
       for (var node in blockNodes) {
         if(node.isAmenity){
           if(pointInRect(node, query.boundingBox!)){
-            for (int i = 0; i < bounds.length; i++) {
-              polyCheckCount++;
-              if (jsonRepository.isPointInPolygon(LatLng(node.lat, node.lon), bounds[i])) {
-                nodes.add(node);
-                break;
-              }
+                nodes[1].add(node);
             }
           }
         }
-      }
     });
     print("isPointInPolygon checked: ${polyCheckCount}");
     //print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");

@@ -30,6 +30,7 @@ void main() async {
         var bounds = repo.getMunilist(["Aarhus Kommune"]);
         print(nodes[0].length);
         print(nodes[1].length);
+        
         for( var element in nodes[1]){
           for (int j = 0; bounds.length > j; j++) {
             if (jsonRepository.isPointInPolygon(
