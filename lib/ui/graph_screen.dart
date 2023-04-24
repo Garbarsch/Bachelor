@@ -25,6 +25,7 @@ class MyGraphPage extends StatelessWidget {
   List<List<query_model>> querymodel = [];
   List<String> bullet1 = [];
   List<String> bullet2 = [];
+  var selectedchoices = [];
   var a;
   MyGraphPage({
   super.key,
@@ -35,7 +36,7 @@ class MyGraphPage extends StatelessWidget {
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
     builder: (_) => MyGraphPage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
-  late queriesGrid query = repo.grid;
+  late queriesGrid query = queriesGrid(repo, csvRepo);
   @override
   Widget build(BuildContext context) {
 
@@ -51,20 +52,42 @@ class MyGraphPage extends StatelessWidget {
                     if (state is graphLoaded) {
                      data = state.muni;
                      querymodel = state.querymodel;
+
                     }
 
                     else {
                       return Text("hallo");
                     }
+
                     if(data.isEmpty){
-                      if(state.querymodel.isNotEmpty){
+
+                      print("længde");
+                      print(state.querymodel.length);
+                      if(state.querymodel.isNotEmpty && state.querymodel.length>=4){
+
+
                         if(state.type == "Education"){
-                          return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width,
+                          if(state.querymodel.length>2) {
+                            bullet1 = [];
+                            bullet2 = [];
+                            for (int i = 0; i < state.querymodel[4].length; i++) {
+                              bullet1.add(state.querymodel[4][i].x + state
+                                  .querymodel[4][i].y.toString());
+                              bullet2.add(state.querymodel[5][i].x + state
+                                  .querymodel[5][i].y.toString());
+                            }
+                          }
+                          selecteChoices = [];
+
+
+                          selectedchoices.add(state.querymodel[3].first.x);
+                          selectedchoices.add(state.querymodel[2][1].x);
+                          return Positioned(top: 100, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width,
                               child: Stack(
                                 children: [Positioned(left:MediaQuery.of(context).size.width-200,right: 10,top:
-                                150,bottom: 10,child: Stack(children: [  Text(selecteChoices
-                                    .first),
-                                  BulletedList(listItems: bullet1, ), Positioned( top: 170,right:0,left:0,bottom:0,child: Stack( children:[ Text(selecteChoices.last),  BulletedList(listItems: bullet2, )]))])),
+                                150,bottom: 10,child: Stack(children: [  Text(selectedchoices
+                                    .first), Positioned(top: 20,width: 200,child:
+                                BulletedList(listItems: bullet1, )), Positioned( top: 190,right:0,left:0,bottom:0,child: Stack( children:[ Text(selectedchoices.last), Positioned(top: 20,width: 200,child: BulletedList(listItems: bullet2, ))]))])),
                                   Positioned(top: 40, bottom: MediaQuery.of(context).size.height/2.2, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
                                   child: Stack(
                                     children: [
@@ -133,7 +156,7 @@ class MyGraphPage extends StatelessWidget {
                                   ),
                                   Positioned(top: MediaQuery.of(context).size.height/2.2, bottom: 10, left: MediaQuery.of(context).size.width/3, right: 150,child: Container(height: MediaQuery.of(context).size.height/3, width: MediaQuery.of(context).size.width/1.35,
                                       child: SfCartesianChart(
-                                        title: ChartTitle(text: "Applicant information"),
+                                        title: ChartTitle(text: "Applier information"),
                                         legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
                                         tooltipBehavior: TooltipBehavior(enable: true),
                                         primaryXAxis: CategoryAxis(
@@ -141,27 +164,27 @@ class MyGraphPage extends StatelessWidget {
                                         ),
                                         series: <CartesianSeries>[
                                           ColumnSeries<query_model,String>(
-                                            name: "Applicants",
+                                            name: "Appliers",
                                             dataSource: querymodel[3],
                                             xValueMapper: (query_model data, _) => data.x,
                                             yValueMapper: (query_model data,_) => data.y,
                                               enableTooltip: true,
-                                              legendItemText: "Applicants"
+                                              legendItemText: "Appliers"
                                           ),
                                           ColumnSeries<query_model,String>(
-                                            name:"Accepted applicants",
+                                            name:"Accepted Appliers",
                                             dataSource: querymodel[3],
                                             xValueMapper: (query_model data, _) => data.x,
                                             yValueMapper: (query_model data,_) => data.y2,
                                               enableTooltip: true,
-                                              legendItemText: "Accepted applicants"
+                                              legendItemText: "Accepted Appliers"
                                           ),ColumnSeries<query_model,String>(
-                                            name:"Applicants per 10.000 resident",
+                                            name:"Appliers per 10.000 resident",
                                             dataSource: querymodel[3],
                                             xValueMapper: (query_model data, _) => data.x,
                                             yValueMapper: (query_model data,_) => data.y3,
                                               enableTooltip: true,
-                                              legendItemText: "Applicants per 10.000 resident"
+                                              legendItemText: "Appliers per 10.000 resident"
                                           ),
 
                                         ],
@@ -174,9 +197,53 @@ class MyGraphPage extends StatelessWidget {
 
 
                               )));
+
+                        }
+                        print(state.querymodel.first.length);
+                        if(state.type == "Entertainment" && state.querymodel.first.length ==7 && query.grid == false ) {
+    selecteChoices.add(state.querymodel.first.first.x);
+    selecteChoices.add(state.querymodel[2].first.x);
+    state.querymodel.first.removeAt(0);
+    state.querymodel[2].removeAt(0);
+
+    }else if (state.type == "Entertainment" && state.querymodel.first.length ==7 && query.grid == true){
+    selecteChoices.add(state.querymodel.first.first.x);
+    selecteChoices.add(state.querymodel[2].first.x);
+    state.querymodel.first.removeAt(0);
+    state.querymodel[2].removeAt(0);
+                        }
+    else if(state.type == "Transportation" && state.querymodel.first.length ==3 && query.grid == false) {
+    print("jeg kommer her???");
+    selecteChoices.add(state.querymodel.first.first.x);
+    selecteChoices.add(state.querymodel.first[2].x);
+    state.querymodel.first.removeAt(0);
+    state.querymodel[2].removeAt(0);
+    }
+     else if(state.type == "Transportation" && state.querymodel.first.length ==3 && query.grid == true){
+      print("jeg kommer her");
+      selecteChoices.add(state.querymodel.first.first.x);
+      selecteChoices.add(state.querymodel[2].first.x);
+      state.querymodel.first.removeAt(0);
+      state.querymodel[2].removeAt(0);
                         }
 
-                        if(state.querymodel.length>2) {
+    else if(state.type == "Restaurants" && state.querymodel.first.length ==3 && query.grid == false) {
+      selecteChoices.add(state.querymodel.first.first.x);
+    selecteChoices.add(state.querymodel[2].first.x);
+    state.querymodel.first.removeAt(0);
+    state.querymodel[2].removeAt(0);
+
+    }else if (state.type == "Restaurants" && state.querymodel.first.length ==3 && query.grid == true){
+      selecteChoices.add(state.querymodel.first.first.x);
+      selecteChoices.add(state.querymodel[2].first.x);
+      state.querymodel.first.removeAt(0);
+      state.querymodel[2].removeAt(0);
+
+    }
+
+
+
+                        if(state.querymodel.length>2 ) {
                           bullet1 = [];
                           bullet2 = [];
                           for (int i = 0; i < state.querymodel[3].length; i++) {
@@ -186,11 +253,16 @@ class MyGraphPage extends StatelessWidget {
                                 .querymodel[3][i].y.toString());
                           }
                         }
-                        return Positioned(top: 90, bottom: 0, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width,
+
+                        if(selecteChoices.isEmpty){
+                          return const Text("Choose municipality");
+                        }
+                        selectedchoices = [];
+                        return Positioned(top: 100, bottom: 0, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width,
                             child: Stack( children:[Positioned(left:MediaQuery.of(context).size.width-200,right: 10,top:
                                 150,bottom: 10,child: Stack(children: [  Text(selecteChoices
-                            .first),
-                            BulletedList(listItems: bullet1, ), Positioned( top: 170,right:0,left:0,bottom:0,child: Stack( children:[ Text(selecteChoices.last),  BulletedList(listItems: bullet2, )]))])),Positioned(top: 10,bottom: 0, child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35, child: SfCartesianChart(
+                            .first), Positioned(top: 20,width: 200,child:
+                            BulletedList(listItems: bullet1, )), Positioned( top: 190,right:0,left:0,bottom:0,child: Stack( children:[ Text(selecteChoices.last), Positioned(top: 20,width: 200,child: BulletedList(listItems: bullet2, ))]))])),Positioned(top: 10,bottom: 0, child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width -200, child: SfCartesianChart(
 
                                 primaryXAxis: CategoryAxis(),
                                 legend: Legend(
@@ -207,14 +279,10 @@ class MyGraphPage extends StatelessWidget {
                                   ColumnSeries<query_model,String>(dataSource: querymodel[2], xValueMapper: (query_model data,_) => data.x,yValueMapper: (query_model data,_) => data.y,legendItemText: selecteChoices.last,  )
                                 ])))
                             ])));
+                        
 
                       }
-                    return Positioned(top: 90, bottom: 10, left: 10,child: Container(height: MediaQuery.of(context).size.width -720, width: MediaQuery.of(context).size.width/1.35,
-                    child: SfCartesianChart( primaryXAxis: CategoryAxis(),
-                        series:<ChartSeries<Munidata, String>>
-
-                    [ ColumnSeries<Munidata,String>(dataSource: data,xValueMapper: (Munidata data,_) => data.name.toString(),yValueMapper: (Munidata data,_) => data.value)
-                    ])));
+                      return const Text("Choose municipality");
                   } else{
                       return const Text("Choose municipality");
                     }
@@ -228,7 +296,7 @@ class MyGraphPage extends StatelessWidget {
                           border: Border.all(width: 45.0, color: Colors.black),
 
                         ),
-                        child: const Text('  Detailed Graph',
+                        child: const Text('  Detailed Graph Overview',
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25, height:1.5)),
 
                       )),
@@ -236,16 +304,16 @@ class MyGraphPage extends StatelessWidget {
     child:  ElevatedButton(
 
           child: Text('Go back', style: TextStyle(fontSize: 15.0),),
-            onPressed: () {Navigator.of(context).push(MyHomePage.route(context, repo, csvRepo))
-            ;
-            print(context.read<GraphPageBloc>().state);},
+            onPressed: () {
+            Navigator.of(context).pop(MyHomePage.route(context, repo, csvRepo))
+            ;},
 
             ))), Container(height: MediaQuery.of(context).size.height ), Positioned(top:10 , bottom: MediaQuery.of(context).size.height-150, left: 20, right: MediaQuery.of(context).size.width -263 ,child: SizedBox(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width,
                       child:  DropDownMultiSelect(
                         options: (repo.relations.map((e) => e.name!).toList()),
-                        selectedValues: selecteChoices,
+                        selectedValues: [],
                         onChanged: (List<String> value) {
-                          selecteChoices = value;
+
                           //print(selecteChoices);
                           //print(choice);
                           if(value.length == 2) {
@@ -257,6 +325,7 @@ class MyGraphPage extends StatelessWidget {
                                         value.last), type: "Transportation"
 
                                   ));
+                              value.clear();
                             }
                             if (choice == "Entertainment") {
                               context.read<GraphPageBloc>().add(
@@ -266,6 +335,7 @@ class MyGraphPage extends StatelessWidget {
                                         value.last),
                                         type: "Entertainment"
                                   ));
+                              value.clear();
                             }
                             if (choice == "Restaurants") {
                               context.read<GraphPageBloc>().add(
@@ -274,6 +344,7 @@ class MyGraphPage extends StatelessWidget {
                                       value.first, value.last),
                                       type: "Restaurants"
                                   ));
+                              value.clear();
                             }
                             if (choice == "Education") {
                               context.read<GraphPageBloc>().add(
@@ -282,6 +353,7 @@ class MyGraphPage extends StatelessWidget {
                                       query.educationQuery(value.first,
                                       value.last), type: "Education"
                                   ));
+                              value.clear();
 
                             }
 
@@ -293,7 +365,7 @@ class MyGraphPage extends StatelessWidget {
                         'Choose filter',
 
 
-                      ), )),  Positioned(top: 55, bottom: MediaQuery.of(context).size.height-95, left:10 ,right: MediaQuery.of(context).size.width/8 ,
+                      ), )),  Positioned(top: 55, bottom: MediaQuery.of(context).size.height-95, left:10 ,right: MediaQuery.of(context).size.width - 1100 ,
     child: CustomRadioButton( buttonTextStyle: const ButtonTextStyle(
           selectedColor: Colors.black,
           unSelectedColor: Colors.black,
@@ -326,11 +398,42 @@ class MyGraphPage extends StatelessWidget {
                         selecteChoices.last),type: "Restaurants"));
               }
               if (values.toString() == "Education") {
+                print(selecteChoices.length);
+
                 context.read<GraphPageBloc>().add(
                     updateGraph(
                         data: [], querymodel:
                     query.educationQuery(selecteChoices.first,
                         selecteChoices.last), type: "Education"
+                    ));
+              }
+            }
+            if(selectedchoices.isNotEmpty) {
+              if (values.toString() == "Entertainment") {
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel: query.entertainmentQuery( selectedchoices.first,
+                        selectedchoices.last),type: "Entertainment"));
+              }
+              if (values.toString() == "Transportation") {
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel: query.transportationQuery(selectedchoices.first,
+                        selectedchoices.last),type: "Transportation"));
+              }
+              if (values.toString() == "Restaurants") {
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel: query.foodQuery(selectedchoices.first,
+                        selectedchoices.last),type: "Restaurants"));
+              }
+              if (values.toString() == "Education") {
+
+                context.read<GraphPageBloc>().add(
+                    updateGraph(
+                        data: [], querymodel:
+                    query.educationQuery(selectedchoices.first,
+                        selectedchoices.last), type: "Education"
                     ));
               }
             }

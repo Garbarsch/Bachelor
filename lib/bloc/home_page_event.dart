@@ -15,11 +15,12 @@ class loadpage extends HomePageEvent{
 class SearchEvent extends HomePageEvent{}
 
 class addMarkers extends HomePageEvent {
-  final List<LatLng> coords;
-  const addMarkers({required this.coords});
+  final List<Marker> coords;
+  final List<Polygon> muni;
+  const addMarkers({required this.coords, required this.muni} );
 
   @override
-  List<Object> get props => [coords];
+  List<Object> get props => [coords,muni];
 
 }
 class showMunicipalities extends HomePageEvent {

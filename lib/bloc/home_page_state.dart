@@ -17,7 +17,7 @@ class HomePageInitial extends HomePageState {
 }
 class homeLoaded extends HomePageState{
 
-  final List<LatLng> coords;
+  final List<Marker> coords;
   final List<LatLng> coordsMuni;
   final List<Polygon> coordsMultiMuni;
 

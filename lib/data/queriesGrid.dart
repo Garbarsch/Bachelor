@@ -3,6 +3,7 @@ part of 'package:github_client/data/jsonRepository.dart';
 class queriesGrid{
   final jsonRepository repo;
   final csvRepository csvRepo;
+  bool grid = true;
 
 
   queriesGrid(this.repo, this.csvRepo);
@@ -13,6 +14,7 @@ class queriesGrid{
     List<Polygon> boundary = [];
     List<Polygon> polyList = repo.getMuniPolygons([muni]);
     //List<Polygon> polyList2 = repo.getLargestMuniPolygon([muni]);
+
 
     Rectangle<num>? muni1Rect = repo.relations.firstWhere((element) => element.name == muni).boundingBox;
 
@@ -353,12 +355,13 @@ class queriesGrid{
       }
 
     }
-    mun.add(query_model("Train Stations:", stationcounter));
-    mun.add(query_model("Bus Stations:", busstationcounter));
-    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
-    bullet.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Restaurants:", restaurantscounter));
-    bullet.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model(muni,restaurantscounter));
+    mun.add(query_model("Train Stations: ", stationcounter));
+    mun.add(query_model("Bus Stations: ", busstationcounter));
+    bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Restaurants: ", restaurantscounter));
+    bullet.add(query_model("Train Stations: ", stationcounter));
     model.add(mun);
     model.add(bullet);
     return model;
@@ -417,12 +420,13 @@ class queriesGrid{
       }
 
     }
-    mun.add(query_model("Restaurants:", restaurantscounter));
-    mun.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
-    bullet.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Restaurants:", restaurantscounter));
-    bullet.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model(muni,restaurantscounter));
+    mun.add(query_model("Restaurants: ", restaurantscounter));
+    mun.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Restaurants: ", restaurantscounter));
+    bullet.add(query_model("Train Stations: ", stationcounter));
     model.add(mun);
     model.add(bullet);
     return model;
@@ -446,6 +450,8 @@ class queriesGrid{
     int cafecounter =0;
     int restaurantscounter = 0;
     int stationcounter = 0;
+    int barcounter = 0;
+    int nightclub = 0;
 
     for(int i = 0; i <nodesFromRect.length; i++){
     for (Node match in nodesFromRect[i]) {
@@ -469,7 +475,7 @@ class queriesGrid{
           } else {
             for(int j =0; munilist.length> j; j++) {
               if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
-                nightlifecounter++;
+                barcounter++;
               }}}
           // nodes.add(match);
           break;
@@ -479,7 +485,7 @@ class queriesGrid{
           } else {
             for(int j =0; munilist.length> j; j++) {
               if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
-                nightlifecounter++;
+                barcounter++;
               }}}
           //nodes.add(match);
           break;
@@ -489,7 +495,7 @@ class queriesGrid{
           } else {
             for(int j =0; munilist.length> j; j++) {
               if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
-                nightlifecounter++;
+                nightclub++;
               }}}
           //nodes.add(match);
           break;
@@ -557,15 +563,17 @@ class queriesGrid{
     }
 
     }
-    mun.add(query_model("Nightlife", nightlifecounter));
-    mun.add(query_model("Cinema", cinemacounter));
-    mun.add(query_model("Art Centres", art_centrecounter));
-    mun.add(query_model("Community Centres", community_centrecounter));
-    mun.add(query_model("Music Venues", music_venuecounter));
-    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
-    bullet.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Restaurants:", restaurantscounter));
-    bullet.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model(muni,restaurantscounter));
+    mun.add(query_model("Bars ", barcounter));
+    mun.add(query_model("Nightclubs ", nightclub));
+    mun.add(query_model("Cinemas ", cinemacounter));
+    mun.add(query_model("Art Centres ", art_centrecounter));
+    mun.add(query_model("Community Centres ", community_centrecounter));
+    mun.add(query_model("Music Venues ", music_venuecounter));
+    bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Restaurants: ", restaurantscounter));
+    bullet.add(query_model("Train Stations: ", stationcounter));
     model.add(mun);
     model.add(bullet);
     return model;

@@ -17,6 +17,7 @@ import 'package:github_client/models/query/query_model.dart';
 import '../models/school_model.dart';
 import 'GridFile.dart';
 import 'PGridFile.dart';
+import 'package:flutter_map/flutter_map.dart';
 part 'package:github_client/data/queriesGrid.dart';
 part 'package:github_client/data/queries.dart';
 
@@ -59,7 +60,7 @@ class jsonRepository{
   }
 
    void IniGrid(){
-    grid = GridFileFlex(addBoundingBoxToDenmark(), relations,nodes,30000);
+    grid = GridFile(addBoundingBoxToDenmark(), relations,nodes);
     grid.initializeGrid();}
 
   //New File of original JSON + seeded nodes
@@ -231,77 +232,86 @@ class jsonRepository{
 
 
 
-  List <LatLng> getCoords(List<String> type){
-    List<List<LatLng>> coords = [];
-    if (type.contains("Cafe")){
-      coords.add(getCafesCoords());
-    }
-    if (type.contains("Restaurants")){
-      coords.add(getRestaurantCoords()); //ret her!!!
-    }
-    if (type.contains("Bus Stop")){
-      coords.add(getBusCoords());
-    }
-    if (type.contains("Higher Education")){
-      coords.add(getHigherEducationCoords());
-    }
-    if (type.contains("Cinemas")){
-      coords.add(getCinemaCoords());
-    }
-    if (type.contains("Dentists")){
-      coords.add(getDentistCoords());
-    }
-    if (type.contains("Clinics")){
-      coords.add(getClinicsCoords());
-    }
-    if (type.contains("Train Station")){
-      coords.add(getTrainStationCoords());
-    }
-    if (type.contains("Library")){
-      coords.add(getLibraryCoords());
-    }
-    if (type.contains("BarPubNightClub")){
-      coords.add(getBarPubNightClubCoords());
-    }
-    if (type.contains("Training")){
-      coords.add(getTrainingCoords());
-    }
-    if (type.contains("Hospital")){
-      coords.add(getHospitalCoords());
-    }
-    if (type.contains("Arts Centre")){
-      coords.add(getArtsCentreCoords());
-    }
-    if (type.contains("Community Centre")){
-      coords.add(getCommunityCentreCoords());
-    }
-    if (type.contains("Events Venue")){
-      coords.add(getEventsVenueCoords());
-    }
-    if (type.contains("Exhibiton Centre")){
-      coords.add(getExhibitionCentreCoords());
-    }
-    if (type.contains("Conference Centre")){
-      coords.add(getConferenceCentreCoords());
-    }
-    if (type.contains("Music Venue")){
-      coords.add(getMusicVenueCoords());
-    }
-    if (type.contains("Social Centre")){
-      coords.add(getSocialCentreCoords());
-    }
-    if (type.contains("Theatre")){
-      coords.add(getTheatreCoords());
-    }
-    if (type.contains("Fire Station")){
-      coords.add(getFireStationCoords());
-    }
-    if (type.contains("Police")){
-      coords.add(getPoliceCoords());
-    }
+  List <Marker> getMarkers(List<String> type, List<Polygon> muni){
 
-    return coords.expand((e)=>e).toList();
+    List<List<Marker>> coords = [];
+    if(muni.isEmpty) {
+      if (type.contains("Cafes")) {
+        coords.add(getCafesMarkers());
+      } else {
+        
+      }
+      if (type.contains("Restaurants")) {
+        coords.add(getRestaurantMarkers()); //ret her!!!
+      }
+      if (type.contains("Bus Stations")) {
+        coords.add(getBusMarkers());
+      }
+      if (type.contains("Cinemas")) {
+        coords.add(getCinemaMarkers());
+      }
 
+      if (type.contains("Train Stations")) {
+        coords.add(getTrainStationMarkers());
+      }
+      if (type.contains("Bars")) {
+        coords.add(getBarMarkers());
+      }
+      if (type.contains("Nightclubs")) {
+        coords.add(getNightclubMarkers());
+      }
+
+      if (type.contains("Art Centres")) {
+        coords.add(getArtsCentreMarkers());
+      }
+      if (type.contains("Community Centres")) {
+        coords.add(getCommunityCentreMarkers());
+      }
+      if (type.contains("Events Venue")) {
+        coords.add(getEventsVenueMarkers());
+      }
+      if (type.contains("Music Venues")) {
+        coords.add(getMusicVenueMarkers());
+      }
+
+    } else {
+      if (type.contains("Cafes")) {
+        coords.add(getCafeForMuniMarkers(muni));
+      }
+      if (type.contains("Restaurants")) {
+        coords.add(getRestaurantForMuniMarkers(muni)); //ret her!!!
+      }
+      if (type.contains("Bus Stations")) {
+        coords.add(getBusForMuniMarkers(muni));
+      }
+      if (type.contains("Cinemas")) {
+        coords.add(getCinemaForMuniMarkers(muni));
+      }
+
+      if (type.contains("Train Stations")) {
+        coords.add(getTrainForMuniMarkers(muni));
+      }
+      if (type.contains("Bars")) {
+        coords.add(getBarForMuniMarkers(muni));
+      }
+      if (type.contains("Nightclubs")) {
+        coords.add(getNighclubForMuniMarkers(muni));
+      }
+
+      if (type.contains("Art Centres")) {
+        coords.add(getArtsCentreForMuniMarkers(muni));
+      }
+      if (type.contains("Community Centres")) {
+        coords.add(getCommunityCentreForMuniMarkers(muni));
+      }
+      if (type.contains("Events Venue")) {
+        coords.add(getEventsVenueForMuniMarkers(muni));
+      }
+      if (type.contains("Music Venues")) {
+        coords.add(getMusicVenueForMuniMarkers(muni));
+      }
+    }
+    return coords.expand((e) => e).toList();
   }
 
   //get all cafes
@@ -314,6 +324,24 @@ class jsonRepository{
     }
     return tupList;
   }
+  List<Marker> getCafesMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "cafe"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+              const Icon(Icons.circle, color: Colors.purple,
+                size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+
+
   static bool rayCastIntersect(LatLng point, LatLng vertA, LatLng vertB) {
     final double aY = vertA.latitude;
     final double bY = vertB.latitude;
@@ -396,12 +424,12 @@ class jsonRepository{
 
   //TODO: give better name plox
   Munidata getBoxCoordsForMuni(String muni, List<String> amenity){
-    List<LatLng> coords = getCoords(amenity);
+    List<Marker> coords = getMarkers(amenity,[]);
     List<LatLng> boxCoords = [];
     //Get the data points within the boundingbox (rectangle) of the muni
     for (int coordCount = 0; coordCount < coords.length; coordCount++){
-      if(isPointInMuniBoundingBox(coords[coordCount], muni, relations)){
-        boxCoords.add(coords[coordCount]);
+      if(isPointInMuniBoundingBox(coords[coordCount].point, muni, relations)){
+        boxCoords.add(coords[coordCount].point);
       }
     }
 
@@ -448,6 +476,7 @@ class jsonRepository{
     } }data.add(Munidata(muni.substring(0, muni.indexOf(' ')), temp));
     return data;
   }
+
   Munidata getCafeForMunii(String muni){
 
     int temp = 0;
@@ -462,13 +491,51 @@ class jsonRepository{
       } }
     return (Munidata(muni, temp));
   }
+  List<Marker> getCafeForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "cafe"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.lightBlueAccent,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
+  }
+  List<Marker> getNighclubForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "nightclub"){
+      for(int j =0; muni.length> j; j++) {
+        if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.lightBlueAccent,
+                size: 4,),
+            ) );
+        }}
+      } }
+    return markerList;
+
+  }
 
   Munidata getNighlifeForMuni(String muni){
 
     int temp = 0;
     List<String> a = [muni];
     var bounds = getMunilist(a);
-    List<LatLng> coords = getBarPubNightClubCoords();
+    List<LatLng> coords = getBarCoords() + getNightclubCoords();
     for (int coord = 0; coord < coords.length; coord++){
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
@@ -673,6 +740,41 @@ class jsonRepository{
     }
     return tupList;
   }
+  List<Marker> getRestaurantMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "restaurant"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.purpleAccent,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+  List<Marker> getRestaurantForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "restaurant"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.purpleAccent,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
+  }
 
   //get all bus stations
   List<LatLng> getBusCoords(){
@@ -687,6 +789,53 @@ class jsonRepository{
       }
     }
     return tupList;
+  }
+  List<Marker> getBusForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "bus_station" || nodes[temp].tags!.containsKey("public_transport") && nodes[temp].tags!["public_transport"] == "station"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.redAccent,
+                size: 4,),
+            ) );
+          }}}
+         }}
+    return markerList;
+
+  }
+  List<Marker> getBusMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+
+      if(node.isAmenity){
+      if( node.tags?["amenity"] == "bus_station"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.redAccent,
+            size: 4,),
+        ) );
+      }else if(node.tags!.containsKey("public_transport") && node.tags!["public_transport"] == "station"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.redAccent,
+            size: 4,),
+        ) );
+      }
+    }}
+    return markerList;
   }
 
   //coordinates of nodes tagged "college" or "university"
@@ -709,6 +858,41 @@ class jsonRepository{
       }
     }
     return tupList;
+  }
+  List<Marker> getCinemaMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "cinema"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.pink,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+  List<Marker> getCinemaForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "cinema"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.pink,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
   }
 
   //coordinates of nodes tagged "dentist"
@@ -743,6 +927,41 @@ class jsonRepository{
     }
     return tupList;
   }
+  List<Marker> getTrainStationMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["railway"] == "station"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.red,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+  List<Marker> getTrainForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["railway"] == "station"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.red,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
+  }
 
   //coordinates of nodes tagged "library"
   List<LatLng> getLibraryCoords(){
@@ -754,14 +973,74 @@ class jsonRepository{
     }
     return tupList;
   }
-  List<LatLng> getBarPubNightClubCoords(){
+  List<LatLng> getBarCoords(){
     List<LatLng> tupList = [];
     for (var node in nodes) {
-      if(node.isAmenity && (node.tags?["amenity"] == "bar" ||node.tags?["amenity"] == "pub" || node.tags?["amenity"] == "nightclub")){
+      if(node.isAmenity && (node.tags?["amenity"] == "bar")){
         tupList.add(LatLng(node.lat, node.lon));
       }
     }
     return tupList;
+  }
+  List<Marker> getBarMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "bar"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.blue,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+  List<Marker> getBarForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "bar"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.blue,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
+  }
+  List<LatLng> getNightclubCoords(){
+    List<LatLng> tupList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && (node.tags?["amenity"] == "nightclub")){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    }
+    return tupList;
+  }
+  List<Marker> getNightclubMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "nightclub"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.lightBlueAccent,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
   }
   List<LatLng> getTrainingCoords(){
     List<LatLng> tupList = [];
@@ -790,6 +1069,41 @@ class jsonRepository{
     }
     return tupList;
   }
+  List<Marker> getArtsCentreMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "arts_centre"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.black,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+  List<Marker> getArtsCentreForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "arts_centre"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.black,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
+  }
   List<LatLng> getCommunityCentreCoords(){
     List<LatLng> tupList = [];
     for (var node in nodes) {
@@ -799,6 +1113,41 @@ class jsonRepository{
     }
     return tupList;
   }
+  List<Marker> getCommunityCentreMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "community_centre"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.black45,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+  List<Marker> getCommunityCentreForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "community_centre"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.black45,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
+  }
   List<LatLng> getEventsVenueCoords(){
     List<LatLng> tupList = [];
     for (var node in nodes) {
@@ -807,6 +1156,41 @@ class jsonRepository{
       }
     }
     return tupList;
+  }
+  List<Marker> getEventsVenueMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "events_venue"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.brown,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+  List<Marker> getEventsVenueForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "events_venue"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.brown,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
   }
   List<LatLng> getExhibitionCentreCoords(){
     List<LatLng> tupList = [];
@@ -834,6 +1218,41 @@ class jsonRepository{
       }
     }
     return tupList;
+  }
+  List<Marker> getMusicVenueMarkers(){
+    List<Marker> markerList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && node.tags?["amenity"] == "music_venue"){
+        markerList.add(Marker(
+          point: LatLng(node.lat, node.lon),
+          width: 80,
+          height: 80,
+          builder: (context) =>
+          const Icon(Icons.circle, color: Colors.blueGrey,
+            size: 4,),
+        ) );
+      }
+    }
+    return markerList;
+  }
+  List<Marker> getMusicVenueForMuniMarkers(List<Polygon> muni){
+    List<Marker> markerList= [];
+    for (int temp = 0; temp < nodes.length; temp++){
+      if(nodes[temp].isAmenity && nodes[temp].tags?["amenity"] == "music_venue"){
+        for(int j =0; muni.length> j; j++) {
+          if (isPointInPolygon(  LatLng(nodes[temp].lat, nodes[temp].lon), muni[j].points)){
+            markerList.add(Marker(
+              point: LatLng(nodes[temp].lat, nodes[temp].lon),
+              width: 80,
+              height: 80,
+              builder: (context) =>
+              const Icon(Icons.circle, color: Colors.blueGrey,
+                size: 4,),
+            ) );
+          }}
+      } }
+    return markerList;
+
   }
   List<LatLng> getSocialCentreCoords(){
     List<LatLng> tupList = [];
@@ -874,8 +1293,11 @@ class jsonRepository{
 
 
   //collects the municipality boundary of a single given municipality
-  List<LatLng> getMuniBoundary(String muni){
-    return relations.where((element) => element.name == muni).first.boundaryCoords;
+  List<LatLng>? getMuniBoundary(String muni){
+    if(relations.where((element) => element.name == muni).isEmpty){
+      return [];
+    }
+    return relations.where((element) => element.name == muni)?.first.boundaryCoords;
 
     //return relations.where((element) => element.name == muni).first.boundaryCoords;
   }
@@ -890,13 +1312,13 @@ class jsonRepository{
       if(boundary.isMulti){
 
         for (var coordList in boundary.multiBoundaryCoords!) {
-          polyList.add(Polygon(points: coordList, color: Colors.blue, isFilled: true));
+          polyList.add(Polygon(points: coordList, borderColor: Colors.black, isFilled: false,borderStrokeWidth: 3));
         }
 
       }
       else{
 
-        polyList.add(Polygon(points: boundary.boundaryCoords, isFilled: true));
+        polyList.add(Polygon(points: boundary.boundaryCoords, borderColor: Colors.black, isFilled: false,borderStrokeWidth: 3));
 
       }
     }
