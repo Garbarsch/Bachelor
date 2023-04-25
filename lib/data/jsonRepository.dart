@@ -982,6 +982,15 @@ class jsonRepository{
     }
     return tupList;
   }
+  List<LatLng> getPubCoords(){
+    List<LatLng> tupList = [];
+    for (var node in nodes) {
+      if(node.isAmenity && (node.tags?["amenity"] == "pub")){
+        tupList.add(LatLng(node.lat, node.lon));
+      }
+    }
+    return tupList;
+  }
   List<Marker> getBarMarkers(){
     List<Marker> markerList = [];
     for (var node in nodes) {
