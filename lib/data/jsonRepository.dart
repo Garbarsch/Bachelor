@@ -239,7 +239,7 @@ class jsonRepository{
       if (type.contains("Cafes")) {
         coords.add(getCafesMarkers());
       } else {
-        
+
       }
       if (type.contains("Restaurants")) {
         coords.add(getRestaurantMarkers()); //ret her!!!
@@ -502,7 +502,7 @@ class jsonRepository{
               width: 80,
               height: 80,
               builder: (context) =>
-              const Icon(Icons.circle, color: Colors.lightBlueAccent,
+              const Icon(Icons.circle, color: Colors.purple,
                 size: 4,),
             ) );
           }}

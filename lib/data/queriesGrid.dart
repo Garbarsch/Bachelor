@@ -46,20 +46,20 @@ class queriesGrid{
 
     for(int i = 0; i <nodesFromRect.length; i++) {
       for (Node match in nodesFromRect[i]) {
-        if (i == 0) {
           if (match.tags?["railway"] == "station") {
             if (i == 0) {
               stationcounter++;
+              continue;
             } else {
               for (int j = 0; munilist.length > j; j++) {
                 if (jsonRepository.isPointInPolygon(
                     LatLng(match.lat, match.lon), munilist[j])) {
                   stationcounter++;
+                  break;
                 }
               }
             }
             //  nodes.add(match);
-          }
         }        //  nodes.add(match);
         switch (match.tags?["amenity"]) {
           case "restaurant":
@@ -90,7 +90,7 @@ class queriesGrid{
     mun.add((query_model("Population: ", munici.population!)));
     mun.add(query_model("Cafes: ", cafecounter)); //getAmenityNodesFromNdes for PGrid and getAmenityNdesInMuni for normal grid
     mun.add(query_model("Restaurants: ", restaurantscounter));
-    mun.add(query_model("Train stations: ", stationcounter));
+    mun.add(query_model("Train Stations: ", stationcounter));
 
     return mun;
   }
@@ -457,16 +457,16 @@ class queriesGrid{
     int stationcounter = amenityList[8];
 
     mun.add(query_model(muni,0));
-    mun.add(query_model("Bars", barcounter));
-    mun.add(query_model("Nightclubs", nightclubcounter));
-    mun.add(query_model("Cinemas", cinemacounter));
-    mun.add(query_model("Art Centres", art_centrecounter));
-    mun.add(query_model("Community Centres", community_centrecounter));
-    mun.add(query_model("Music Venues", music_venuecounter));
-    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
-    bullet.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Restaurants:", restaurantscounter));
-    bullet.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model("Bars: ", barcounter));
+    mun.add(query_model("Nightclubs: ", nightclubcounter));
+    mun.add(query_model("Cinemas: ", cinemacounter));
+    mun.add(query_model("Art Centres: ", art_centrecounter));
+    mun.add(query_model("Community Centres: ", community_centrecounter));
+    mun.add(query_model("Music Venues: ", music_venuecounter));
+    bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Restaurants: ", restaurantscounter));
+    bullet.add(query_model("Train Stations: ", stationcounter));
     model.add(mun);
     model.add(bullet);
     return model;

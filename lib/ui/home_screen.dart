@@ -28,7 +28,7 @@ class MyHomePage extends StatelessWidget {
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
     builder: (_) => MyHomePage(blocContext: context, repo: repo, csvRepo: csvRepo,),
   );
- // late queriesGrid query = repo.grid;
+  late queriesGrid query = queriesGrid(repo, csvRepo);
 
   int temp = 0;
     MyHomePage({
@@ -142,7 +142,157 @@ class MyHomePage extends StatelessWidget {
                           ),
                         ),
 
-                      )),Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-300,240, 0,0),
+                      )),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,100, 0,50),
+              child:  const Text.rich(
+                TextSpan(
+                  text: '.',
+                  style: TextStyle(fontSize: 100, height:1.5,color: Colors.purple),
+
+                  children: <TextSpan>[
+                    TextSpan(
+                        text: 'Cafes',
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                        )),
+                    // can add more TextSpans here...
+                  ],
+                ),
+              ),
+            ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,125, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.purpleAccent),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Restaurants',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,150, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.pink),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Cinemas',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,175, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.black),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Art Centres',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,200, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.black45),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Community Centres',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,225, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.blueGrey),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Music Venues',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,250, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.blue),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Bars',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,275, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.lightBlueAccent),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Nightclubs',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,300, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.redAccent),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Bus Stations',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,325, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.red),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Train Stations',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-300,240, 0,0),
                       child: const Text("Denmark",style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 25, height:1.5))
 
                   ),Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-260,275, 0,0),
@@ -184,7 +334,9 @@ class MyHomePage extends StatelessWidget {
 
 
                     ),
-                  ), Positioned(top: 50, left: MediaQuery.of(context).size.width -225, right: 25, child: Container( width: 50,height:
+                  ),
+
+                  Positioned(top: 50, left: MediaQuery.of(context).size.width -225, right: 25, child: Container( width: 50,height:
                   50,
                     child: ElevatedButton(
 
