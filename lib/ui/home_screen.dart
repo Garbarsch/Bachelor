@@ -299,6 +299,7 @@ class MyHomePage extends StatelessWidget {
                       child: const Text("Or",style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 25, height:1.5))
 
                       ),
+                  Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-320,377, 69,0),child: const Text("Hint: Leave searchbar empty to show all municipalities",style: TextStyle(color: Colors.grey, fontSize: 12, height:1.5)), ),
                   Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-320,325, 69,0),
                     child: SearchField(
                         suggestions: repo.relations.map((e) =>
@@ -314,7 +315,7 @@ class MyHomePage extends StatelessWidget {
                           context.read<HomePageBloc>().add(
                               showMunicipalities(coordsMunicipalities: repo.getMuniBoundary(value)!,coordsMultiMuni: repo.getMuniPolygons([value])));
                         },
-                        hasOverlay: false,
+                        hasOverlay: true,
                         searchStyle: TextStyle(
                           fontSize: 14,
                           color: Colors.black.withOpacity(0.8),
