@@ -17,12 +17,13 @@ import 'package:flutter_map/plugin_api.dart';
 
 
 class MyHomePage extends StatelessWidget {
-  List<String> choices = ['Restaurants','Bus Stop','Cinemas', 'Dentists','Clinics'];
+  List<String> choices = ['Cafes','Restaurants','Cinemas','Art Centres','Community Centres','Music Venues','Bars','Nightclubs','Bus Stations','Train Stations'];
   List<String> selecteChoices = [];
   List<Marker> markers = [];
   List<Polygon> polyMuni = [];
   jsonRepository repo;
   csvRepository csvRepo;
+  String? muni;
 
   static MaterialPageRoute<void> route(BuildContext context, jsonRepository repo, csvRepository csvRepo) => MaterialPageRoute(
     builder: (_) => MyHomePage(blocContext: context, repo: repo, csvRepo: csvRepo,),
@@ -65,35 +66,8 @@ class MyHomePage extends StatelessWidget {
     return const CircularProgressIndicator(color: Colors.blue);
     }
     if (state is homeLoaded) {
-      markers = [];
-      for (int index = 0;
-      index < state.coords.length; {
-        //print("hallo"),
-        markers.add(
-            Marker(
-              point: state.coords[index],
-              width: 80,
-              height: 80,
-              builder: (context) =>
-                  Icon(Icons.circle, color: Colors.red,
-                    size: 4,),
-            )), index++
-      });
-      // if(state is homeLoadedMunicipalities){
+     polyMuni = state.coordsMultiMuni;
 
-      //print("Carl");
-      //print(state.coordsMuni);
-
-
-      polyMuni.add(
-          Polygon(points: state.coordsMuni, color: Colors.blue,)
-      );
-
-      //print("halloklam");
-      //print(polyMuni.first.points);
-      //LOADEDGRAPH
-
-      //print("HALLO2");
     }
 
                      else {
@@ -124,11 +98,11 @@ class MyHomePage extends StatelessWidget {
                 userAgentPackageName: 'dev.fleaflet.flutter_map.example'
             ),
             PolygonLayer(
-                 polygons: query.drawIndexAlgorithmOnMap()
+                polygons: polyMuni
             ),
             MarkerLayer(
 
-                markers:  markers
+                markers:  state.coords
 
 
             ),
@@ -146,49 +120,231 @@ class MyHomePage extends StatelessWidget {
                       child: const Text('  Danish Municipalities',
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25, height:1.5)),
 
-                    )),
-                  Container(height: MediaQuery.of(context).size.width ), Positioned(top: 45, bottom: 10, left: MediaQuery.of(context).size.width -300, right: 150 ,child: Container(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
+                    )),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-400,200, 0,50),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          border: Border.all(width: 1.0, color: Colors.grey),
+
+                        ),
+                        child: const Text.rich(
+                          TextSpan(
+                            text: '         ',
+                            style: TextStyle(fontSize: 25, height:1.5),
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text: 'Show Amenities',
+                                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 25, height:1.5,
+                                    decoration: TextDecoration.underline,
+                                  )),
+                              // can add more TextSpans here...
+                            ],
+                          ),
+                        ),
+
+                      )),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,100, 0,50),
+              child:  const Text.rich(
+                TextSpan(
+                  text: '.',
+                  style: TextStyle(fontSize: 100, height:1.5,color: Colors.purple),
+
+                  children: <TextSpan>[
+                    TextSpan(
+                        text: 'Cafes',
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                        )),
+                    // can add more TextSpans here...
+                  ],
+                ),
+              ),
+            ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,125, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.purpleAccent),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Restaurants',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,150, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.pink),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Cinemas',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,175, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.black),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Art Centres',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,200, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.black45),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Community Centres',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,225, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.blueGrey),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Music Venues',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,250, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.blue),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Bars',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,275, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.lightBlueAccent),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Nightclubs',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,300, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.redAccent),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Bus Stations',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-575,325, 0,50),
+                    child:  const Text.rich(
+                      TextSpan(
+                        text: '.',
+                        style: TextStyle(fontSize: 100, height:1.5,color: Colors.red),
+
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Train Stations',
+                              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15, height:1.5,
+                              )),
+                          // can add more TextSpans here...
+                        ],
+                      ),
+                    ),
+                  ),Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-300,240, 0,0),
+                      child: const Text("Denmark",style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 25, height:1.5))
+
+                  ),Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-260,275, 0,0),
+                      child: const Text("Or",style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 25, height:1.5))
+
+                      ),
+                  Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-320,377, 69,0),child: const Text("Hint: Leave searchbar empty to show all municipalities",style: TextStyle(color: Colors.grey, fontSize: 12, height:1.5)), ),
+                  Container(height:600, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-320,325, 69,0),
                     child: SearchField(
                         suggestions: repo.relations.map((e) =>
                             SearchFieldListItem(e.name!)).toList(),
                         suggestionState: Suggestion.expand,
                         textInputAction: TextInputAction.next,
-                        hint: 'Search on Municipality ',
+                        hint: 'Search on a municipality ',
                         onSubmit: (value) {
-                          print(value);
+                          if(value == ""){
+                            context.read<HomePageBloc>().add(
+                                const showMunicipalities(coordsMunicipalities: [],coordsMultiMuni: []));
+                          }
                           context.read<HomePageBloc>().add(
-                              showMunicipalities(coordsMunicipalities: repo.getMuniBoundary(value),coordsMultiMuni: repo.getMuniPolygons([value])));
+                              showMunicipalities(coordsMunicipalities: repo.getMuniBoundary(value)!,coordsMultiMuni: repo.getMuniPolygons([value])));
                         },
-                        hasOverlay: false,
+                        hasOverlay: true,
                         searchStyle: TextStyle(
                           fontSize: 14,
                           color: Colors.black.withOpacity(0.8),
-                        )),
-
-                  ),),Container(height: MediaQuery.of(context).size.width ), Positioned(top: 400, bottom: 10, left: MediaQuery.of(context).size.width -300, right: 150 ,child: Container(height: MediaQuery.of(context).size.width -500, width: MediaQuery.of(context).size.width/2,
+                        )),),
+                  Container(height:700, width: MediaQuery.of(context).size.width -100,padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width-340,250, 50,0),
                     child: DropDownMultiSelect(
                       options: choices,
                       selectedValues: selecteChoices,
                       onChanged: (List<String> value) {
                         context.read<HomePageBloc>().add(
-                            addMarkers(coords: repo.getCoords(value)));
+                            addMarkers(coords: repo.getMarkers(value,polyMuni),muni: polyMuni));
                       },
 
 
                         whenEmpty:
-                        'Choose filter',
+                        'Choose amenities',
 
 
                     ),
+                  ),
 
-                  ),), Positioned(top: 400, bottom: MediaQuery.of(context).size.height-450, left: MediaQuery.of(context).size.width -300, right: 100, child: SizedBox( width: 50,height:
-                  100,
+                  Positioned(top: 50, left: MediaQuery.of(context).size.width -225, right: 25, child: Container( width: 50,height:
+                  50,
                     child: ElevatedButton(
 
-                      child: Text('Compare', style: TextStyle(fontSize: 20.0),),
+                      child: const Text('Complete Statistics ', style: TextStyle(fontSize: 17.0),),
                       onPressed: () {Navigator.of(context).push(MyGraphPage.route(context, repo, csvRepo))
-                      ;
-                        print(context.read<GraphPageBloc>().state);},
+                      ;},
+
 
                     ),
 

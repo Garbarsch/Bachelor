@@ -157,8 +157,10 @@ void main() async{
 
     });
     test("Bar, Pub and NightClub", () {
-      var values = repo.getBarPubNightClubCoords();
-
+      var bar = repo.getBarCoords();
+      var pub = repo.getPubCoords();
+      var nightclub = repo.getNightclubCoords();
+      var values = bar+pub+nightclub;
       expect(values.length, 3);
       expect(values.contains(LatLng(node11.lat, node11.lon)), true);
       expect(values.contains(LatLng(node12.lat, node12.lon)), true);
@@ -286,8 +288,8 @@ void main() async{
 
     test("Latitude and Longitude specific municipality", () {
 
-      List<LatLng> aux = repo.getMuniBoundary("Københavns Kommune");
-      expect(aux.isNotEmpty, true);
+      List<LatLng>? aux = repo.getMuniBoundary("Københavns Kommune");
+      expect(aux?.isNotEmpty, true);
       expect(aux, muniRel1.boundaryCoords);
       expect(muniRel1.multiBoundaryCoords == null, true);
 

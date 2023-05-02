@@ -29,7 +29,7 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
             emit(
                 homeLoaded(
                   coords: event.coords
-                  , coordsMuni: [], coordsMultiMuni: []
+                  , coordsMuni: [], coordsMultiMuni: event.muni
 
                 )
             );
@@ -42,7 +42,7 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
             final state = this.state as homeLoaded;
             emit(
                 homeLoaded(
-                  coordsMuni: List.from(state.coordsMuni)..addAll(event.coordsMunicipalities), coords:[] ,coordsMultiMuni: List.from(state.coordsMultiMuni)..addAll(event.coordsMultiMuni)
+                  coordsMuni: event.coordsMunicipalities, coords:[] ,coordsMultiMuni: event.coordsMultiMuni
 
                 )
             );

@@ -2,20 +2,20 @@ part of 'package:github_client/data/jsonRepository.dart';
 class queries {
   final jsonRepository repo;
   final csvRepository csvRepo;
-
+  bool grid = false;
   queries({required this.repo, required this.csvRepo});
 
 
   List<query_model> bulletQuery(String muni) {
-    List<query_model> mun =[];
+  List<query_model> mun =[];
 
-    var munici = repo.relations.where((element) => element.name == muni).first;
-    //mun.add((query_model("Population: ", munici.population!)));
-    mun.add(query_model("Cafes: ",repo.getCafeForMunii(muni).value));
-    mun.add(query_model("Restuarants: ", repo.getRestuarantsForMuni(muni).value));
-    mun.add(query_model("Train stations: ", repo.getTrainStationsForMuni(muni).value));
+  var munici = repo.relations.where((element) => element.name == muni).first;
+  mun.add((query_model("Population: ", munici.population!)));
+  mun.add(query_model("Cafes: ",repo.getCafeForMunii(muni).value));
+  mun.add(query_model("Restaurants: ", repo.getRestuarantsForMuni(muni).value));
+  mun.add(query_model("Train Stations: ", repo.getTrainStationsForMuni(muni).value));
 
-    return mun;
+  return mun;
 
 
   }
@@ -287,12 +287,13 @@ class queries {
       }
 
     }
-    mun.add(query_model("Train Stations:", stationcounter));
-    mun.add(query_model("Bus Stations:", busstationcounter));
-    //bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
-    bullet.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Restaurants:", restaurantscounter));
-    bullet.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model(muni,restaurantscounter));
+    mun.add(query_model("Train Stations: ", stationcounter));
+    mun.add(query_model("Bus Stations: ", busstationcounter));
+    bullet.add(query_model("Population ", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Restaurants: ", restaurantscounter));
+    bullet.add(query_model("Train Stations: ", stationcounter));
     model.add(mun);
     model.add(bullet);
 
@@ -363,13 +364,15 @@ class queries {
           }
           break;
       }
+
     }
-    mun.add(query_model("Restaurants:", restaurantscounter));
-    mun.add(query_model("Cafes:", cafecounter));
-    //bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
-    bullet.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Restaurants:", restaurantscounter));
-    bullet.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model(muni,restaurantscounter));
+    mun.add(query_model("Restaurants: ", restaurantscounter));
+    mun.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Population ", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Restaurants: ", restaurantscounter));
+    bullet.add(query_model("Train Stations: ", stationcounter));
     model.add(mun);
     model.add(bullet);
     print("IsPointInPolygonChecks: ${isPointInPolygonCount}");
@@ -377,6 +380,7 @@ class queries {
     print("Outliers: ${isPointInPolygonCount-PointInPolygonTrue}");
     print("points actually in polygon: ${PointInPolygonTrue}");
     return model;
+
   }
   List<List<query_model>> getNighlifeForMuni(String muni){
     int PointInPolygonTrue = 0;
@@ -389,6 +393,9 @@ class queries {
     List<List<query_model>> model = [];
 
     int nightlifecounter= 0;
+    int barcounter = 0;
+    int nightclubcounter= 0;
+
     int cinemacounter = 0;
     int art_centrecounter = 0;
     int community_centrecounter = 0;
@@ -433,26 +440,27 @@ class queries {
             }
           }
 
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
+              barcounter++;
+              break;
+            }}
           // nodes.add(match);
           break;
         case "pub":
-          if (jsonRepository.isPointInMuniBoundingBox(
-              LatLng(match.lat, match.lon), muni, repo.relations)) {
-            isPointInMuniBoundingBox++;
-            for (int j = 0; munilist.length > j; j++) {
-              isPointInPolygonCount++;
-              if (jsonRepository.isPointInPolygon(
-                  LatLng(match.lat, match.lon), munilist[j])) {
-                nightlifecounter++;
-                PointInPolygonTrue++;
-                break;
-              }
-            }
-          }
-
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
+              barcounter++;
+              break;
+            }}
           //nodes.add(match);
           break;
         case "nightclub":
+          for(int j =0; munilist.length> j; j++) {
+            if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
+              nightclubcounter++;
+              break;
+            }}
           if (jsonRepository.isPointInMuniBoundingBox(
               LatLng(match.lat, match.lon), muni, repo.relations)) {
             isPointInMuniBoundingBox++;
@@ -576,15 +584,17 @@ class queries {
       }
 
     }
-    mun.add(query_model("Nightlife", nightlifecounter));
-    mun.add(query_model("Cinema", cinemacounter));
-    mun.add(query_model("Art Centres", art_centrecounter));
-    mun.add(query_model("Community Centres", community_centrecounter));
-    mun.add(query_model("Music Venues", music_venuecounter));
-    //bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
-    bullet.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Restaurants:", restaurantscounter));
-    bullet.add(query_model("Train Stations:", stationcounter));
+    mun.add(query_model(muni,nightlifecounter));
+    mun.add(query_model("Bars ", barcounter));
+    mun.add(query_model("Nightclubs ", nightclubcounter));
+    mun.add(query_model("Cinemas ", cinemacounter));
+    mun.add(query_model("Art Centres ", art_centrecounter));
+    mun.add(query_model("Community Centres ", community_centrecounter));
+    mun.add(query_model("Music Venues ", music_venuecounter));
+    bullet.add(query_model("Population ", (repo.relations.where((element) => element.name == muni).first).population!));
+    bullet.add(query_model("Cafes: ", cafecounter));
+    bullet.add(query_model("Restaurants: ", restaurantscounter));
+    bullet.add(query_model("Train Stations: ", stationcounter));
     model.add(mun);
     model.add(bullet);
     print("IsPointInPolygonChecks: ${isPointInPolygonCount}");
