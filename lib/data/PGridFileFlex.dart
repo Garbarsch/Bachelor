@@ -14,7 +14,7 @@ import 'jsonRepository.dart';
 //Well-suited for urban spatial indexing of areas such as cities, regions, municipalities and the like.
 //@Author Carl Bruun and Rasmus Garbarsch
 
-class PGridFile {
+class PGridFileFlex {
   //gridArray is a two-dimensional grid/matrix of all cells of our grid
   //Each cell element holds a pointer to the bucket/block/data page that contains the data points of that cell
   //The gridArray is also known as the directory.
@@ -30,82 +30,98 @@ class PGridFile {
   late List<MunicipalityRelation> relations;
   late List<Node> nodes;
 
-  PGridFile(this.bounds, this.relations,this.nodes); //data kan vi bare tage fra repo
+  PGridFileFlex(this.bounds, this.relations,this.nodes); //data kan vi bare tage fra repo
+
 
   void initializeGrid(){
-    print("PGridFile (subgrid)");
+    print("PGridFile Flex");
     var cellSize = averageMunicipalitySize();
     double height = cellSize.item1;
     double width = cellSize.item2;
-
-    //create linear scales - modified a bid, instead of 2 one-dimensional arrays we use 1 2-d list of rectangles
-    linearScalesRectangles = partitionLinearScales(height, width);
-
-    //initial repository - all with key 0 until the block collection has been created.
-    gridArray =  List.generate(linearScalesRectangles.length, (index) => List.generate(linearScalesRectangles[0].length, (index) => 0), growable: false);
-
-    //the collection of blocks - a map atm, would be faster in terms of growing data to have a B+ tree probably.
-    blockCollection = initializeBlockCollection(linearScalesRectangles);
-
+    initializeScalesAndBlockCollection(height, width, 4000);
   }
 
-// For each of the cells (rectangles), collect all nodes within the rectangles as a collection mapped to by a key.
-// The repository (gridArray) entry matching the cell index of the linear scales is set to the key of the block (list of nodes).
-  Map<int, List<Node>> initializeBlockCollection(List<List<Rectangle>> linearScalesRect) {
-    Map<int, List<Node>> blockMap = {}; // Map to store block index and its list of nodes
-    int blockCount = 0; // Counter for block index
-    int x = 0;
-    int y = 0;
+//okay so as in the paper (p.15) we must define splitting and merging policies, that is, for
+// - the two-disk-access principle for point queries,
+// - efficient processing of range queries in large linearly ordered domains and so on (p.5)
+  //So we our grid partitioning here goes from a starting point - the average muni size - then if the cell is above a block capacity, we split, if it is below we merge.
+  //OKAY - another thing then, cell capacity vs. block capacity, two thresholds, the block capacity will be given, but the cell capacity we must analyze and find the most appropriate.
+  //for each x cell
+  void initializeScalesAndBlockCollection(double latPartitionSize, double longPartitionSize, int cellCapacity){
+    var latPartitions = (bounds.height/latPartitionSize).ceil();
+    var longPartitions = (bounds.width/longPartitionSize).ceil();
 
-    for (var columnList in linearScalesRect) { // Iterate through each column in the grid
-      y = 0;
-      for (var rowElement in columnList) { // Iterate through each row in the column
-        var cellNodes = allNodesInRectangle(rowElement); // Get all nodes in the current rectangle
-        blockMap[blockCount] = cellNodes; // Add the nodes to the map with the current block index as key
-        gridArray[x][y] = blockCount; // Add the current block index as the value for the grid cell
-        blockCount++; // Increment the block index
-        y++; // Increment the column index
-      }
-      x++; // Increment the row index
-    }
-
-    return blockMap;
-  }
-
-
-// Partitions the country bounding box into a grid (one list of lists of rectangles) of rectangles based on average municipality size.
-  List<List<Rectangle>> partitionLinearScales(double latPartitionSize, double longPartitionSize) {
-    // Calculate the number of partitions in the latitude and longitude directions based on the size of each partition.
-    var latPartitions = (bounds.height / latPartitionSize).ceil();
-    var longPartitions = (bounds.width / longPartitionSize).ceil();
-
-    // Initialize the list of scales with empty lists.
-    List<List<Rectangle>> scales = [];
+    List<List<Rectangle>> scales = [];//List.generate(latPartitions, (index) => List.generate(longPartitions, (index) => null));
 
     var left = bounds.left;
-    var top = bounds.top; // bottom is top in programming coordinates...
+    var top = bounds.top; //bottom is top in programming coordinates...
 
-    // For each x cell.
-    for (int x = 0; x < longPartitions; x++) {
-      top = bounds.top; // top is the bottom left corner.
-
-      // Add a new list for the current x cell.
-      scales.add([]);
-
-      // For each cell up.
-      for (int y = 0; y < latPartitions; y++) {
-        // Add a new rectangle from left, with top (bottom) and width height.
-        scales[x].add(Rectangle(left, top, longPartitionSize, latPartitionSize));
-
-        // As we start from bottom left corner, we have to add lat, so the bottom is always one larger.
-        top += latPartitionSize;
+    //for each x cell
+    for(int i = 0 ; i<longPartitions ; i++){
+      //gridArray.add([]);
+      top = bounds.top; //top is the bottom left corner
+      scales.add([]); //add a new list
+      for(int y = 0 ; y<latPartitions ; y++){ //for each cell up
+        scales[i].add(Rectangle(left, top, longPartitionSize, latPartitionSize)); //add a new rectangle from left, with top (bottom) and width height
+        top+= latPartitionSize; //as we start from bottom left corner, we have to add lat, so the bottom is always one larger
       }
-
-      // Same here, but left to right.
-      left += longPartitionSize;
+      left+=longPartitionSize; //same here, but left to right
     }
+    flexGrid(cellCapacity, longPartitions, latPartitions, scales);
 
-    return scales;
+  }
+  void flexGrid(int cellCapacity, int longPartitions, int latPartitions,  List<List<Rectangle>> scales){
+    Map<int,List<Node>> block = {};
+    gridArray = [];
+    int longPartitionsInner = longPartitions;
+
+
+    int blockCount = 1;
+    for(int x = 0 ; x<longPartitionsInner ; x++){ //latPartitions
+      gridArray.add([]);
+      bool ySplit = true;
+      for(int y = 0 ; y<scales[x].length ; y++){ //for each cell up
+
+        var cellRect = scales[x][y];
+        var cellNodes = allNodesInRectangle(cellRect);
+
+        if(cellNodes.length == 0){ //if there are no cells in the node, we dont want to save and search through an empty cell.
+          scales[x].removeAt(y);
+          y--;
+        }else if(cellNodes.length > cellCapacity){
+          if(!ySplit && scales.length-1 > x && scales[x+1].length>=y){
+            //We check whether the x values is less than the last element, as we must check if we can insert a new cell in the next list.
+            //And whether we can insert the new cell between or at the end of the next list.
+            var rect1 = Rectangle(cellRect.left, cellRect.top, cellRect.width/2, cellRect.height);
+            var rect2 = Rectangle(cellRect.left + (cellRect.width/2), cellRect.top, cellRect.width/2, cellRect.height);
+            scales[x][y] = rect1;
+            if(x+1 == scales.length){ //We check if there is another x element after, if not we must create a new x-list.
+              scales.add([]);
+              longPartitionsInner++;
+            }
+            scales[x+1].add(rect2);
+            //we go one back to check the if one of the cells we just created are still above the cell-capacity.
+            y--;
+            ySplit  = true;
+
+          }else{//ySplit
+            var rect1 = Rectangle(cellRect.left, cellRect.top, cellRect.width, cellRect.height/2);
+            var rect2 = Rectangle(cellRect.left, cellRect.top+(cellRect.height/2), cellRect.width, cellRect.height/2);
+            scales[x][y] = rect1;
+            scales[x].insert(y+1, rect2);
+            y--;
+            ySplit = false;
+          }
+        }
+        else{
+          block[blockCount] = cellNodes;
+          gridArray[x].add(blockCount);
+          blockCount++;
+        }
+      }
+    }
+    blockCollection = block;
+    linearScalesRectangles = scales;
   }
 
 
@@ -260,41 +276,52 @@ class PGridFile {
     List<List<Node>> nodes = [[],[]]; // Initialize a list to store the nodes in two lists: one for fully contained nodes and the second for intersecting nodes
     int countTopCellsFullyContained = 0; // Initialize a counter for fully contained top-layer cells
     int intersectingCells = 0; // Initialize a counter for intersecting top-layer cells
+    int subGridCount = 0;
 
     // Loop through each cell that intersect the municipality bounding box.
     for (var cellIndex in containingIndices) {
       // Get the rectangle for the cell
       var rect = linearScalesRectangles[cellIndex.item1][cellIndex.item2];
 
+      // Get the block of nodes for the current cell
+      List<Node> block = List.from(blockCollection[gridArray[cellIndex.item1][cellIndex.item2]]!.where((node) => node.isAmenity));
+
+      if(block.length > 4){
       // Check if the rectangle is fully contained, intersecting or outside of the municipality
+      
       var rectStatus = isFullyContained(rect, polyBounds, concavePoints, muniBoundingBox);
 
-      // Get the block of nodes for the current cell
-      var block = blockCollection[gridArray[cellIndex.item1][cellIndex.item2]]!;
+
+      //print("Top-layer-cell amount nodes ${block.length}");
 
       // If the cell is fully contained, add all amenities nodes to the first list
       if (rectStatus == RectStatus.inside) {
         countTopCellsFullyContained++;
-        nodes[0].addAll(block.where((node) => node.isAmenity));
+        nodes[0].addAll(block);
       }
       // If the cell is intersecting, recursively divide the cell into sub-cells and add amenity nodes fully contained to the first list and other intersecting nodes to the second.
       else if (rectStatus == RectStatus.intersect) {
-        if(block.length > 1000){
-          intersectingCells++;
+        intersectingCells++;
+        if(block.length > 100){
+          subGridCount++;
           List<List<Node>> subGridNodes = subCellPartitionRecursive(rect, block, polyBounds, concavePoints, muniBoundingBox);
           nodes[0].addAll(subGridNodes.first);
           nodes[1].addAll(subGridNodes.last);
         }else{
           nodes[1].addAll(block);
         }
-
       }
+      }else{
+        nodes[1].addAll(block);
+      }
+
     }
 
     // Print out the number of fully contained and intersecting cells (debug)
     print("Amount of top-layer cells: ${containingIndices.length}");
     print("top-layer cells fully contained: ${countTopCellsFullyContained}");
     print("top-layer cells intersecting: ${intersectingCells}");
+    print("Top layer cells called subgrid: ${subGridCount}");
 
     // Return the nodes
     return nodes;
@@ -318,24 +345,54 @@ class PGridFile {
     List<Rectangle> intersectingSubCells = [];
     List<List<Node>> intersectingSubcellNodes = [];
 
+    List<List<Node>> rectangleNodes = [[],[],[],[]];
     // Define the sub-cells of the source rectangle
-    var rectangles = [Rectangle(sourceRect.left, sourceRect.top, sourceRect.width/2, sourceRect.height/2),    Rectangle(sourceRect.left, sourceRect.top+(sourceRect.height/2), sourceRect.width/2, sourceRect.height/2),    Rectangle(sourceRect.left+(sourceRect.width/2), sourceRect.top, sourceRect.width/2, sourceRect.height/2),    Rectangle(sourceRect.left+(sourceRect.width/2), sourceRect.top+(sourceRect.height/2), sourceRect.width/2, sourceRect.height/2)  ];
+    var rectangles = [Rectangle(sourceRect.left, sourceRect.top, sourceRect.width/2, sourceRect.height/2),
+      Rectangle(sourceRect.left, sourceRect.top+(sourceRect.height/2), sourceRect.width/2, sourceRect.height/2),
+      Rectangle(sourceRect.left+(sourceRect.width/2), sourceRect.top, sourceRect.width/2, sourceRect.height/2),
+      Rectangle(sourceRect.left+(sourceRect.width/2), sourceRect.top+(sourceRect.height/2), sourceRect.width/2, sourceRect.height/2)  ];
 
-    // Classify the sub-cells as fully contained or intersecting the municipality polygon
-    for (var subCell in rectangles) {
-      var rectStatus =  isFullyContained(subCell, polyBounds, concavePoints, muniBoundingBox);
-      if(rectStatus == RectStatus.inside){
-        containedSubCells.add(subCell);
-      }else if(rectStatus == RectStatus.intersect){
-        intersectingSubCells.add(subCell);
-        intersectingSubcellNodes.add([]);
+    for(var node in sourceCellNodes){
+      for (int i = 0 ; i<rectangles.length ; i++) {
+        if(pointInRect(node, rectangles[i])){
+          rectangleNodes[i].add(node);
+          break;
+        }
       }
     }
 
+    // Classify the sub-cells as fully contained or intersecting the municipality polygon
+    for (int i = 0 ; i<rectangles.length ; i++) {
+      if(rectangleNodes[i].length > 4){ //We do not want to check the four corners of a rectangles if there is less than 4 nodes in the cell anyway
+        var rectStatus =  isFullyContained(rectangles[i], polyBounds, concavePoints, muniBoundingBox);
+        if(rectStatus == RectStatus.inside){
+          returnNodes[0].addAll(rectangleNodes[i]);
+          //containedSubCells.add(rectangles[i]);
+        }else if(rectStatus == RectStatus.intersect){
+          intersectingSubCells.add(rectangles[i]);
+          //intersectingSubcellNodes.add([]);
+        }
+      }else{
+        returnNodes[1].addAll(rectangleNodes[i]);
+      }
+
+    }
+    for (int i = 0 ; i<intersectingSubCells.length ; i++) {
+      if(rectangleNodes[i].length > 100){
+
+        var subPartitions = subCellPartitionRecursive(intersectingSubCells[i], rectangleNodes[i], polyBounds, concavePoints, muniBoundingBox);
+        returnNodes[0].addAll(subPartitions[0]);
+        returnNodes[1].addAll(subPartitions[1]);
+      }else{
+        returnNodes[1].addAll(rectangleNodes[i]);
+      }
+    }
+
+
+/*
     // Iterate through the nodes in the source cell and assign them to the sub-cells
     for (var node in sourceCellNodes) {
       bool found = false;
-      if(node.isAmenity) {
         // Check if the node is in a fully contained sub-cell
         for (var cell in containedSubCells) {
           if (pointInRect(node, cell)) {
@@ -349,23 +406,25 @@ class PGridFile {
           for (int i = 0 ; i< intersectingSubCells.length ; i++) {
             if (pointInRect(node, intersectingSubCells[i])) {
               intersectingSubcellNodes[i].add(node);
+              //returnNodes[1].add(node);
               break;
             }
           }
         }
-      }
-    }
 
-    // Recursively partition the intersecting sub-cells if they contain more than 1000 nodes
-    for (int i = 0 ; i<intersectingSubCells.length ; i++) {
-      if(intersectingSubcellNodes[i].length > 1000){
+    }*/
+
+    // Recursively partition the intersecting sub-cells if they contain more than X nodes
+    /*for (int i = 0 ; i<intersectingSubCells.length ; i++) {
+      if(intersectingSubcellNodes[i].length > 400){
+        print("HAlllooo");
         var subPartitions = subCellPartitionRecursive(intersectingSubCells[i], intersectingSubcellNodes[i], polyBounds, concavePoints, muniBoundingBox);
         returnNodes[0].addAll(subPartitions[0]);
         returnNodes[1].addAll(subPartitions[1]);
       }else{
         returnNodes[1].addAll(intersectingSubcellNodes[i]);
       }
-    }
+    }*/
 
     // Return the nodes in the sub-cells
     return returnNodes;
@@ -416,6 +475,6 @@ class PGridFile {
     });
     return nodesList;
   }
-  
+
 
 }enum RectStatus {inside, outside, intersect }

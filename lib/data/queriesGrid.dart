@@ -8,7 +8,7 @@ class queriesGrid{
   queriesGrid(this.repo, this.csvRepo);
 
   List<Polygon> drawIndexAlgorithmOnMap(){
-    var muni = "Viborg Kommune";
+    var muni = "Billund Kommune";
     List<Polygon> polygonsToBeDrawn;
     List<Polygon> boundary = [];
     List<Polygon> polyList = repo.getMuniPolygons([muni]);
@@ -27,7 +27,7 @@ class queriesGrid{
 
 
 
-    return   polyList+ gridpolygons + boundary  ;
+    return  polyList+  gridpolygons + boundary  ;
   }
 
   List<query_model> bulletQuery(String muni, MunicipalityRelation muniRect) {//den her skal ogsÃ¥ fikses.
@@ -269,6 +269,8 @@ class queriesGrid{
     MunicipalityRelation munirel = repo.relations.firstWhere((element) => element.name == muni);
     List<List<Node>> nodesFromRect= repo.grid.find(munirel!);
     var munilist = repo.getMunilist([muni]);
+    int isPointInPolygonCheck = 0;
+    int PointInPolygonTrue = 0;
 
     List<query_model> bullet = [];
     List<query_model> mun = [];
@@ -288,9 +290,11 @@ class queriesGrid{
               continue;
             } else {
               for (int j = 0; munilist.length > j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(
                     LatLng(match.lat, match.lon), munilist[j])) {
                   stationcounter++;
+                  PointInPolygonTrue++;
                   break;
                 }
               }
@@ -306,9 +310,11 @@ class queriesGrid{
                 continue;
               } else {
                 for (int j = 0; munilist.length > j; j++) {
+                  isPointInPolygonCheck++;
                   if (jsonRepository.isPointInPolygon(
                       LatLng(match.lat, match.lon), munilist[j])) {
                     busstationcounter++;
+                    PointInPolygonTrue++;
                     break;
                   }
                 }
@@ -323,8 +329,10 @@ class queriesGrid{
                 continue;
               } else {
                 for(int j =0; munilist.length> j; j++) {
+                  isPointInPolygonCheck++;
                   if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                     restaurantscounter++;
+                    PointInPolygonTrue++;
                     break;
                   }}}
               //  nodes.add(match);
@@ -335,8 +343,10 @@ class queriesGrid{
                 continue;
               } else {
                 for(int j =0; munilist.length> j; j++) {
+                  isPointInPolygonCheck++;
                   if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                     cafecounter++;
+                    PointInPolygonTrue++;
                     break;
                   }}}
               //  nodes.add(match);
@@ -346,8 +356,10 @@ class queriesGrid{
                 busstationcounter++;
               } else {
                 for(int j =0; munilist.length> j; j++) {
+                  isPointInPolygonCheck++;
                   if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                     busstationcounter++;
+                    PointInPolygonTrue++;
                     break;
                   }}}
               //  nodes.add(match);
@@ -358,12 +370,14 @@ class queriesGrid{
     }
     mun.add(query_model("Train Stations:", stationcounter));
     mun.add(query_model("Bus Stations:", busstationcounter));
-    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
+    //bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
     bullet.add(query_model("Cafes:", cafecounter));
     bullet.add(query_model("Restaurants:", restaurantscounter));
     bullet.add(query_model("Train Stations:", stationcounter));
     model.add(mun);
     model.add(bullet);
+    print("IsPointInPolygonCheck: ${isPointInPolygonCheck}");
+    print("Outliers: ${nodesFromRect[1].length - PointInPolygonTrue}");
     return model;
 
   }
@@ -371,6 +385,8 @@ class queriesGrid{
     MunicipalityRelation munirel = repo.relations.firstWhere((element) => element.name == muni);
     List<List<Node>> nodesFromRect= repo.grid.find(munirel!);
     var munilist = repo.getMunilist([muni]);
+    int isPointInPolygonCheck = 0;
+    int PointInPolygonTrue = 0;
 
     List<query_model> bullet = [];
     List<query_model> mun = [];
@@ -388,8 +404,10 @@ class queriesGrid{
             continue;
           } else {
             for(int j =0; munilist.length> j; j++) {
+              isPointInPolygonCheck++;
               if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                 stationcounter++;
+                PointInPolygonTrue++;
                 break;
               }}
           }
@@ -401,8 +419,10 @@ class queriesGrid{
               cafecounter++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   cafecounter++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             //  nodes.add(match);
@@ -412,8 +432,10 @@ class queriesGrid{
               restaurantscounter++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   restaurantscounter++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             //  nodes.add(match);
@@ -424,12 +446,14 @@ class queriesGrid{
     }
     mun.add(query_model("Restaurants:", restaurantscounter));
     mun.add(query_model("Cafes:", cafecounter));
-    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
+    //bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
     bullet.add(query_model("Cafes:", cafecounter));
     bullet.add(query_model("Restaurants:", restaurantscounter));
     bullet.add(query_model("Train Stations:", stationcounter));
     model.add(mun);
     model.add(bullet);
+    print("IsPointInPolygonCheck: ${isPointInPolygonCheck}");
+    print("Outliers: ${nodesFromRect[1].length - PointInPolygonTrue}");
     return model;
 
   }
@@ -457,7 +481,7 @@ class queriesGrid{
     mun.add(query_model("Art Centres", art_centrecounter));
     mun.add(query_model("Community Centres", community_centrecounter));
     mun.add(query_model("Music Venues", music_venuecounter));
-    bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
+    //bullet.add(query_model("Population", (repo.relations.where((element) => element.name == muni).first).population!));
     bullet.add(query_model("Cafes:", cafecounter));
     bullet.add(query_model("Restaurants:", restaurantscounter));
     bullet.add(query_model("Train Stations:", stationcounter));
@@ -469,6 +493,8 @@ class queriesGrid{
 
   List<int> getAmenityCounts (List<List<Node>> nodesFromRect, List<List<LatLng>> munilist){
     List<int> amenityCountList = List.generate(8, (index) => 0);
+    int isPointInPolygonCheck = 0;
+    int PointInPolygonTrue = 0;
 
     for(int i = 0; i <nodesFromRect.length; i++){
       for (Node match in nodesFromRect[i]) {
@@ -478,8 +504,10 @@ class queriesGrid{
             continue;
           } else {
             for(int j =0; munilist.length> j; j++) {
+              isPointInPolygonCheck++;
               if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                 amenityCountList[7]++;
+                PointInPolygonTrue++;
                 break;
               }}
           }
@@ -491,8 +519,10 @@ class queriesGrid{
               amenityCountList[0]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[0]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             // nodes.add(match);
@@ -502,8 +532,10 @@ class queriesGrid{
               amenityCountList[0]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[0]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             //nodes.add(match);
@@ -513,8 +545,10 @@ class queriesGrid{
               amenityCountList[0]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[0]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             //nodes.add(match);
@@ -524,8 +558,10 @@ class queriesGrid{
               amenityCountList[1]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[1]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             //  nodes.add(match);
@@ -535,8 +571,10 @@ class queriesGrid{
               amenityCountList[2]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[2]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             // nodes.add(match);
@@ -546,8 +584,10 @@ class queriesGrid{
               amenityCountList[3]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[3]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             // nodes.add(match);
@@ -557,8 +597,10 @@ class queriesGrid{
               amenityCountList[4]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[4]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             //  nodes.add(match);
@@ -568,8 +610,10 @@ class queriesGrid{
               amenityCountList[5]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[5]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             //  nodes.add(match);
@@ -579,8 +623,10 @@ class queriesGrid{
               amenityCountList[6]++;
             } else {
               for(int j =0; munilist.length> j; j++) {
+                isPointInPolygonCheck++;
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   amenityCountList[6]++;
+                  PointInPolygonTrue++;
                   break;
                 }}}
             //  nodes.add(match);
@@ -589,6 +635,10 @@ class queriesGrid{
       }
 
     }
+
+    print("IsPointInPolygonCheck: ${isPointInPolygonCheck}");
+    print("Outliers: ${nodesFromRect[1].length - PointInPolygonTrue}");
+
     return amenityCountList;
 
   }

@@ -22,16 +22,9 @@ class GridFile {
   // Another thing to consider is disk utility, we want to match a capacity on disk pages aligning to "buckets" of cells
   // So as of this moment i see two possibilities - align by disk page size, or align by range query size. I dont rly understand the need to consider disk page size.. hmm
   late final List<List<int>> gridArray;
-
-  //The linear scales 1-d arrays defines the partitions of each of the domains.
-  //List<num> linearScalesLattitude;//partition on average muni lat
-  //List<num> linearScalesLongitude;//partition on average muni long
   late final List<List<Rectangle>> linearScalesRectangles;
-
   //Collection of blocks - map is well suited for a small collection, but is it scalable? it is for now at least.
-  late final Map<int, List<Node>> blockCollection; //b-tree or quadtree.
-
-  late int blockCapacity; //Block/Bucket capacity; how many records (nodes) fits here - some value we "assume".
+  late final Map<int, List<Node>> cellContainmentCollection; //b-tree or quadtree.
   late final Rectangle<num> bounds; //Bounding box of the country
   late List<MunicipalityRelation> relations;
   late List<Node> nodes;
@@ -53,17 +46,38 @@ class GridFile {
 
 
     //the collection of blocks - a map atm, would be faster in terms of growing data to have a B+ tree probably.
-    blockCollection = initializeBlockCollection(linearScalesRectangles);
+    cellContainmentCollection = initializecellContainmentCollection(linearScalesRectangles);
 
   }
 
   //For each of the cells (rectangles), collect all nodes within the rectangles as a collection mapped to by a key
   //the repository (gridArray) entry matching the cell index of the linear scales is set to the key of the block (list of nodes)
-  Map<int, List<Node>> initializeBlockCollection(List<List<Rectangle>>linearScalesRect){
+  Map<int, List<Node>> initializecellContainmentCollection(List<List<Rectangle>>linearScalesRect){
+    Stopwatch stopwatch = new Stopwatch()..start();
     Map<int, List<Node>> blockMap = {};
     int blockCount = 0;
     int x = 0;
     int y = 0;
+/*    nodes.forEach((node) {
+      x= 0;
+      y=0;
+      for (var columnList in linearScalesRect) { //columns
+        y=0;
+        for (var rowElement in columnList) { //each row rectangle
+          if(pointInRect(node,rowElement)) {
+              if(blockMap.containsKey(gridArray[x][y])){
+                blockMap[gridArray[x][y]]!.add(node);
+              }else{
+                blockMap[blockCount] = [];
+                blockMap[blockCount]!.add(node);
+                blockCount++;
+              }
+          }//all nodes in that rectangle
+          y++;
+        }
+        x++;
+      }
+    });*/
     for (var columnList in linearScalesRect) { //columns
       y=0;
       for (var rowElement in columnList) { //each row rectangle
@@ -76,12 +90,13 @@ class GridFile {
         y++;
       }
       x++;
-    }
+    }//print("Initialize block time: ${stopwatch.elapsed.inMilliseconds}");
     return blockMap;
   }
 
   //partitions the country bounding box into a grid (one list of lists of rectangles) of rectangles based on average municipality size.
   List<List<Rectangle>> partitionLinearScales (double latPartitionSize, double longPartitionSize){
+    int rectangleCount = 0;
     //NOTE THAT RECTANGLES IN CS ARE UPSIDE DOWN - so we are index [0][0] is left bottom of the rect of denmark
     var latPartitions = (bounds.height/latPartitionSize).ceil();
     var longPartitions = (bounds.width/longPartitionSize).ceil();
@@ -97,10 +112,12 @@ class GridFile {
       scales.add([]); //add a new list
       for(int y = 0 ; y<latPartitions ; y++){ //for each cell up
         scales[i].add(Rectangle(left, top, longPartitionSize, latPartitionSize)); //add a new rectangle from left, with top (bottom) and width height
+        rectangleCount++;
         top+= latPartitionSize; //as we start from bottom left corner, we have to add lat, so the bottom is always one larger
       }
       left+=longPartitionSize; //same here, but left to right
     }
+    //print("Amount of rectangles: ${rectangleCount}");
     return scales;
   }
 
@@ -113,7 +130,7 @@ class GridFile {
         width += element.boundingBox!.width;
     }
     //average height, average width
-    return Tuple2((height/(relations.length)/1), (width/(relations.length)/1));
+    return Tuple2((height/(relations.length)/4), (width/(relations.length)/4));
   }
 
 
@@ -140,28 +157,28 @@ class GridFile {
         containingIndices.addAll(intersectingIndices);
       }
     }
-
+    //print("Amount of intersecting cells: ${containingIndices.length}");
     //Get the block pointers from the directory (gridFile) of the cells
     Set<int> blockKeys = {};
     containingIndices.forEach((element) {
       blockKeys.add(gridArray[element.item1][element.item2]);
     });
 
-    int polyCheckCount = 0;
-    var bounds = getMunilist([query.name]);
+    //int polyCheckCount = 0;
+    //var bounds = getMunilist([query.name]);
     //grab all nodes of one or more each blocks.
     blockKeys.forEach((element) {
       //returns all nodes of the block that is amenity and within the polygon
-      var blockNodes = blockCollection[element]!;
+      var blockNodes = cellContainmentCollection[element]!;
       for (var node in blockNodes) {
         if(node.isAmenity){
-          if(pointInRect(node, query.boundingBox!)){
+          //if(pointInRect(node, query.boundingBox!)){
                 nodes[1].add(node);
-            }
+            //}
           }
         }
     });
-    print("isPointInPolygon checked: ${polyCheckCount}");
+    //print("isPointInPolygon checked: ${polyCheckCount}");
     //print("Grid File Find Time: ${stopwatch.elapsed.inMilliseconds}");
     return nodes;
    }

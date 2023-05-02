@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:github_client/data/GridFileFlex.dart';
+import 'package:github_client/data/PGridFile1Flex.dart';
 import 'package:github_client/data/csvRepository.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
@@ -17,6 +18,8 @@ import 'package:github_client/models/query/query_model.dart';
 import '../models/school_model.dart';
 import 'GridFile.dart';
 import 'PGridFile.dart';
+import 'PGridFile1.dart';
+import 'PGridFileFlex.dart';
 part 'package:github_client/data/queriesGrid.dart';
 part 'package:github_client/data/queries.dart';
 
@@ -46,15 +49,20 @@ class jsonRepository{
     relations = geoData.where((element) => element["properties"]["type"] == "boundary").map((e) => MunicipalityRelation.fromJson(e)).toList();
     //add rectangles around municipalities
 
-    //seed for F64
-    /*Random r = Random();
+  //seed for F64
+
+/*
+   Random r = Random();
     var idCount = 0;
     List<Node> seededNodes = [];
     Tuple2<double,double> auxCoord = Tuple2(0.0, 0.0);
-    for (int i = 0  ; i<3 ; i++){
+    for (int i = 0  ; i<63 ; i++){
       for (var node in nodes) {
-        auxCoord = getLatLongExtra(node.lat, node.lon, r, 0.001);
-        seededNodes.add(Node.fromJson(
+        auxCoord = getLatLongExtra(node.lat, node.lon, r, 0.002);
+        if(node.isAmenity){
+        seededNodes.add(Node(id: node.id, lat: auxCoord.item1, lon: auxCoord.item2, tags: node.tags, isAmenity: true)) ;
+        }else{
+          seededNodes.add(Node.fromJson(
               {
                 "type": "node",
                 "id": idCount,
@@ -62,16 +70,20 @@ class jsonRepository{
                 "lat": auxCoord.item2,
               })
           );
+        }
+
 
       }
     }
     nodes.addAll(seededNodes);*/
 
+
+
     print("Total amount of Nodes: ${nodes.length}");
 
     addBoundingBoxToMunicipality();
 
-    IniGrid();
+    IniGrid(); //FOR BASELINE TEST
 
     if(nodes.isEmpty){
       return "fail";
@@ -80,8 +92,11 @@ class jsonRepository{
   }
 
    void IniGrid(){
-    grid = GridFile(addBoundingBoxToDenmark(), relations,nodes); //1000
-    grid.initializeGrid();}
+     Stopwatch stopwatch = new Stopwatch()..start();
+    grid = GridFile(addBoundingBoxToDenmark(), relations, nodes); //4000
+    grid.initializeGrid();
+     print("Grid Initialization time: ${stopwatch.elapsed.inMilliseconds}");
+  }
 
   //New File of original JSON + seeded nodes
   //offset 0.001 seems to be aight for now, but lets test the range of added features.
@@ -434,6 +449,7 @@ class jsonRepository{
         for(int j =0; bounds.length> j; j++) {
           if (isPointInPolygon(boxCoords[coord], bounds[j])){
             temp++;
+            break;
           }
         } }
 
@@ -465,6 +481,7 @@ class jsonRepository{
           for(int j =0; bounds.length> j; j++) {
             if (isPointInPolygon(coords[coord], bounds[j])){
               temp++;
+              break;
           }
     } }data.add(Munidata(muni.substring(0, muni.indexOf(' ')), temp));
     return data;
@@ -479,6 +496,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -494,6 +512,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -510,6 +529,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -525,6 +545,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -540,6 +561,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -555,6 +577,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -570,6 +593,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -585,6 +609,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -600,6 +625,7 @@ class jsonRepository{
       for(int j =0; bounds.length> j; j++) {
         if (isPointInPolygon(coords[coord], bounds[j])){
           temp++;
+          break;
         }
       } }
     return (Munidata(muni, temp));
@@ -616,6 +642,7 @@ class jsonRepository{
              for(int j =0; bounds.length> j; j++) {
                if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
                  count++;
+                 break;
                }
              }
            }else if(amenity == "station"){
@@ -623,6 +650,7 @@ class jsonRepository{
                for(int j =0; bounds.length> j; j++) {
                  if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
                    count++;
+                   break;
                  }
                }
              }
@@ -631,6 +659,7 @@ class jsonRepository{
                for(int j =0; bounds.length> j; j++) {
                  if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
                    count++;
+                   break;
                  }
                }
              }
@@ -639,12 +668,14 @@ class jsonRepository{
                for(int j =0; bounds.length> j; j++) {
                  if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
                    count++;
+                   break;
                  }
                }
              }else if(node.tags!.containsKey("public_transport") && node.tags!["public_transport"] == "station"){
                for(int j =0; bounds.length> j; j++) {
                  if (isPointInPolygon(LatLng(node.lat, node.lon), bounds[j])){
                    count++;
+                   break;
                  }
                }
              }

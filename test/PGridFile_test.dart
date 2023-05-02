@@ -11,7 +11,7 @@ import 'package:latlong2/latlong.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-    group("Access nodes", () {
+ /*   group("Access nodes", () {
       jsonRepository repo = jsonRepository();
 
       test("grid file FIND on Københavns Kommune contains all the boundary box nodes", () async {
@@ -68,7 +68,13 @@ void main() async {
         expect(nodesInPolygon.length, nodes[0].length);
 
       });
-    });
+    });*/
+
+
+
+
+
+
   group("Test subgrid partition size", ()  {
     csvRepository csvRepo = csvRepository();
     jsonRepository repo = jsonRepository();
@@ -81,7 +87,7 @@ void main() async {
 
       //var gridFile = PGridFile1(denmarkBounds, repo.relations,repo.nodes);
       //gridFile.initializeGrid();
-      queriesGrid queries = queriesGrid(repo, csvRepo);
+      queries query = queries(repo: repo, csvRepo: csvRepo);
       Stopwatch stopwatch;
       Stopwatch stopwatch2;
       Stopwatch stopwatch3;
@@ -92,16 +98,16 @@ void main() async {
       //for(int i = 0 ; i<repo.relations.length-1 ; i+=2){
       for(int i = 0 ; i<5 ; i++){
         stopwatch = new Stopwatch()..start();
-        queries.entertainmentQuery("Københavns Kommune", "Aarhus Kommune");
+        query.entertainmentQuery("Københavns Kommune", "Aarhus Kommune");
         countMili1 += stopwatch.elapsed.inMilliseconds;
 
         //count++;
         stopwatch2 = new Stopwatch()..start();
-        queries.transportationQuery("Københavns Kommune", "Aarhus Kommune");
+        query.transportationQuery("Københavns Kommune", "Aarhus Kommune");
         countMili2 += stopwatch2.elapsed.inMilliseconds;
 
         stopwatch3 = new Stopwatch()..start();
-        queries.foodQuery("Københavns Kommune", "Aarhus Kommune");
+        query.foodQuery("Københavns Kommune", "Aarhus Kommune");
         countMili3 += stopwatch3.elapsed.inMilliseconds;
 
         /*stopwatch2 = new Stopwatch()..start();

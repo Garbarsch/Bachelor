@@ -65,6 +65,7 @@ class GridFileFlex {
 
   }
   void flexGrid(int cellCapacity, int longPartitions, int latPartitions,  List<List<Rectangle>> scales){
+    int cellCount = 0;
     Map<int,List<Node>> block = {};
     gridArray = [];
     int longPartitionsInner = longPartitions;
@@ -125,6 +126,7 @@ class GridFileFlex {
     }
     blockCollection = block;
     linearScalesRectangles = scales;
+    print("total cells: ${blockCount}");
   }
 
 
@@ -136,7 +138,7 @@ class GridFileFlex {
       width += element.boundingBox!.width;
     }
     //average height, average width
-    return Tuple2((height/(relations.length)/6), (width/(relations.length)/6));
+    return Tuple2((height/(relations.length)/4), (width/(relations.length)/4));
   }
 
 
@@ -170,7 +172,6 @@ class GridFileFlex {
       blockKeys.add(gridArray[element.item1][element.item2]);
     });
 
-    var bounds = getMunilist([query.name]);
     //grab all nodes of one or more each blocks.
     blockKeys.forEach((element) {
       if(element != 0){

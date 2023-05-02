@@ -1,6 +1,5 @@
 import 'dart:core';
 import 'dart:math';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
 import '../models/node.dart';
@@ -14,7 +13,7 @@ import 'jsonRepository.dart';
 //Well-suited for urban spatial indexing of areas such as cities, regions, municipalities and the like.
 //@Author Carl Bruun and Rasmus Garbarsch
 
-class PGridFile1 {
+class PGridFile1Flex {
   //gridArray is a two-dimensional grid/matrix of all cells of our grid
   //Each cell element holds a pointer to the bucket/block/data page that contains the data points of that cell
   //The gridArray is also known as the directory.
@@ -30,83 +29,97 @@ class PGridFile1 {
   late List<MunicipalityRelation> relations;
   late List<Node> nodes;
 
-  PGridFile1(this.bounds,this.relations,this.nodes ); //data kan vi bare tage fra repo
+  PGridFile1Flex(this.bounds,this.relations,this.nodes ); //data kan vi bare tage fra repo
 
   void initializeGrid(){
-    print("PGridFile 1");
+    print("PGridFile1 Flex");
     var cellSize = averageMunicipalitySize();
     double height = cellSize.item1;
     double width = cellSize.item2;
-
-    //create linear scales - modified a bid, instead of 2 one-dimensional arrays we use 1 2-d list of rectangles
-    linearScalesRectangles = partitionLinearScales(height, width);
-
-    //initial repository - all with key 0 until the block collection has been created.
-    gridArray =  List.generate(linearScalesRectangles.length, (index) => List.generate(linearScalesRectangles[0].length, (index) => 0), growable: false);
-
-    //the collection of blocks - a map atm, would be faster in terms of growing data to have a B+ tree probably.
-    blockCollection = initializeBlockCollection(linearScalesRectangles);
-
+    initializeScalesAndBlockCollection(height, width, 4000);
   }
 
-// For each of the cells (rectangles), collect all nodes within the rectangles as a collection mapped to by a key.
-// The repository (gridArray) entry matching the cell index of the linear scales is set to the key of the block (list of nodes).
-  Map<int, List<Node>> initializeBlockCollection(List<List<Rectangle>> linearScalesRect) {
-    Map<int, List<Node>> blockMap = {}; // Map to store block index and its list of nodes
-    int blockCount = 0; // Counter for block index
-    int x = 0;
-    int y = 0;
+//okay so as in the paper (p.15) we must define splitting and merging policies, that is, for
+// - the two-disk-access principle for point queries,
+// - efficient processing of range queries in large linearly ordered domains and so on (p.5)
+  //So we our grid partitioning here goes from a starting point - the average muni size - then if the cell is above a block capacity, we split, if it is below we merge.
+  //OKAY - another thing then, cell capacity vs. block capacity, two thresholds, the block capacity will be given, but the cell capacity we must analyze and find the most appropriate.
+  //for each x cell
+  void initializeScalesAndBlockCollection(double latPartitionSize, double longPartitionSize, int cellCapacity){
+    var latPartitions = (bounds.height/latPartitionSize).ceil();
+    var longPartitions = (bounds.width/longPartitionSize).ceil();
 
-    for (var columnList in linearScalesRect) { // Iterate through each column in the grid
-      y = 0;
-      for (var rowElement in columnList) { // Iterate through each row in the column
-        var cellNodes = allNodesInRectangle(rowElement); // Get all nodes in the current rectangle
-        blockMap[blockCount] = cellNodes; // Add the nodes to the map with the current block index as key
-        gridArray[x][y] = blockCount; // Add the current block index as the value for the grid cell
-        blockCount++; // Increment the block index
-        y++; // Increment the column index
-      }
-      x++; // Increment the row index
-    }
-
-    return blockMap;
-  }
-
-
-// Partitions the country bounding box into a grid (one list of lists of rectangles) of rectangles based on average municipality size.
-  List<List<Rectangle>> partitionLinearScales(double latPartitionSize, double longPartitionSize) {
-    // Calculate the number of partitions in the latitude and longitude directions based on the size of each partition.
-    var latPartitions = (bounds.height / latPartitionSize).ceil();
-    var longPartitions = (bounds.width / longPartitionSize).ceil();
-    int rectangleCount = 0;
-    // Initialize the list of scales with empty lists.
-    List<List<Rectangle>> scales = [];
+    List<List<Rectangle>> scales = [];//List.generate(latPartitions, (index) => List.generate(longPartitions, (index) => null));
 
     var left = bounds.left;
-    var top = bounds.top; // bottom is top in programming coordinates...
+    var top = bounds.top; //bottom is top in programming coordinates...
 
-    // For each x cell.
-    for (int x = 0; x < longPartitions; x++) {
-      top = bounds.top; // top is the bottom left corner.
-
-      // Add a new list for the current x cell.
-      scales.add([]);
-
-      // For each cell up.
-      for (int y = 0; y < latPartitions; y++) {
-        // Add a new rectangle from left, with top (bottom) and width height.
-        scales[x].add(Rectangle(left, top, longPartitionSize, latPartitionSize));
-        rectangleCount++;
-
-        // As we start from bottom left corner, we have to add lat, so the bottom is always one larger.
-        top += latPartitionSize;
+    //for each x cell
+    for(int i = 0 ; i<longPartitions ; i++){
+      //gridArray.add([]);
+      top = bounds.top; //top is the bottom left corner
+      scales.add([]); //add a new list
+      for(int y = 0 ; y<latPartitions ; y++){ //for each cell up
+        scales[i].add(Rectangle(left, top, longPartitionSize, latPartitionSize)); //add a new rectangle from left, with top (bottom) and width height
+        top+= latPartitionSize; //as we start from bottom left corner, we have to add lat, so the bottom is always one larger
       }
-
-      // Same here, but left to right.
-      left += longPartitionSize;
+      left+=longPartitionSize; //same here, but left to right
     }
-    print("number of cells: ${rectangleCount}");
-    return scales;
+    flexGrid(cellCapacity, longPartitions, latPartitions, scales);
+
+  }
+  void flexGrid(int cellCapacity, int longPartitions, int latPartitions,  List<List<Rectangle>> scales){
+    Map<int,List<Node>> block = {};
+    gridArray = [];
+    int longPartitionsInner = longPartitions;
+
+
+    int blockCount = 1;
+    for(int x = 0 ; x<longPartitionsInner ; x++){ //latPartitions
+      gridArray.add([]);
+      bool ySplit = true;
+      for(int y = 0 ; y<scales[x].length ; y++){ //for each cell up
+
+        var cellRect = scales[x][y];
+        var cellNodes = allNodesInRectangle(cellRect);
+
+        if(cellNodes.length == 0){ //if there are no cells in the node, we dont want to save and search through an empty cell.
+          scales[x].removeAt(y);
+          y--;
+        }else if(cellNodes.length > cellCapacity){
+          if(!ySplit && scales.length-1 > x && scales[x+1].length>=y){
+            //We check whether the x values is less than the last element, as we must check if we can insert a new cell in the next list.
+            //And whether we can insert the new cell between or at the end of the next list.
+            var rect1 = Rectangle(cellRect.left, cellRect.top, cellRect.width/2, cellRect.height);
+            var rect2 = Rectangle(cellRect.left + (cellRect.width/2), cellRect.top, cellRect.width/2, cellRect.height);
+            scales[x][y] = rect1;
+            if(x+1 == scales.length){ //We check if there is another x element after, if not we must create a new x-list.
+              scales.add([]);
+              longPartitionsInner++;
+            }
+            scales[x+1].add(rect2);
+            //we go one back to check the if one of the cells we just created are still above the cell-capacity.
+            y--;
+            ySplit  = true;
+
+          }else{//ySplit
+            var rect1 = Rectangle(cellRect.left, cellRect.top, cellRect.width, cellRect.height/2);
+            var rect2 = Rectangle(cellRect.left, cellRect.top+(cellRect.height/2), cellRect.width, cellRect.height/2);
+            scales[x][y] = rect1;
+            scales[x].insert(y+1, rect2);
+            y--;
+            ySplit = false;
+          }
+        }
+        else{
+          block[blockCount] = cellNodes;
+          gridArray[x].add(blockCount);
+          blockCount++;
+        }
+      }
+    }
+    blockCollection = block;
+    linearScalesRectangles = scales;
   }
 
   // Calculate the average height and width of all municipalities in the list of relations
@@ -155,7 +168,7 @@ class PGridFile1 {
         containingIndices.addAll(intersectingIndices);
       }
     }
-   // print("PGrid File1 find intersecting cells time: ${stopwatch2.elapsed.inMilliseconds}");
+    // print("PGrid File1 find intersecting cells time: ${stopwatch2.elapsed.inMilliseconds}");
 
     // Create a stopwatch to measure the time it takes to sort cell statuses.
     Stopwatch stopwatch3 = new Stopwatch()..start();
@@ -165,7 +178,7 @@ class PGridFile1 {
     //print("cellStatusSort Time: ${stopwatch3.elapsed.inMilliseconds}");
 
     // Print the total time it took to execute the function.
-   // print("PGrid File1 Total Find Time: ${stopwatch.elapsed.inMilliseconds}");
+    // print("PGrid File1 Total Find Time: ${stopwatch.elapsed.inMilliseconds}");
 
     return nodes;
   }
@@ -205,7 +218,7 @@ class PGridFile1 {
         anyPolygonIntersects = true;
       }else if (concavePoints[polyBounds.indexOf(polygon)]
           .any((point) => latLongInRect(point, rect))) {
-          anyPolygonIntersects = true;
+        anyPolygonIntersects = true;
       }else if(allCornersInside){
         return RectStatus.inside;
       }
@@ -272,7 +285,7 @@ class PGridFile1 {
             return false;
           } else{
             return true;
-            }
+          }
         }));
       }else{
         countTopCellsOutsidePolygon++;
