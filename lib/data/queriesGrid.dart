@@ -69,6 +69,7 @@ class queriesGrid{
               for(int j =0; munilist.length> j; j++) {
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   restaurantscounter++;
+                  break;
                 }}}
             //  nodes.add(match);
             break;
@@ -79,6 +80,7 @@ class queriesGrid{
               for(int j =0; munilist.length> j; j++) {
                 if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
                   cafecounter++;
+                  break;
                 }}}
             //  nodes.add(match);
             break;
@@ -87,7 +89,7 @@ class queriesGrid{
       }
     }
 
-    mun.add((query_model("Population: ", munici.population!)));
+    //mun.add((query_model("Population: ", munici.population!)));
     mun.add(query_model("Cafes: ", cafecounter)); //getAmenityNodesFromNdes for PGrid and getAmenityNdesInMuni for normal grid
     mun.add(query_model("Restaurants: ", restaurantscounter));
     mun.add(query_model("Train Stations: ", stationcounter));
@@ -176,7 +178,6 @@ class queriesGrid{
     var totalAppliersMuni2 = 0;
 
     //check for each top-layer school, is the schools within muni a part of that?
-    //TODO: vi burde nok bare tjekke hvilke toplayer skole høre til hver skole i kommunen i stedet.
     csvRepo.schoolInfoMap.forEach((key, value) {
       String topLayerSchool = key;
       var inMuni1 = false;
@@ -284,8 +285,7 @@ class queriesGrid{
 
     for(int i = 0; i <nodesFromRect.length; i++) {
       for (Node match in nodesFromRect[i]) {
-
-          if ( match.tags?["railway"] == "station") {
+          if (match.tags?["railway"] == "station") {
             if (i == 0) {
               stationcounter++;
               continue;
@@ -300,9 +300,7 @@ class queriesGrid{
                 }
               }
             }
-            //  nodes.add(match);
           }
-     //  nodes.add(match);
           if (match.tags != null) {
             if ((match.tags!.containsKey("public_transport") &&
                 match.tags?["public_transport"] == "station")) {
@@ -372,7 +370,7 @@ class queriesGrid{
     mun.add(query_model(muni,restaurantscounter));
     mun.add(query_model("Train Stations: ", stationcounter));
     mun.add(query_model("Bus Stations: ", busstationcounter));
-    bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
+    //bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
     bullet.add(query_model("Cafes: ", cafecounter));
     bullet.add(query_model("Restaurants: ", restaurantscounter));
     bullet.add(query_model("Train Stations: ", stationcounter));
@@ -417,7 +415,7 @@ class queriesGrid{
         }
         switch (match.tags?["amenity"]) {
           case "cafe":
-            if(i ==0) {
+            if(i == 0) {
               cafecounter++;
             } else {
               for(int j =0; munilist.length> j; j++) {
@@ -449,7 +447,7 @@ class queriesGrid{
     mun.add(query_model(muni,restaurantscounter));
     mun.add(query_model("Restaurants: ", restaurantscounter));
     mun.add(query_model("Cafes: ", cafecounter));
-    bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
+   // bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
     bullet.add(query_model("Cafes: ", cafecounter));
     bullet.add(query_model("Restaurants: ", restaurantscounter));
     bullet.add(query_model("Train Stations: ", stationcounter));
@@ -487,7 +485,7 @@ class queriesGrid{
     mun.add(query_model("Art Centres: ", art_centrecounter));
     mun.add(query_model("Community Centres: ", community_centrecounter));
     mun.add(query_model("Music Venues: ", music_venuecounter));
-    bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
+    //bullet.add(query_model("Population: ", (repo.relations.where((element) => element.name == muni).first).population!));
     bullet.add(query_model("Cafes: ", cafecounter));
     bullet.add(query_model("Restaurants: ", restaurantscounter));
     bullet.add(query_model("Train Stations: ", stationcounter));

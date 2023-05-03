@@ -24,7 +24,7 @@ void main() async {
 
       expect(gridFile.gridArray, isNotNull);
       expect(gridFile.linearScalesRectangles, isNotNull);
-      expect(gridFile.blockCollection, isNotNull);
+      expect(gridFile.cellContainmentCollection, isNotNull);
     });
 
     test("linearScales correspondence with gridFile (directory", () {
@@ -69,7 +69,7 @@ void main() async {
       gridFile.initializeGrid();
 
       int countBlockNodes = 0;
-      for (var nodeList in gridFile.blockCollection.values) {
+      for (var nodeList in gridFile.cellContainmentCollection.values) {
         nodeList.forEach((node) {
           countBlockNodes++;
         });

@@ -54,7 +54,7 @@ class jsonRepository{
   //seed for F64
 
 /*
-   Random r = Random();
+  Random r = Random();
     var idCount = 0;
     List<Node> seededNodes = [];
     Tuple2<double,double> auxCoord = Tuple2(0.0, 0.0);

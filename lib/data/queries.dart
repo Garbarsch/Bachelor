@@ -23,7 +23,6 @@ class queries {
   List<List<query_model>> entertainmentQuery(String muni1, String muni2) {
     Stopwatch stopwatch = new Stopwatch()..start();
     var query = getNighlifeForMuni(muni1) + getNighlifeForMuni(muni2);
-
     print("Entertainment query time: ${stopwatch.elapsed.inMilliseconds}");
     return query;
   }
@@ -48,7 +47,6 @@ class queries {
     List<List<LatLng>> muni1Bound = repo.getSingleMuniBoundary(muni1);
     List<List<LatLng>> muni2Bound = repo.getSingleMuniBoundary(muni2);
     int totalEducationOptions = csvRepo.getAllEducationOptions().length;
-
 
     double percentageMuni1 = double.parse((csvRepo.getAmountEducationsInMuni(muni1, muni1Bound)/totalEducationOptions * 100).toStringAsFixed(2));
     double percentageMuni2 = double.parse((csvRepo.getAmountEducationsInMuni(muni2, muni2Bound)/totalEducationOptions* 100).toStringAsFixed(2));
@@ -197,7 +195,7 @@ class queries {
     List<query_model> mun = [];
     List<List<query_model>> model = [];
 
-    int cafecounter =0;
+    int cafecounter = 0;
     int restaurantscounter = 0;
     int stationcounter = 0;
     int busstationcounter = 0;
@@ -423,58 +421,42 @@ class queries {
 
         //  nodes.add(match);
       }
+
       switch (match.tags?["amenity"]) {
         case "bar":
           if (jsonRepository.isPointInMuniBoundingBox(
               LatLng(match.lat, match.lon), muni, repo.relations)) {
             isPointInMuniBoundingBox++;
             for (int j = 0; munilist.length > j; j++) {
-              isPointInPolygonCount++;
-
               if (jsonRepository.isPointInPolygon(
                   LatLng(match.lat, match.lon), munilist[j])) {
-                nightlifecounter++;
-                PointInPolygonTrue++;
+                barcounter++;
                 break;
               }
             }
           }
-
-          for(int j =0; munilist.length> j; j++) {
-            if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
-              barcounter++;
-              break;
-            }}
           // nodes.add(match);
           break;
         case "pub":
+          if (jsonRepository.isPointInMuniBoundingBox(
+              LatLng(match.lat, match.lon), muni, repo.relations)) {
+            isPointInMuniBoundingBox++;
           for(int j =0; munilist.length> j; j++) {
             if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
               barcounter++;
               break;
-            }}
+            }}}
           //nodes.add(match);
           break;
         case "nightclub":
+          if (jsonRepository.isPointInMuniBoundingBox(
+              LatLng(match.lat, match.lon), muni, repo.relations)) {
+            isPointInMuniBoundingBox++;
           for(int j =0; munilist.length> j; j++) {
             if (jsonRepository.isPointInPolygon(LatLng(match.lat, match.lon),munilist[j])){
               nightclubcounter++;
               break;
-            }}
-          if (jsonRepository.isPointInMuniBoundingBox(
-              LatLng(match.lat, match.lon), muni, repo.relations)) {
-            isPointInMuniBoundingBox++;
-            for (int j = 0; munilist.length > j; j++) {
-              isPointInPolygonCount++;
-
-              if (jsonRepository.isPointInPolygon(
-                  LatLng(match.lat, match.lon), munilist[j])) {
-                nightlifecounter++;
-                PointInPolygonTrue++;
-                break;
-              }
-            }
-          }
+            }}}
           //nodes.add(match);
           break;
         case "cinema":
