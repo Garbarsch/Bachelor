@@ -53,14 +53,30 @@ class jsonRepository{
 
     amenityNodes = { for (var n in nodes) n.id : n };
 
-    //amenityNodes = { for (var n in nodes) n.id : n };
-    //add orginal nodes last, as to override possible duplicate IDs
 
-  //Original seed
-    /*nodes.forEach((node) {
-      amenityNodes[node.id] = node;
-    });*/
 
+/* Random r = Random();
+    var idCount = 0;
+    List<Node> seededNodes = [];
+    Tuple2<double,double> auxCoord = Tuple2(0.0, 0.0);
+    for (int i = 0  ; i<63 ; i++){
+      for (var node in nodes) {
+        auxCoord = getLatLongExtra(node.lat, node.lon, r, 0.002);
+        if(node.isAmenity){
+        seededNodes.add(Node(id: node.id, lat: auxCoord.item1, lon: auxCoord.item2, tags: node.tags, isAmenity: true)) ;
+        }else{
+          seededNodes.add(Node.fromJson(
+              {
+                "type": "node",
+                "id": idCount,
+                "lon": auxCoord.item1,
+                "lat": auxCoord.item2,
+              })
+          );
+        }
+      }
+    }
+    nodes.addAll(seededNodes);*/
     print(amenityNodes.values.length);
 
 
@@ -81,18 +97,19 @@ class jsonRepository{
   }
 
   rt.RTree<String?> RtreeIni(){
+    Stopwatch stopwatch = new Stopwatch()..start();
      rTree = rt.RTree<String?>();
 
     nodes.forEach((element) {
-      if(element.isAmenity && element.tags?["railway"] == "station" ){
+
+      if(element.tags?["railway"] == "station" ){
         rTree.insert(rt.RDataRect(Rectangle(element.lon, element.lat, 0, 0),"train_station"));
-            }
-      if(element.tags != null){
-      if((element.tags!.containsKey("public_transport") && element.tags?["public_transport"] == "station")){
+      }else if(element.tags?["public_transport"] == "station"){
         rTree.insert(rt.RDataRect(Rectangle(element.lon, element.lat, 0, 0),"bus_station"));
       } else {
         rTree.insert(rt.RDataRect(Rectangle(element.lon, element.lat, 0, 0),element.isAmenity  ? element.tags!["amenity"]  : null));
-      } }});
+      }});
+    print("RT Initialization time: ${stopwatch.elapsed.inMilliseconds}");
     return  rTree;
   }
   Rectangle<num> addBoundingBoxToMuni( String muni){

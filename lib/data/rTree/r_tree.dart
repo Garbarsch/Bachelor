@@ -21,7 +21,7 @@ class RTree<E> {
   late Node<E> _root;
   late int _branchFactor;
 
-  RTree([int branchFactor = 16]) {
+  RTree([int branchFactor = 9]) {
     if (branchFactor < 3) {
       throw ArgumentError('branchFactor must be greater than 2');
     }
